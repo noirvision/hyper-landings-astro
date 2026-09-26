@@ -112,3 +112,19 @@ reference/oddacademia/ copy of the original Webflow export (from source/)
   and why, interaction replacements and any visible differences, JS/CSS weight
   before/after, Lighthouse before/after, content changes, the Pages settings table.
 - Do not offer to watch the PR.
+
+## Addendum — Odd Academia specifics
+- "How It Works": in the reference, widths ≥992px show a single image
+  (`how.avif`) with the card text baked in, and narrower widths show HTML cards.
+  In the monorepo, build it as the shared steps component in real HTML at every
+  width — no baked-in text image. Recreate the desktop layout (cards on the
+  connecting line) with HTML/CSS/SVG. Card texts:
+  1. "Create a Profile" — "Build a professional profile that links to all your
+     published work, showcasing your expertise and contributions."
+  2. "Publish and Share" — "Upload your research, which will be distributed
+     directly to readers around the world."
+  3. "Receive Peer Validation" — "Connect with a global community of independent
+     thinkers and researchers who can engage with and validate your work."
+- The reference site (https://oddacademia-astro.pages.dev) already has the
+  published-site texts (hero heading, footer Hyper text, ©2026) — keep them.
+- Waitlist dropdown: placeholder "I'm a" by default, not a selectable value.
