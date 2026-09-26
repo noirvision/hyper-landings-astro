@@ -1,0 +1,90 @@
+---
+/**
+ * A rounded section panel with a centred container. Every landing section
+ * sits in one.
+ *
+ * tone     plain | accent | deep — background and text colour come from
+ *          --ui-bg-{tone} and --ui-color-on-{tone}. A named section can
+ *          override its background with --ui-bg-{spacing} (e.g. --ui-bg-steps).
+ * spacing  a name for per-section padding tokens: spacing="steps" reads
+ *          --ui-space-steps-top / -bottom (desktop), -top-tablet / -bottom-tablet
+ *          (≤991px, default: desktop value) and -top-mobile / -bottom-mobile
+ *          (≤767px), falling back to --ui-space-top etc. Sites set them in theme.css.
+ */
+import type { HTMLAttributes } from 'astro/types';
+
+type Props = HTMLAttributes<'section'> & {
+  tone?: 'plain' | 'accent' | 'deep';
+  spacing?: string;
+  as?: 'section' | 'div' | 'footer' | 'header';
+  /** Extra class for the inner container. */
+  containerClass?: string;
+};
+
+const { tone = 'plain', spacing, as: Tag = 'section', class: className, containerClass, style, ...attrs } = Astro.props;
+
+const space = (key: string, fallback = `var(--ui-space-${key})`) =>
+  spacing ? `var(--ui-space-${spacing}-${key}, ${fallback})` : fallback;
+const vars = [
+  `--_bg:${spacing ? `var(--ui-bg-${spacing}, var(--ui-bg-${tone}))` : `var(--ui-bg-${tone})`}`,
+  `--_pt:${space('top')}`,
+  `--_pb:${space('bottom')}`,
+  `--_pt-t:${space('top-tablet', 'var(--_pt)')}`,
+  `--_pb-t:${space('bottom-tablet', 'var(--_pb)')}`,
+  `--_pt-m:${space('top-mobile')}`,
+  `--_pb-m:${space('bottom-mobile')}`,
+].join(';');
+---
+
+<Tag class:list={['section', `tone-${tone}`, className]} style={[vars, style].filter(Boolean).join(';')} {...attrs}>
+  <div class:list={['container', containerClass]}>
+    <slot />
+  </div>
+</Tag>
+
+<style>
+  .section {
+    margin: var(--ui-panel-gap);
+    padding-block: var(--_pt) var(--_pb);
+    border-radius: var(--ui-radius-panel);
+  }
+
+  .tone-plain {
+    background: var(--_bg);
+  }
+
+  .tone-accent {
+    background: var(--_bg);
+    color: var(--ui-color-on-accent);
+  }
+
+  .tone-deep {
+    background: var(--_bg);
+    color: var(--ui-color-on-deep);
+  }
+
+  .container {
+    position: relative;
+    max-width: var(--ui-container-max);
+    margin-inline: auto;
+    padding-inline: var(--ui-container-pad);
+  }
+
+  @media (max-width: 991px) {
+    .section {
+      padding-block: var(--_pt-t) var(--_pb-t);
+    }
+  }
+
+  @media (max-width: 767px) {
+    .section {
+      padding-block: var(--_pt-m) var(--_pb-m);
+    }
+  }
+
+  @media (max-width: 479px) {
+    .container {
+      padding-inline: var(--ui-container-pad-sm);
+    }
+  }
+</style>

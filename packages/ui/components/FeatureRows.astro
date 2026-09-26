@@ -1,0 +1,148 @@
+---
+/**
+ * Alternating feature rows: text beside an image, rows separated by rules.
+ * `flip` puts the image on the left on desktop. Below 992px every row stacks
+ * text first, then image.
+ */
+import type { ImageMetadata } from 'astro';
+import Section from './Section.astro';
+import SectionHeading from './SectionHeading.astro';
+import Image from './Image.astro';
+
+interface Row {
+  title: string;
+  /** Short line under the title. */
+  lead?: string;
+  text: string;
+  image: ImageMetadata;
+  imageAlt?: string;
+  flip?: boolean;
+}
+
+interface Props {
+  heading: string;
+  rows: Row[];
+  tone?: 'plain' | 'accent' | 'deep';
+  imageWidth?: number;
+}
+
+const { heading, rows, tone = 'plain', imageWidth = 530 } = Astro.props;
+---
+
+<Section tone={tone} spacing="features">
+  <SectionHeading align="start-center" mobileSize="lg" gap="lg" data-reveal="up">{heading}</SectionHeading>
+  {
+    rows.map((row) => (
+      <div class:list={['row', { flip: row.flip }]}>
+        <div class="text" data-reveal={row.flip ? 'right' : 'left'}>
+          <h3 class="title">{row.title}</h3>
+          {row.lead && <p class="lead">{row.lead}</p>}
+          <p class="body">{row.text}</p>
+        </div>
+        <div class="media" data-reveal={row.flip ? 'left' : 'right'}>
+          <Image
+            src={row.image}
+            alt={row.imageAlt}
+            width={imageWidth}
+            widths={[400, imageWidth, Math.round(imageWidth * 1.5), imageWidth * 2]}
+            sizes={`(max-width: 767px) 83vw, ${imageWidth}px`}
+          />
+        </div>
+      </div>
+    ))
+  }
+</Section>
+
+<style>
+  .row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--ui-grid-gap);
+  }
+
+  .row + .row {
+    margin-top: calc(2.5rem * 2 + 1px);
+    position: relative;
+  }
+
+  .row + .row::before {
+    content: '';
+    position: absolute;
+    top: calc(-2.5rem - 1px);
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: var(--ui-color-divider);
+  }
+
+  .text {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    max-width: 33.125rem;
+    justify-self: start;
+  }
+
+  .media {
+    position: relative;
+    justify-self: end;
+    align-self: center;
+  }
+
+  .flip .text {
+    grid-area: 1 / 2;
+    justify-self: end;
+  }
+
+  .flip .media {
+    grid-area: 1 / 1;
+    justify-self: start;
+  }
+
+  .title {
+    margin: 0 0 1.5rem;
+    font-size: var(--ui-size-heading-lg);
+    line-height: 1.25;
+  }
+
+  .lead {
+    margin: 0 0 0.5rem;
+    font-size: var(--ui-size-lead);
+    font-weight: var(--ui-font-weight-medium);
+  }
+
+  .body {
+    margin: 0;
+    font-size: var(--ui-size-lead);
+    opacity: var(--ui-color-text-muted-opacity);
+  }
+
+  @media (max-width: 991px) {
+    .row {
+      grid-template-columns: 1fr;
+      gap: 32px;
+    }
+
+    .row .text,
+    .row .media {
+      grid-area: auto;
+      justify-self: start;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .title {
+      font-size: var(--ui-size-title);
+    }
+
+    .lead {
+      font-size: var(--ui-size-small);
+      font-weight: var(--ui-font-weight-heading);
+    }
+
+    .body {
+      font-size: var(--ui-size-small);
+    }
+  }
+</style>
