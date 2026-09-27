@@ -1,130 +1,114 @@
-# Brief A: Hyper landings monorepo + shared UI library, rebuilt Odd Academia
+# Brief B: Policy Box on the shared library
 
 ## Context
-Repo `noirvision/hyper-landings-astro` (public, currently only this brief).
-Goal of the series: a monorepo of Hyper landing pages, originally built in Webflow,
-rebuilt in Astro on one shared component library with per-site themes — so a new
-landing is assembled from existing components instead of copied.
+Monorepo `noirvision/hyper-landings-astro`: shared library `packages/ui`
+(@noirvision/ui), first site `sites/oddacademia` (merged in PR #1, live at
+https://oddacademia-astro.pages.dev). Read `README.md` and the library code
+before you start; the library's conventions are the rules here.
 
-Starting point: `noirvision/oddacademia-astro` (public) — a finished 1:1 Astro
-migration of the Odd Academia landing (3 pages), still using Webflow CSS,
-webflow.js and jQuery. Its `source/` folder is the original Webflow export.
-Live reference: https://oddacademia-astro.pages.dev
+This session: add Policy Box as the second site, `sites/policybox`, 3 pages
+(index, privacy-policy, terms-and-conditions), built from the library.
+Reference: `reference/policybox/` — the Webflow export, published Sep 26, 2026.
+Its texts match the live site (policybox.webflow.io) except for the fixes listed
+below. The live site is probably blocked by your network; serve the export
+locally and use it as the visual target, as in session A. If its CDN scripts
+(jQuery, nice-select) are blocked, the static layout is still the target.
 
-This session: set up the monorepo and the shared library, and rebuild Odd Academia
-on it. The next session will add Policy Box from the same library; a third site
-(Rithm, dark theme) comes later. Design the library for that range: light and dark
-themes, different fonts and accent colours, same section types.
+A third site (Rithm, dark theme) comes next, so keep every addition generic.
 
 ## Preflight — do this first
 - Create your working branch and push it immediately. If the push fails
   (403 or similar), stop and tell me before doing any work.
-- Clone `https://github.com/noirvision/oddacademia-astro` (public) as reference.
-  If cloning is blocked, stop and tell me.
-
-## Structure
-```
-package.json           npm workspaces: packages/*, sites/*
-packages/ui/           shared library (@noirvision/ui)
-  tokens/              base tokens as CSS custom properties
-  components/          section and element components (.astro)
-  layouts/             base layout (head, meta, fonts, noindex, credit line)
-  scripts/             small vanilla JS: reveal-on-scroll, select, slider
-sites/oddacademia/     the site: pages, content, images, theme
-  src/theme.css        site tokens only (colours, fonts, radii, shadows…)
-reference/oddacademia/ copy of the original Webflow export (from source/)
-```
-- Latest stable Astro, static output, npm workspaces, **Node 24** (engines, .nvmrc).
-- `site` for Odd Academia: `https://oddacademia-astro.pages.dev`.
+- Run `npm run build:oddacademia` on main as a baseline and keep screenshots of
+  the Odd Academia build at 1440 and 390 (all 3 pages) for the regression check.
 
 ## Library rules
-- Components own their markup and styles (scoped `<style>`), and read every
-  visual decision from CSS custom properties. No Webflow class names or Webflow
-  CSS in the library.
-- Sites pass content through props and slots, and set tokens in `theme.css`.
-  A site must not override component internals.
-- Components needed for Odd Academia, named by role not by site: header, hero with
-  product visual, waitlist form (dropdown + email + button; also a single-field
-  variant), feature grid ("Why choose"), steps ("How it works"), alternating
-  feature rows (text + image, flip), audience CTA cards ("Join us"), footer
-  (landing and legal variants, with "Launched with Hyper"), legal page layout,
-  social links, section heading, button, image (wrapping `<Picture>`).
-- Keep the component count honest: extract what is reusable; keep one-off markup
-  in the site.
+- Reuse existing components. Where Policy Box differs, extend a component with
+  a prop or variant instead of copying it. Add a new component only for a truly
+  new section type; name it by role, never by site.
+- No site names or site values inside `packages/ui`. Sites set tokens in
+  `theme.css` and data in `content.ts`, as Odd Academia does.
+- Site-only styles only for one-off decoration; list each one in the report.
+- Any change to a shared component must leave Odd Academia visually unchanged,
+  except the ring fix below. Compare its new build against the baseline
+  screenshots and report any difference.
 
-## Interactions — replace Webflow
-- No webflow.js, no jQuery, no nice-select in the result.
-- Scroll reveal: CSS + IntersectionObserver, respects `prefers-reduced-motion`.
-  Match the original's feel (direction, distance, duration, stagger) closely, not
-  frame-exactly.
-- Dropdown: native `<select>` styled to match the original.
-- Mobile slider: CSS scroll-snap + dots, keyboard accessible.
-- Forms: no network request on submit — show the success state, hide the form,
-  TODO where a webhook will be connected. No `action` attribute.
+## Sections (suggested mapping — decide and justify in the report)
+- Header: logo + social icons → `Header`.
+- Hero: left-aligned two-line heading with a lighter first line ("Decisions" /
+  "made simple"), two paragraphs, product screenshot on the right in
+  perspective, bleeding off the edge → a variant of `Hero`.
+- "Find out more": one-row form — select (placeholder "Insert your industry";
+  options User, Partner, Investor), email ("Insert your email"), button
+  "Join Waitlist" → `WaitlistForm`. Give the section `id="waitlist"`.
+- "Why choose PolicyBox?": four cards of mixed sizes, each with icon, title,
+  text and a product image → a `FeatureGrid` variant or a new grid component.
+- "How it works for AML": three numbered steps with a vertical line, product
+  image on the right → a `Steps` variant.
+- "Elaboration on Features": alternating rows with product images → `FeatureRows`.
+- "Alternate Uses": heading and two paragraphs on the left, five icon items in
+  a grid on the right → new library component.
+- "White Label Opportunities": centred heading, one line, button → a small
+  CTA section (new component, or `Section` + `SectionHeading` + `Button`).
+- "Find out more about our AML Stream": blue panel, heading, line, two cards
+  with icon, title, text and button → an `AudienceCards` variant.
+- Footer: dark, logo, email, "Launched with Hyper", socials, copyright, legal
+  links → `Footer`, themed by tokens.
+The product screenshots stay images; only the page's own text must be HTML.
 
-## Images, SEO, content
-- `astro:assets` `<Picture>`: AVIF + WebP, `fallbackFormat` WebP, responsive
-  widths, width/height, lazy below the fold, eager + `fetchpriority="high"` for the
-  hero. Do not use `display: contents` on `<picture>` in flex/grid.
-- `noindex` via `_headers` (`X-Robots-Tag: noindex` for `/*`) and meta robots;
-  original title/description/OG. `_redirects` for old `.html` URLs.
-- Credit line in footer: "Portfolio rebuild by noirvision — original built in
-  Webflow for Hyper."
-- Fix obvious typos ("independent thinks") and remove Webflow placeholder text in
-  the terms page ("you may not:some text"). Never invent copy or legal text. List
-  every content change.
+## Interactions
+- Read the export's IX2 data (in its webflow.js) and match distance, duration,
+  easing, trigger and delays with the library's reveal, as in session A.
+- Dropdown: native select, placeholder not selectable, same as Odd Academia.
+- Form: no network request; show the success message; TODO for the webhook.
+- "Click here" and both "Find out More" buttons scroll to `#waitlist`; smooth
+  scrolling off under reduced motion; focus lands on the first form field.
 
-## Deploy setup (for me, after merge)
-- Each site gets its own Cloudflare Pages project connected to this repo. Work out
-  the exact settings that build one site from the monorepo root (build command,
-  output directory, root directory, `NODE_VERSION=24`, build watch paths so a
-  change to one site doesn't rebuild the others, while a change to `packages/ui`
-  rebuilds all). Verify the build command works locally from a clean clone, then
-  write the settings in README as a per-site table.
+## Content fixes (exhaustive — no other copy changes)
+1. Footer copyright: ©2025 → ©2026 on all three pages.
+2. "Al" written with a lowercase L where "AI" is meant → "AI": the hero
+   paragraph (twice) and the "For AML Users" card. Search the whole export
+   for other cases and list every fix.
+3. Privacy page: remove the empty `<h2>` (a zero-width joiner) under the title.
+4. Footer "|" between the legal links: follow the export's CSS (it is not
+   visible on the live site); report what you did.
+5. Links: logo → "/"; "Click here" and both "Find out More" → "#waitlist".
+6. Footer credit line: "Portfolio rebuild by noirvision — original built in
+   Webflow for Hyper."
+Keep the original title, description and OG tags.
 
-## Repo hygiene
-- `.gitignore`: node_modules, dist, .astro, .DS_Store, *.zip.
-- No secrets, webhook URLs, keys or tokens. Secrets scan before the final push.
-- Before overwriting any existing file, read it and merge.
-- README: purpose of the monorepo, structure, how to add a new site (step by step,
-  written for someone who will do it with Claude Code), run/build, deploy table,
-  "Design and content © their respective owners. Rebuilt by noirvision for
-  portfolio purposes."
+## Carry-over from session A
+- `Steps`: the nodes on the connecting line are filled navy; in the original
+  they are transparent rings. Fix it in the library. This is the one intended
+  visual change to Odd Academia.
 
-## Verification (keep it proportionate)
-- Clean build of the site from the repo root.
-- Screenshots at 1440px and 390px of all 3 pages vs the live reference
-  (https://oddacademia-astro.pages.dev). Static layout should match; do not chase
-  image re-encoding noise or 1px rounding. Animations: check they run and feel
-  similar; describe any visible difference.
-- No JS errors; reveal, select, slider and form work; reduced-motion respected.
-- Lighthouse on the new build vs the live reference (`npx lighthouse` is fine).
-  The SEO score is capped by the intentional noindex — expected.
+## SEO / indexing / repo
+- noindex both ways (`_headers` + meta), `_redirects` for the `.html` URLs,
+  exactly as Odd Academia.
+- No secrets, webhook URLs or tokens anywhere.
+- Update the README: the Policy Box row, its Pages settings, any new
+  component and its props.
+
+## Verification
+- Screenshots at 1440 and 390 of all 3 pages vs the local export. Static
+  layout should match; do not chase image re-encoding noise or 1px rounding.
+- Odd Academia regression check against the baseline (see Library rules).
+- No JS errors; reveal, select, form, scroll-to-form and reduced motion work.
+- Lighthouse before (export) and after (new build), mobile and desktop.
+- `astro check` clean; a clean-clone build with the exact Pages command.
 - If the network blocks a tool, name the host and continue.
-- Background jobs: record each background process's PID from `$!` at launch and wait
-  on it with an exit condition tied to the process dying (`wait` / `kill -0 PID`
-  check), not only to an expected string in its output. Don't find your own
-  processes with `pgrep` patterns. Stop every server you started before finishing.
+- Background jobs: record each background process's PID from `$!` at launch and
+  wait on it with an exit condition tied to the process dying (`wait` /
+  `kill -0 PID` check), not only to an expected string in its output. Don't
+  find your own processes with `pgrep` patterns. Stop every server you started
+  before finishing.
 
 ## Delivery
 - PR to `main` with a full description.
-- Report: library structure and component list with props, what stayed site-only
-  and why, interaction replacements and any visible differences, JS/CSS weight
-  before/after, Lighthouse before/after, content changes, the Pages settings table.
+- Report: new and changed components with props, what stayed site-only and why,
+  the Odd Academia regression result, visible differences, JS/CSS weight
+  before/after, Lighthouse before/after, content changes, and the Pages settings
+  table for Policy Box (project name `policybox-astro`; watch paths
+  `sites/policybox/*`, `packages/ui/*`, `package.json`, `package-lock.json`,
+  `.nvmrc`).
 - Do not offer to watch the PR.
-
-## Addendum — Odd Academia specifics
-- "How It Works": in the reference, widths ≥992px show a single image
-  (`how.avif`) with the card text baked in, and narrower widths show HTML cards.
-  In the monorepo, build it as the shared steps component in real HTML at every
-  width — no baked-in text image. Recreate the desktop layout (cards on the
-  connecting line) with HTML/CSS/SVG. Card texts:
-  1. "Create a Profile" — "Build a professional profile that links to all your
-     published work, showcasing your expertise and contributions."
-  2. "Publish and Share" — "Upload your research, which will be distributed
-     directly to readers around the world."
-  3. "Receive Peer Validation" — "Connect with a global community of independent
-     thinkers and researchers who can engage with and validate your work."
-- The reference site (https://oddacademia-astro.pages.dev) already has the
-  published-site texts (hero heading, footer Hyper text, ©2026) — keep them.
-- Waitlist dropdown: placeholder "I'm a" by default, not a selectable value.
