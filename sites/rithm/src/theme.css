@@ -1,0 +1,230 @@
+/*
+ * Rithm theme: token values only — the library's first dark theme. Loaded
+ * after @noirvision/ui's tokens/base.css; components read these, the site
+ * never styles their internals. Values come from the Webflow export
+ * (reference/rithm/css/rithm-lp.css).
+ */
+:root {
+  /* ---- Type ---- */
+  /* Nunito Sans stands in for the original's Avenir (layouts/fonts.css). */
+  --ui-font-body: 'Nunito Sans', Arial, sans-serif;
+  --ui-font-heading: 'Archivo', Arial, sans-serif;
+  --ui-font-size-body: 1rem;
+  --ui-font-weight-body: 400;
+  --ui-font-weight-heading: 900;
+  --ui-font-weight-semibold: 600;
+  --ui-font-weight-button: 600;
+  --ui-heading-line-height: 1.16;
+  --ui-heading-line-height-tablet: 1.3;
+  --ui-heading-letter-spacing: -0.72px;
+  --ui-size-heading-xl: 2.8125rem;      /* 45px */
+  --ui-size-heading-mobile-md: 1.875rem; /* 30px */
+  --ui-size-heading-small-md: 1.75rem;  /* 28px */
+  --ui-size-lead: 1.25rem;
+  --ui-lead-letter-spacing: -0.3px;
+
+  /* Eyebrow label (arrow + uppercase word) above section titles */
+  --ui-eyebrow-font: 'Space Grotesk', Arial, sans-serif;
+  --ui-eyebrow-size: 19px;
+  --ui-eyebrow-weight: 700;
+  --ui-eyebrow-line-height: 1.1;
+  --ui-eyebrow-letter-spacing: 2.3px;
+  --ui-eyebrow-icon-gap: 24px;
+  --ui-eyebrow-gap: 13px;
+
+  /* Heading spacing (desktop / ≤767px / ≤479px) */
+  --ui-heading-gap-xs: 17px;
+  --ui-heading-gap-sm: 30px;
+  --ui-heading-gap-md: 45px;
+  --ui-heading-gap-md-small: 20px;
+
+  /* ---- Colour: dark page, lime headings, violet accent ---- */
+  --ui-color-page: #110d14;
+  --ui-color-text: #fff;
+  --ui-color-text-muted-opacity: 1;
+  --ui-color-heading: #cde9ab;
+  --ui-color-accent: #9b79f4;
+  --ui-color-on-accent: #fff;
+  --ui-color-deep: #110d14;            /* "deep" panels (legal header) = the page */
+  --ui-color-on-deep: #fff;
+  --ui-color-on-strong-muted: rgb(255 255 255 / 0.8);
+  --ui-color-divider-footer: rgb(255 255 255 / 0.2);
+  --ui-color-prose: #fff;
+
+  /* Form: white field, violet button */
+  --ui-color-field: #fff;
+  --ui-color-field-text: #0d0e10;
+  --ui-color-field-placeholder: #293343;
+  --ui-color-success-bg: #ddd;
+  --ui-color-success-text: #0d0e10;
+
+  /* ---- Shape & layout: no panels, full-width sections ---- */
+  --ui-radius-panel: 0;
+  --ui-radius-card: 25px;
+  --ui-radius-control: 16px;
+  --ui-radius-control-sm: 16px;
+  --ui-radius-button: 16px;
+  --ui-panel-gap: 0;
+  --ui-page-pad-bottom: 0;
+  --ui-container-max: 68.25rem;        /* 1092px */
+  --ui-container-pad: 30px;
+  --ui-container-pad-sm: 16px;
+
+  /* Buttons */
+  --ui-button-pad-y: 0;
+  --ui-button-pad-x: 44px;
+  --ui-button-font-size: 15px;
+  --ui-button-hover-filter: none;
+  --ui-button-hover-opacity: 0.8;
+  --ui-button-transition: opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+
+  /* ---- Header (legal pages) ---- */
+  --ui-header-logo-max-mobile: 180px;
+
+  /* ---- Hero: full-bleed, phone over the athlete photo ---- */
+  --ui-margin-hero: 0;
+  --ui-radius-hero: 0;
+  --ui-space-hero-top: 105px;
+  --ui-space-hero-top-tablet: 60px;
+  --ui-space-hero-top-mobile: 40px;
+  --ui-hero-backdrop: url('./images/hero-bg.webp') 100% 50% / 1002px no-repeat;
+  --ui-hero-backdrop-tablet: url('./images/hero-bg.webp') 50% 100% / 1002px no-repeat;
+  --ui-hero-copy-width: 1fr;
+  --ui-hero-copy-max: 459px;
+  --ui-hero-gap: 16px;
+  --ui-hero-gap-tablet: 56px;         /* the copy's 40px margin + the grid's 16px row gap */
+  --ui-hero-gap-small: 36px;
+  --ui-hero-grid-mb: 32px;
+  --ui-hero-grid-mb-mobile: 32px;
+  --ui-hero-brand-gap: 65px;
+  --ui-hero-brand-gap-tablet: 40px;
+  --ui-size-h1: 3rem;
+  --ui-size-h1-mobile: 2.25rem;
+  --ui-hero-title-line-height: 1.14;
+  --ui-hero-title-line-height-mobile: 1.14;
+  --ui-hero-title-line-height-small: 1.14;
+  --ui-hero-title-gap: 10px;
+  --ui-hero-title-gap-mobile: 20px;
+  --ui-hero-title-gap-small: 20px;
+  --ui-hero-lead-size: 1.25rem;
+  --ui-hero-lead-size-mobile: 1.25rem;
+  --ui-hero-first-lead-size-small: 1rem;
+  --ui-hero-lead-align-small: center;
+  --ui-hero-content-gap: 38px;
+  --ui-hero-copy-offset-small: 0;
+
+  /* ---- Email forms ---- */
+  --ui-field-height: 48px;
+  --ui-field-height-mobile: 48px;
+  --ui-field-font-size: 1rem;
+  --ui-field-gap-mobile: 10px;
+  --ui-waitlist-gap: 12px;
+  --ui-waitlist-single-max: 520px;
+  --ui-waitlist-radius-mobile: 16px;
+  --ui-waitlist-success-radius: 12px;
+  --ui-email-pad: 30px;
+  --ui-email-pad-small: 12px;
+  --ui-email-icon: none;
+  --ui-email-align-small: center;
+
+  /* ---- "Your health in your hands" cards ---- */
+  /* The export's cards have no border: a transparent 1px border over the
+     fill, with the padding reduced by that 1px (32 24 46). */
+  --ui-feature-card-fill: #262628;
+  --ui-feature-card-border: transparent;
+  --ui-feature-cards-pad: 31px 23px;
+  --ui-feature-cards-pad-bottom: 45px;
+  --ui-feature-cards-pad-small: 31px 23px 45px;
+  --ui-feature-cards-gap: 16px;
+  --ui-feature-cards-row-gap-small: 16px;
+  --ui-feature-card-title-size: 1.5rem;
+  --ui-feature-card-title-size-small: 1.5rem;
+  --ui-feature-card-title-weight: 800;
+  --ui-feature-card-title-line-height: 1.3;
+  --ui-feature-card-title-gap: 15px;
+  --ui-feature-card-icon-gap: 24px;
+  --ui-feature-cards-text-size: 1.125rem;
+  --ui-feature-cards-text-size-mobile: 1.125rem;
+  --ui-feature-cards-text-line-height: 1.6;
+
+  /* ---- Image + text blocks ---- */
+  --ui-media-text-gap: 53px;
+  --ui-media-text-gap-mobile: 40px;
+  --ui-media-text-size: 1.25rem;
+  --ui-media-text-size-small: 1rem;
+  /* The faded athlete sits 150px below the section's container, which ends
+     44px under the second block. */
+  --ui-media-text-backdrop-bottom: -194px;
+
+  /* ---- "Know yourself" panel ---- */
+  --ui-cta-panel-bg: #cde9ab;
+  --ui-color-on-cta-panel: #0d0e10;
+  --ui-cta-panel-radius: 40px;
+  --ui-cta-panel-radius-small: 20px;
+  --ui-cta-panel-pad: 56px 56px 56px 80px;
+  --ui-cta-panel-pad-mobile: 56px 40px;
+  --ui-cta-panel-pad-small: 40px 20px;
+  --ui-cta-panel-copy-max: 490px;
+  --ui-cta-text-size: 1.25rem;
+  --ui-cta-text-size-small: 1rem;
+  --ui-cta-text-gap: 25px;
+
+  /* ---- Sections: padding (desktop / ≤767px), container widths ---- */
+  --ui-space-top: 66px;
+  --ui-space-bottom: 44px;
+  --ui-space-top-mobile: 66px;
+  --ui-space-bottom-mobile: 44px;
+
+  --ui-space-solutions-bottom: 108px;
+  --ui-space-solutions-bottom-mobile: 108px;
+  --ui-space-check-top: 0;
+  --ui-space-check-top-mobile: 0;
+  --ui-space-check-bottom: 120px;
+  --ui-space-check-bottom-mobile: 120px;
+  --ui-space-understand-top: 0;
+  --ui-space-understand-top-mobile: 0;
+
+  --ui-space-cta-top: 48px;
+  --ui-space-cta-bottom: 48px;
+  --ui-space-cta-top-mobile: 48px;
+  --ui-space-cta-bottom-mobile: 48px;
+  --ui-container-max-cta: 78rem;       /* 1248px */
+
+  /* Legal pages: section padding + the navbar's own padding and logo margin */
+  --ui-space-legal-header-top: 106px;
+  --ui-space-legal-header-bottom: 109px;
+  --ui-space-legal-header-bottom-tablet: 84px;
+  --ui-space-legal-header-top-mobile: 106px;
+  --ui-space-legal-header-bottom-mobile: 84px;
+  --ui-space-legal-bottom: 84px;
+  --ui-space-legal-bottom-mobile: 84px;
+  --ui-prose-offset: 40px;
+  --ui-prose-heading-font: var(--ui-font-body);
+  --ui-prose-heading-weight: 700;
+  /* The export spaced its documents with empty paragraphs (24px + 10px);
+     the same rhythm as heading margins. */
+  --ui-prose-h2-gap: 44px;
+  --ui-prose-h3-space: 54px;
+
+  /* ---- Footer ---- */
+  --ui-footer-pad: 48px;
+  --ui-footer-pad-tablet: 60px;
+  --ui-footer-pad-small: 40px;
+  --ui-footer-logo-max: 225px;
+  --ui-footer-legal-separator: '|';
+  --ui-color-footer-separator: #fff;
+  --ui-footer-legal-gap: 0.25em;       /* the export's word spaces around "|" */
+}
+
+@media (max-width: 479px) {
+  :root {
+    --ui-radius-card: 20px;
+    --ui-header-logo-max-mobile: 160px;
+    --ui-field-gap-mobile: 14px;
+
+    --ui-space-solutions-bottom-mobile: 60px;
+    --ui-space-check-bottom-mobile: 60px;
+    --ui-space-legal-header-top-mobile: 86px;
+    --ui-space-legal-header-bottom-mobile: 104px;
+  }
+}

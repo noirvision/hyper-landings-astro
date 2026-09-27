@@ -6,6 +6,11 @@
  *
  * `header` and `footer` take the same props as <Header> and <Footer>
  * (footer variant is always "legal").
+ *
+ * Prose tokens: --ui-color-prose, --ui-prose-offset, --ui-prose-heading-font /
+ * -weight, --ui-prose-h2-gap (space under h2, default 10px) and
+ * --ui-prose-h3-space (space above h3, default 20px), so a site sets the rhythm
+ * of its documents without spacer paragraphs; --ui-prose-nested-list-gap.
  */
 import type { ComponentProps } from 'astro/types';
 import BaseLayout from './BaseLayout.astro';
@@ -50,13 +55,13 @@ const current = Astro.url.pathname.replace(/\.html$/, '').replace(/\/$/, '') || 
   }
 
   .prose :global(h2) {
-    margin: 20px 0 10px;
+    margin: 20px 0 var(--ui-prose-h2-gap, 10px);
     font-size: 32px;
     line-height: 36px;
   }
 
   .prose :global(h3) {
-    margin: 20px 0 10px;
+    margin: var(--ui-prose-h3-space, 20px) 0 10px;
     font-size: 24px;
     line-height: 30px;
   }
@@ -64,6 +69,7 @@ const current = Astro.url.pathname.replace(/\.html$/, '').replace(/\/$/, '') || 
   .prose :global(h1),
   .prose :global(h2),
   .prose :global(h3) {
+    font-family: var(--ui-prose-heading-font, var(--ui-font-heading));
     font-weight: var(--ui-prose-heading-weight, var(--ui-font-weight-heading));
   }
 

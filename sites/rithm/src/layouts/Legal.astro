@@ -1,0 +1,14 @@
+---
+import LegalLayout from '@noirvision/ui/layouts/LegalLayout.astro';
+import { preloadFontsLegal } from './fonts';
+import { brand, footer, head } from '../content';
+import '../theme.css';
+
+interface Props {
+  title: string;
+}
+---
+
+<LegalLayout {...head} title={Astro.props.title} preloadFonts={preloadFontsLegal} header={brand} footer={footer}>
+  <slot />
+</LegalLayout>

@@ -11,7 +11,16 @@
  *             xl (3.25rem, 2rem on mobile). Default: xl, or md for size lg.
  *             Each reads --ui-heading-gap-{name} (desktop), -{name}-mobile
  *             (≤767px) and -{name}-small (≤479px), so a site sets its rhythm.
+ * eyebrow     a short uppercase label above the title (e.g. "Solutions"), with
+ *             an optional `eyebrowIcon` before it. It is its own element and
+ *             copies the heading's data-reveal / data-reveal-offset, so both
+ *             slide in with the same settings. Styled by --ui-eyebrow-* tokens.
+ *
+ * Colour: --ui-color-heading (default: the surrounding text colour).
+ * Line height: --ui-heading-line-height(-lg), and -tablet (≤991px) for size xl.
+ * Size at ≤479px: --ui-size-heading-small-{sm|md|lg}, default the ≤767px size.
  */
+import type { ImageMetadata } from 'astro';
 import type { HTMLAttributes } from 'astro/types';
 
 type Props = HTMLAttributes<'h2'> & {
@@ -20,18 +29,33 @@ type Props = HTMLAttributes<'h2'> & {
   mobileSize?: 'sm' | 'md' | 'lg';
   align?: 'center' | 'start' | 'start-center';
   gap?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  eyebrow?: string;
+  eyebrowIcon?: ImageMetadata;
 };
 
-const { as: Tag = 'h2', size = 'xl', mobileSize = 'md', align = 'center', gap, class: className, ...attrs } = Astro.props;
+const { as: Tag = 'h2', size = 'xl', mobileSize = 'md', align = 'center', gap, eyebrow, eyebrowIcon, class: className, ...attrs } = Astro.props;
 const space = gap ?? (size === 'lg' ? 'md' : 'xl');
+const eyebrowReveal = {
+  'data-reveal': attrs['data-reveal' as keyof typeof attrs],
+  'data-reveal-offset': attrs['data-reveal-offset' as keyof typeof attrs],
+};
 ---
 
+{
+  eyebrow && (
+    <p class:list={['eyebrow', `align-${align}`]} {...eyebrowReveal}>
+      {eyebrowIcon && <img src={eyebrowIcon.src} width={eyebrowIcon.width} height={eyebrowIcon.height} alt="" loading="lazy" />}
+      <span>{eyebrow}</span>
+    </p>
+  )
+}
 <Tag class:list={['heading', `size-${size}`, `m-${mobileSize}`, `align-${align}`, `gap-${space}`, className]} {...attrs}><slot /></Tag>
 
 <style>
   .heading {
     position: relative;
     margin: 0 0 var(--_mb);
+    color: var(--ui-color-heading);
     font-size: var(--_fs);
     line-height: var(--_lh);
     letter-spacing: var(--ui-heading-letter-spacing);
@@ -71,6 +95,29 @@ const space = gap ?? (size === 'lg' ? 'md' : 'xl');
     text-align: center;
   }
 
+  .eyebrow {
+    display: flex;
+    gap: var(--ui-eyebrow-icon-gap, 0.75rem);
+    align-items: center;
+    margin: 0 0 var(--ui-eyebrow-gap, 0.75rem);
+    color: var(--ui-eyebrow-color, var(--ui-color-accent));
+    font-family: var(--ui-eyebrow-font, var(--ui-font-body));
+    font-size: var(--ui-eyebrow-size, var(--ui-size-small));
+    font-weight: var(--ui-eyebrow-weight, var(--ui-font-weight-heading));
+    line-height: var(--ui-eyebrow-line-height, 1.1);
+    letter-spacing: var(--ui-eyebrow-letter-spacing, 0.1em);
+    text-transform: uppercase;
+  }
+
+  .eyebrow.align-center {
+    justify-content: center;
+  }
+
+  .eyebrow img {
+    display: block;
+    flex: none;
+  }
+
   .heading :global(em) {
     position: relative;
     isolation: isolate;
@@ -90,6 +137,12 @@ const space = gap ?? (size === 'lg' ? 'md' : 'xl');
     height: var(--ui-heading-mark-height);
     border-radius: var(--ui-heading-mark-radius);
     background: var(--ui-heading-mark);
+  }
+
+  @media (max-width: 991px) {
+    .size-xl {
+      --_lh: var(--ui-heading-line-height-tablet, var(--ui-heading-line-height));
+    }
   }
 
   @media (max-width: 767px) {
@@ -128,9 +181,25 @@ const space = gap ?? (size === 'lg' ? 'md' : 'xl');
     .align-start-center {
       text-align: center;
     }
+
+    .eyebrow.align-start-center {
+      justify-content: center;
+    }
   }
 
   @media (max-width: 479px) {
+    .m-sm {
+      --_fs: var(--ui-size-heading-small-sm, var(--ui-size-heading-mobile-sm));
+    }
+
+    .m-md {
+      --_fs: var(--ui-size-heading-small-md, var(--ui-size-heading-mobile-md));
+    }
+
+    .m-lg {
+      --_fs: var(--ui-size-heading-small-lg, var(--ui-size-heading-mobile-lg));
+    }
+
     .gap-xs {
       --_mb: var(--ui-heading-gap-xs-small, var(--ui-heading-gap-xs-mobile, var(--ui-heading-gap-xs, 0.5rem)));
     }

@@ -1,0 +1,162 @@
+---
+/**
+ * One text block beside one image ("Solutions"-style section): optional
+ * eyebrow, a section title, one or more paragraphs, and an image in the other
+ * column. A block, not a panel — put it in a <Section> (several may share one).
+ *
+ * flip      image on the right (default: on the left). The text always comes
+ *           first in the markup and, below 992px, on screen: the image then
+ *           sits under it, centred at up to `imageWidth`.
+ * backdrop  a decorative image anchored to the block's bottom-left corner
+ *           behind the text (e.g. a faded photo), desktop only; placed by
+ *           --ui-media-text-backdrop-left / -bottom, sized at `backdropWidth`.
+ * revealOffset  % of the viewport the columns must pass before sliding in
+ *           (default 20): the image from its side, the text from the other.
+ *
+ * Tokens: --ui-media-text-gap (+ -tablet, -mobile row gap),
+ * --ui-media-text-size (+ -small, ≤479px), --ui-media-text-para-gap (default
+ * one blank line), --ui-lead-letter-spacing; the heading reads the
+ * SectionHeading tokens (gap "sm", start-aligned).
+ * heading may be replaced by a `heading` slot (for <em> markup).
+ */
+import type { ImageMetadata } from 'astro';
+import SectionHeading from './SectionHeading.astro';
+import Image from './Image.astro';
+
+interface Props {
+  eyebrow?: string;
+  eyebrowIcon?: ImageMetadata;
+  heading?: string;
+  /** Paragraphs. */
+  text: string[];
+  image: ImageMetadata;
+  imageAlt?: string;
+  /** Largest rendered width of the image in px (it shrinks to its column). */
+  imageWidth?: number;
+  flip?: boolean;
+  backdrop?: ImageMetadata;
+  backdropWidth?: number;
+  revealOffset?: number;
+}
+
+const {
+  eyebrow,
+  eyebrowIcon,
+  heading,
+  text,
+  image,
+  imageAlt,
+  imageWidth = Math.round(image.width / 2),
+  flip = false,
+  backdrop,
+  backdropWidth = backdrop ? Math.round(backdrop.width) : 0,
+  revealOffset,
+} = Astro.props;
+const offset = revealOffset === undefined ? {} : { 'data-reveal-offset': String(revealOffset) };
+---
+
+<div class:list={['media-text', { flip }]}>
+  <div class="text" data-reveal={flip ? 'left' : 'right'} {...offset}>
+    <SectionHeading align="start" gap="sm" eyebrow={eyebrow} eyebrowIcon={eyebrowIcon}>
+      {Astro.slots.has('heading') ? <slot name="heading" /> : heading}
+    </SectionHeading>
+    {text.map((p) => <p class="para">{p}</p>)}
+  </div>
+  <div class="media" data-reveal={flip ? 'right' : 'left'} {...offset}>
+    <Image
+      src={image}
+      alt={imageAlt}
+      width={imageWidth}
+      widths={[Math.round(imageWidth * 0.75), imageWidth, Math.round(imageWidth * 1.5), imageWidth * 2]}
+      sizes={`(max-width: 991px) min(100vw, ${imageWidth}px), min(50vw, ${imageWidth}px)`}
+    />
+  </div>
+  {
+    backdrop && (
+      <div class="backdrop" aria-hidden="true">
+        <Image src={backdrop} width={backdropWidth} widths={[backdropWidth]} sizes={`${backdropWidth}px`} />
+      </div>
+    )
+  }
+</div>
+
+<style>
+  .media-text {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--ui-media-text-gap, 3.25rem);
+    align-items: start;
+  }
+
+  .text {
+    position: relative;
+    grid-area: 1 / 2;
+  }
+
+  .media {
+    position: relative;
+    display: flex;
+    grid-area: 1 / 1;
+    justify-content: center;
+  }
+
+  .flip .text {
+    grid-area: 1 / 1;
+  }
+
+  .flip .media {
+    grid-area: 1 / 2;
+  }
+
+  .para {
+    margin: 0;
+    font-size: var(--ui-media-text-size, var(--ui-size-lead));
+    letter-spacing: var(--ui-lead-letter-spacing, normal);
+    opacity: var(--ui-color-text-muted-opacity);
+  }
+
+  .para + .para {
+    margin-top: var(--ui-media-text-para-gap, 1lh);
+  }
+
+  .backdrop {
+    position: absolute;
+    bottom: var(--ui-media-text-backdrop-bottom, 0);
+    left: var(--ui-media-text-backdrop-left, 0);
+    pointer-events: none;
+  }
+
+  @media (max-width: 991px) {
+    .media-text {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--ui-media-text-gap-tablet, var(--ui-media-text-gap, 3.25rem));
+    }
+
+    .text,
+    .flip .text {
+      grid-area: 1 / 1;
+    }
+
+    .media,
+    .flip .media {
+      grid-area: 2 / 1;
+    }
+
+    .backdrop {
+      display: none;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .media-text {
+      row-gap: var(--ui-media-text-gap-mobile, 2.5rem);
+    }
+  }
+
+  @media (max-width: 479px) {
+    .para {
+      font-size: var(--ui-media-text-size-small, var(--ui-media-text-size, var(--ui-size-lead)));
+    }
+  }
+</style>

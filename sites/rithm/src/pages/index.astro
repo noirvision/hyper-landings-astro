@@ -1,0 +1,166 @@
+---
+import Site from '../layouts/Site.astro';
+import Hero from '@noirvision/ui/components/Hero.astro';
+import Header from '@noirvision/ui/components/Header.astro';
+import Section from '@noirvision/ui/components/Section.astro';
+import SectionHeading from '@noirvision/ui/components/SectionHeading.astro';
+import WaitlistForm from '@noirvision/ui/components/WaitlistForm.astro';
+import MediaText from '@noirvision/ui/components/MediaText.astro';
+import FeatureCards from '@noirvision/ui/components/FeatureCards.astro';
+import CallToAction from '@noirvision/ui/components/CallToAction.astro';
+import Footer from '@noirvision/ui/components/Footer.astro';
+import { brand, footer } from '../content';
+
+import heroImage from '../assets/hero-img.webp';
+import sect1 from '../assets/sect-01.webp';
+import sect2 from '../assets/sect-02.webp';
+import athlete from '../assets/bg-img.webp';
+import ctaImage from '../assets/cta.webp';
+import arrow from '../assets/icons/arrow.svg';
+import bulb from '../assets/icons/icon.svg';
+
+// As published: title only, no description or social tags on the home page.
+const form = { emailPlaceholder: 'Your email here', buttonLabel: 'Join Now', reveal: false };
+---
+
+<Site title="Rithm" ogTitle={false}>
+  <Hero
+    layout="split"
+    visual="contained"
+    tone="deep"
+    mobileAlign="center"
+    title="Feel your Rithm"
+    lead="Manage your health, one data point at a time, with our AI-powered personalised health companion for the busy professional"
+    image={heroImage}
+    imageAlt="Rithm app home screen with daily trackers for nutrition, cardio, sleep and strength"
+    reveal={{ copy: null, title: 600, lead: 900, content: 1200, visual: 1200 }}
+  >
+    <Header slot="brand" {...brand} reveal={{ delay: 300 }} />
+    <WaitlistForm id="hero" {...form} />
+  </Hero>
+
+  <div class="glow-zone">
+    <div class="glow glow-left" aria-hidden="true"></div>
+
+    <Section spacing="solutions">
+      <MediaText
+        eyebrow="Solutions"
+        eyebrowIcon={arrow}
+        text={[
+          'In a world where you can know anything why is it so hard to know about what’s actually going on in your own body?',
+          'Rithm connects information from different data sources to give you personalised health and wellness recommendations so you can live your best life.',
+        ]}
+        image={sect1}
+        imageAlt="Rithm app progress tracking screen"
+        imageWidth={650}
+        revealOffset={25}
+      >
+        <Fragment slot="heading">The world’s first <br />hyper-personalised AI health and wellness companion</Fragment>
+      </MediaText>
+    </Section>
+
+    <Section spacing="check">
+      <FeatureCards
+        label="Your health in your hands"
+        iconLayout="stacked"
+        reveal={{ offset: 25, grid: 'fade', gridOffset: 20 }}
+        items={[
+          {
+            icon: bulb,
+            title: 'Hyper Personalised',
+            text: 'Personal goals. Personal plans. Personal actions. The Rithm AI companion connects data from multiple sources to give you a hyper personalised picture of your health and wellness',
+          },
+          {
+            icon: bulb,
+            title: 'Human in the loop',
+            text: 'Rithm will connect you to a marketplace of specialists to help you achieve your goals; creating a consistent and personalised support experience from app to real life',
+          },
+          {
+            icon: bulb,
+            title: 'Holistic health tracking',
+            text: 'Aggregate all your health and wellness data in one place and get holistic insights that understand the multifaceted and multidimensional story of YOU.',
+          },
+        ]}
+      >
+        <SectionHeading
+          slot="heading"
+          eyebrow="check this"
+          eyebrowIcon={arrow}
+          align="start"
+          gap="md"
+          data-reveal="left"
+          data-reveal-offset="25"
+        >
+          Your health in your hands
+        </SectionHeading>
+      </FeatureCards>
+    </Section>
+
+    <Section spacing="understand">
+      <MediaText
+        flip
+        eyebrow="Solutions"
+        eyebrowIcon={arrow}
+        heading="Understand what’s actually happening, all in one place"
+        text={[
+          'Rithm connects all your health data in one place to give you the full picture of what you need to optimise your health and wellness so you don’t have to do the hard work of working out what it all means.',
+        ]}
+        image={sect2}
+        imageAlt="Rithm app screens: a chat with HealthGPT, progress tracking and a personal health plan"
+        imageWidth={525}
+        backdrop={athlete}
+        revealOffset={25}
+      />
+      <div class="glow glow-right" aria-hidden="true"></div>
+    </Section>
+  </div>
+
+  <CallToAction
+    layout="panel"
+    reveal="left"
+    text="Let Rithm tell you everything you’ve always wanted to know about your health and wellness. We’ve got you."
+    image={ctaImage}
+    imageAlt="A hand holding a phone with the Rithm assistant chat"
+    imageWidth={420}
+  >
+    <Fragment slot="heading">Know yourself<br />Discover your Rithm</Fragment>
+    <WaitlistForm id="cta" {...form} />
+  </CallToAction>
+
+  <Footer slot="footer" {...footer} />
+</Site>
+
+<style>
+  /* One-off decoration: two blurred lime glows behind the middle sections,
+     as in the export (.glow-circle). */
+  .glow-zone {
+    position: relative;
+  }
+
+  .glow {
+    position: absolute;
+    z-index: -1;
+    width: 400px;
+    height: 400px;
+    border-radius: 50%;
+    background: #cde9ab;
+    filter: blur(150px);
+    pointer-events: none;
+  }
+
+  .glow-left {
+    top: 20%;
+    left: -15%;
+  }
+
+  .glow-right {
+    right: -10%;
+    bottom: -15%;
+  }
+
+  @media (max-width: 479px) {
+    .glow {
+      display: none;
+    }
+  }
+</style>

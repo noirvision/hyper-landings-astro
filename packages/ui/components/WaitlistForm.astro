@@ -11,9 +11,13 @@
  * revealGroup reveal heading, lead and form as one block ({ delay, offset }),
  *             instead of the heading and the form separately; the heading
  *             then has no reveal of its own and moves with the form
+ * reveal      false = no reveal of its own (e.g. when a parent block reveals it)
  *
  * The bar, fields and button are sized by tokens (--ui-field-*, --ui-select-*,
- * --ui-waitlist-*), defaults in the style block.
+ * --ui-waitlist-*, --ui-email-*), defaults in the style block. Among them:
+ * --ui-waitlist-gap (bar ↔ button), --ui-waitlist-single-max, --ui-email-pad /
+ * --ui-email-icon (envelope on/off), --ui-color-field-placeholder,
+ * --ui-waitlist-radius-mobile, --ui-email-align-small, --ui-waitlist-success-radius.
  *
  * The dropdown is a native <select>: the placeholder option is not selectable,
  * `required` makes the browser ask for a choice. Where the browser supports
@@ -48,6 +52,7 @@ interface Props {
   id?: string;
   layout?: 'separate' | 'inline';
   revealGroup?: { delay?: number; offset?: number };
+  reveal?: boolean;
 }
 
 const {
@@ -65,10 +70,12 @@ const {
   id = 'waitlist',
   layout = 'separate',
   revealGroup,
+  reveal = true,
 } = Astro.props;
 const single = !options?.length;
 const inline = layout === 'inline';
 const hasHeading = heading || Astro.slots.has('heading');
+const own = !revealGroup && reveal ? { 'data-reveal': 'up' } : {};
 const group = revealGroup
   ? {
       'data-reveal': 'up',
@@ -81,13 +88,13 @@ const group = revealGroup
 <div class="group" {...group}>
   {
     hasHeading && (
-      <SectionHeading gap="sm" mobileSize="sm" {...(revealGroup ? {} : { 'data-reveal': 'up' })}>
+      <SectionHeading gap="sm" mobileSize="sm" {...own}>
         {Astro.slots.has('heading') ? <slot name="heading" /> : heading}
       </SectionHeading>
     )
   }
   {lead && <p class="lead">{lead}</p>}
-  <div class:list={['waitlist', `layout-${layout}`, { single }]} data-ui-waitlist {...(revealGroup ? {} : { 'data-reveal': 'up' })}>
+  <div class:list={['waitlist', `layout-${layout}`, { single }]} data-ui-waitlist {...own}>
     <form class="form">
       <div class="bar">
         {
@@ -150,13 +157,13 @@ const group = revealGroup
   }
 
   .waitlist.single {
-    max-width: 37.5rem;
+    max-width: var(--ui-waitlist-single-max, 37.5rem);
     margin-bottom: 0;
   }
 
   .form {
     display: flex;
-    gap: 1rem;
+    gap: var(--ui-waitlist-gap, 1rem);
     align-items: stretch;
     height: var(--ui-field-height, 4.125rem);
     --ui-button-height: 100%;
@@ -270,6 +277,7 @@ const group = revealGroup
   }
 
   .mail {
+    display: var(--ui-email-icon, block);
     position: absolute;
     left: 25px;
     opacity: var(--ui-field-icon-opacity, 0.85);
@@ -279,7 +287,7 @@ const group = revealGroup
   .email {
     width: 100%;
     height: 100%;
-    padding: 0 12px 0 4.5rem;
+    padding: 0 12px 0 var(--ui-email-pad, 4.5rem);
     border: 0;
     border-radius: 0 var(--ui-radius-control) var(--ui-radius-control) 0;
     background: transparent;
@@ -293,7 +301,7 @@ const group = revealGroup
   }
 
   .email::placeholder {
-    color: var(--ui-color-field-text);
+    color: var(--ui-color-field-placeholder, var(--ui-color-field-text));
     opacity: 1;
   }
 
@@ -317,7 +325,7 @@ const group = revealGroup
 
   .success {
     padding: 20px;
-    border-radius: var(--ui-radius-card);
+    border-radius: var(--ui-waitlist-success-radius, var(--ui-radius-card));
     background: var(--ui-color-success-bg);
     color: var(--ui-color-success-text);
     font-size: var(--ui-size-body, 1rem);
@@ -408,7 +416,7 @@ const group = revealGroup
       gap: var(--ui-field-gap-mobile, 8px);
       height: auto;
       --ui-button-height: var(--ui-field-height-mobile, 40px);
-      --ui-button-radius: 8px;
+      --ui-button-radius: var(--ui-waitlist-radius-mobile, 8px);
     }
 
     .bar {
@@ -429,7 +437,7 @@ const group = revealGroup
       margin-bottom: 8px;
       padding-right: 0;
       border: var(--ui-field-border, 0);
-      border-radius: 8px;
+      border-radius: var(--ui-waitlist-radius-mobile, 8px);
       background: var(--ui-color-field);
     }
 
@@ -444,7 +452,7 @@ const group = revealGroup
     .select {
       flex: 1;
       width: 100%;
-      border-radius: 8px;
+      border-radius: var(--ui-waitlist-radius-mobile, 8px);
     }
 
     .email-wrap {
@@ -452,7 +460,7 @@ const group = revealGroup
       height: var(--ui-field-height-mobile, 40px);
       margin-right: 0;
       border: var(--ui-field-border, 0);
-      border-radius: 8px;
+      border-radius: var(--ui-waitlist-radius-mobile, 8px);
       background: var(--ui-color-field);
     }
 
@@ -467,8 +475,8 @@ const group = revealGroup
     }
 
     .email {
-      padding-left: var(--ui-email-pad-mobile, 4.5rem);
-      border-radius: 8px;
+      padding-left: var(--ui-email-pad-mobile, var(--ui-email-pad, 4.5rem));
+      border-radius: var(--ui-waitlist-radius-mobile, 8px);
     }
 
     .layout-inline .form :global(.submit) {
@@ -501,11 +509,12 @@ const group = revealGroup
     }
 
     .mail {
-      display: var(--ui-email-icon-small, block);
+      display: var(--ui-email-icon-small, var(--ui-email-icon, block));
     }
 
     .email {
-      padding-left: var(--ui-email-pad-small, var(--ui-email-pad-mobile, 4.5rem));
+      padding-left: var(--ui-email-pad-small, var(--ui-email-pad-mobile, var(--ui-email-pad, 4.5rem)));
+      text-align: var(--ui-email-align-small, start);
       font-size: var(--ui-field-font-size-small, var(--ui-field-font-size, var(--ui-size-xs)));
     }
   }

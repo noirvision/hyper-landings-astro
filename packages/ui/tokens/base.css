@@ -42,6 +42,7 @@
   /* ---- Colour ---- */
   --ui-color-page: #f7f7f7;               /* page background */
   --ui-color-text: #000;                  /* body text on page / plain sections */
+  --ui-color-heading: currentColor;       /* section, hero and card titles (default: text colour) */
   --ui-color-text-muted-opacity: 0.7;     /* secondary copy is text at this opacity */
   --ui-color-accent: #0062ff;             /* accent sections, buttons, highlights */
   --ui-color-on-accent: #fff;             /* text on accent */

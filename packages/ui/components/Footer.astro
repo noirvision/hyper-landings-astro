@@ -10,6 +10,11 @@
  *          right, no blurb unless `hyperText` is given. With `frame` the card
  *          sits in a light frame (--ui-bg-footer-frame, --ui-radius-footer-frame)
  *          that can continue the section above it.
+ *          compact: no panel (--ui-bg-footer, default transparent); logo, legal
+ *          links and copyright stacked on the left, "Launched with Hyper" and
+ *          its blurb (one line per sentence) on the right, a rule under both.
+ *          Tokens: --ui-footer-pad(-tablet/-small), --ui-footer-logo-max,
+ *          --ui-footer-legal-gap; secondary text is --ui-color-on-strong-muted.
  * variant  landing | legal — the legal pages break the Hyper blurb onto two
  *          lines and keep the copyright left-aligned on small screens.
  * reveal   the card rises into view (card layout).
@@ -37,7 +42,7 @@ interface Props {
   /** Path of the current page, marks the matching legal link. */
   current?: string;
   variant?: 'landing' | 'legal';
-  layout?: 'split' | 'card';
+  layout?: 'split' | 'card' | 'compact';
   frame?: boolean;
   reveal?: boolean;
   /** The Hyper blurb, one entry per sentence. */
@@ -62,12 +67,14 @@ const {
   hyperLogo = defaultHyperLogo,
 } = Astro.props;
 const card = layout === 'card';
+const compact = layout === 'compact';
 const hyperText =
   Astro.props.hyperText ??
   (card
     ? []
     : ['The best way to fund and launch your app.', 'Accelerate Process has helped 1,528 founders raise over $482 million since 2015.']);
 const isLegal = variant === 'legal';
+const lineBreaks = isLegal || compact;
 ---
 
 <footer class:list={['footer', `layout-${layout}`, `variant-${variant}`, { framed: card && frame }]}>
@@ -83,7 +90,21 @@ const isLegal = variant === 'legal';
             </p>
           )
         }
-        {!card && socials?.length ? <SocialLinks links={socials} /> : null}
+        {!card && !compact && socials?.length ? <SocialLinks links={socials} /> : null}
+        {
+          compact && legalLinks.length > 0 && (
+            <ul class="legal">
+              {legalLinks.map((link) => (
+                <li>
+                  <a href={link.href} aria-current={current === link.href ? 'page' : undefined}>
+                    {link.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )
+        }
+        {compact && <p class="copyright">{copyright}</p>}
       </div>
       <div class="hyper">
         <p class="launched">
@@ -94,28 +115,32 @@ const isLegal = variant === 'legal';
         </p>
         {
           hyperText.length > 0 && (
-            <p class="hyper-text">{isLegal ? hyperText.map((line, i) => (i ? [<br />, line] : line)) : hyperText.join(' ')}</p>
+            <p class="hyper-text">{lineBreaks ? hyperText.map((line, i) => (i ? [<br />, line] : line)) : hyperText.join(' ')}</p>
           )
         }
         {card && socials?.length ? <SocialLinks links={socials} sizeSmall={24} /> : null}
       </div>
     </div>
-    <div class="bottom">
-      <p class="copyright">{copyright}</p>
-      {
-        legalLinks.length > 0 && (
-          <ul class="legal">
-            {legalLinks.map((link) => (
-              <li>
-                <a href={link.href} aria-current={current === link.href ? 'page' : undefined}>
-                  {link.label}
-                </a>
-              </li>
-            ))}
-          </ul>
-        )
-      }
-    </div>
+    {
+      !compact && (
+        <div class="bottom">
+          <p class="copyright">{copyright}</p>
+          {
+            legalLinks.length > 0 && (
+              <ul class="legal">
+                {legalLinks.map((link) => (
+                  <li>
+                    <a href={link.href} aria-current={current === link.href ? 'page' : undefined}>
+                      {link.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            )
+          }
+        </div>
+      )
+    }
     <p class="credit">Portfolio rebuild by noirvision — original built in Webflow for Hyper.</p>
   </div>
 </footer>
@@ -528,6 +553,153 @@ const isLegal = variant === 'legal';
 
     .layout-card .legal {
       margin-bottom: 0;
+    }
+  }
+
+  /* ---------- Compact layout ---------- */
+  .footer.layout-compact {
+    padding-block: var(--ui-footer-pad, 3rem);
+    background: var(--ui-bg-footer, transparent);
+    color: var(--ui-color-on-deep);
+  }
+
+  .layout-compact .container {
+    max-width: var(--ui-container-max);
+    margin-inline: auto;
+    padding-inline: var(--ui-container-pad);
+  }
+
+  .layout-compact .top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--ui-color-divider-footer);
+  }
+
+  .layout-compact .brand {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .layout-compact .logo {
+    display: block;
+    max-width: var(--ui-footer-logo-max, 14rem);
+    height: auto;
+    margin-bottom: 1.875rem;
+  }
+
+  .layout-compact .legal {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: var(--ui-size-small);
+    line-height: 1.5;
+  }
+
+  .layout-compact .legal li + li::before {
+    padding-inline: calc(10px + var(--ui-footer-legal-gap, 0px));
+  }
+
+  .layout-compact .legal a {
+    opacity: 0.8;
+  }
+
+  .layout-compact .legal a:hover {
+    text-decoration: underline;
+  }
+
+  .layout-compact .copyright {
+    margin-bottom: 1.625rem;
+    color: var(--ui-color-on-strong-muted);
+    font-size: var(--ui-size-xs);
+    line-height: 34px;
+  }
+
+  .layout-compact .hyper {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    color: var(--ui-color-on-strong-muted);
+  }
+
+  .layout-compact .launched {
+    display: flex;
+    align-items: center;
+  }
+
+  .layout-compact .launched span {
+    margin-right: 10px;
+    font-size: var(--ui-size-xs);
+    font-weight: var(--ui-font-weight-semibold);
+    line-height: 24px;
+  }
+
+  .layout-compact .launched img {
+    display: block;
+  }
+
+  .layout-compact .hyper-text {
+    font-size: 0.75rem;
+    line-height: 24px;
+  }
+
+  .layout-compact .credit {
+    margin-top: 1.5rem;
+    color: var(--ui-color-on-strong-muted);
+    font-size: 13px;
+    text-align: center;
+  }
+
+  @media (max-width: 991px) {
+    .footer.layout-compact {
+      padding-block: var(--ui-footer-pad-tablet, var(--ui-footer-pad, 3rem));
+    }
+  }
+
+  @media (max-width: 767px) {
+    .layout-compact .top {
+      flex-direction: column;
+      padding-bottom: 2.5rem;
+    }
+
+    .layout-compact .brand {
+      align-items: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .layout-compact .legal {
+      justify-content: center;
+    }
+
+    .layout-compact .hyper {
+      align-items: center;
+    }
+
+    .layout-compact .hyper-text {
+      text-align: center;
+    }
+  }
+
+  @media (max-width: 479px) {
+    .footer.layout-compact {
+      padding-block: var(--ui-footer-pad-small, var(--ui-footer-pad-tablet, var(--ui-footer-pad, 3rem)));
+    }
+
+    .layout-compact .container {
+      padding-inline: var(--ui-container-pad-sm);
+    }
+
+    .layout-compact .top {
+      padding-bottom: 1.3125rem;
+    }
+
+    .layout-compact .logo {
+      margin-bottom: 2.5rem;
     }
   }
 </style>

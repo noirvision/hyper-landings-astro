@@ -1,7 +1,11 @@
 ---
 /**
  * Feature cards of mixed sizes ("Why choose us" as a bento grid): each card
- * has an optional icon beside its title, text, then a product image.
+ * has an optional icon beside its title, text, then an optional product image.
+ *
+ * iconLayout      inline (default): icon beside the title; stacked: icon above it
+ * reveal          { offset } for the cards' own reveals (default 20), and
+ *                 { grid: 'fade' | 'up', gridOffset } to also reveal the whole list
  *
  * items[].span    { cols, rows } the card covers on desktop (default 1 × 1)
  * items[].bleed   bottom — image flush with the card's bottom edge
@@ -17,6 +21,11 @@
  * Desktop: `columns` equal columns; below 992px one column in source order.
  * Cards read --ui-feature-card-fill / -border (shared with FeatureRows cards)
  * and --ui-feature-cards-art. Slot `heading` renders above the grid.
+ * Spacing and type: --ui-feature-cards-gap (+ -row-gap-small),
+ * --ui-feature-cards-pad / -pad-bottom (cards without a bleeding image) /
+ * -pad-small, --ui-feature-cards-text-size (+ -mobile) / -text-line-height,
+ * --ui-feature-card-title-weight / -title-line-height / -title-gap,
+ * --ui-feature-card-icon-gap (stacked). Titles use --ui-color-heading.
  */
 import type { ImageMetadata } from 'astro';
 import Image from './Image.astro';
@@ -25,7 +34,7 @@ interface Item {
   icon?: ImageMetadata;
   title: string;
   text: string;
-  image: ImageMetadata;
+  image?: ImageMetadata;
   imageAlt?: string;
   imageWidth?: number;
   span?: { cols?: number; rows?: number };
@@ -38,23 +47,30 @@ interface Props {
   /** Accessible name of the list. */
   label: string;
   columns?: number;
+  iconLayout?: 'inline' | 'stacked';
+  reveal?: { offset?: number; grid?: 'fade' | 'up'; gridOffset?: number };
 }
 
-const { items, label, columns = 3 } = Astro.props;
+const { items, label, columns = 3, iconLayout = 'inline', reveal = {} } = Astro.props;
+const offset = reveal.offset === undefined ? {} : { 'data-reveal-offset': String(reveal.offset) };
+const gridReveal = reveal.grid
+  ? { 'data-reveal': reveal.grid, ...(reveal.gridOffset === undefined ? {} : { 'data-reveal-offset': String(reveal.gridOffset) }) }
+  : {};
 const direction = (i: number) => (i === 0 ? 'left' : i === items.length - 1 ? 'right' : 'up');
 ---
 
-<div class="feature-cards">
+<div class:list={['feature-cards', `icon-${iconLayout}`]}>
   <slot name="heading" />
-  <ul class="grid" aria-label={label} style={`--_cols:${columns}`}>
+  <ul class="grid" aria-label={label} style={`--_cols:${columns}`} {...gridReveal}>
     {
       items.map((item, i) => {
-        const width = item.imageWidth ?? Math.round(item.image.width / 2);
+        const width = item.imageWidth ?? (item.image ? Math.round(item.image.width / 2) : 0);
         return (
           <li
             class:list={['card', `bleed-${item.bleed ?? 'none'}`]}
             style={`--_cs:${item.span?.cols ?? 1};--_rs:${item.span?.rows ?? 1}`}
             data-reveal={item.reveal ?? direction(i)}
+            {...offset}
           >
             <div class="copy">
               <div class="head">
@@ -63,14 +79,16 @@ const direction = (i: number) => (i === 0 ? 'left' : i === items.length - 1 ? 'r
               </div>
               <p class="text">{item.text}</p>
             </div>
-            <Image
-              src={item.image}
-              alt={item.imageAlt}
-              width={width}
-              widths={[width, Math.round(width * 1.5), width * 2]}
-              sizes={`(max-width: 991px) ${item.bleed === 'right' ? '150vw' : '90vw'}, ${width}px`}
-              class="shot"
-            />
+            {item.image && (
+              <Image
+                src={item.image}
+                alt={item.imageAlt}
+                width={width}
+                widths={[width, Math.round(width * 1.5), width * 2]}
+                sizes={`(max-width: 991px) ${item.bleed === 'right' ? '150vw' : '90vw'}, ${width}px`}
+                class="shot"
+              />
+            )}
           </li>
         );
       })
@@ -82,7 +100,7 @@ const direction = (i: number) => (i === 0 ? 'left' : i === items.length - 1 ? 'r
   .grid {
     display: grid;
     grid-template-columns: repeat(var(--_cols), 1fr);
-    gap: 3.25rem 1.25rem;
+    gap: var(--ui-feature-cards-gap, 3.25rem 1.25rem);
     margin: 0;
     padding: 0;
     list-style: none;
@@ -95,7 +113,7 @@ const direction = (i: number) => (i === 0 ? 'left' : i === items.length - 1 ? 'r
     gap: 2rem;
     grid-column: span var(--_cs);
     grid-row: span var(--_rs);
-    padding: 2rem;
+    padding: var(--ui-feature-cards-pad, 2rem);
     overflow: hidden;
     border: 1px solid var(--ui-feature-card-border, var(--ui-color-divider));
     border-radius: var(--ui-radius-card);
@@ -103,7 +121,7 @@ const direction = (i: number) => (i === 0 ? 'left' : i === items.length - 1 ? 'r
   }
 
   .bleed-none {
-    padding-bottom: 3rem;
+    padding-bottom: var(--ui-feature-cards-pad-bottom, 3rem);
   }
 
   .bleed-bottom {
@@ -123,7 +141,13 @@ const direction = (i: number) => (i === 0 ? 'left' : i === items.length - 1 ? 'r
     display: flex;
     gap: 1rem;
     align-items: center;
-    margin-bottom: 0.5rem;
+    margin-bottom: var(--ui-feature-card-title-gap, 0.5rem);
+  }
+
+  .icon-stacked .head {
+    flex-direction: column;
+    gap: var(--ui-feature-card-icon-gap, 1.5rem);
+    align-items: flex-start;
   }
 
   .icon {
@@ -133,14 +157,16 @@ const direction = (i: number) => (i === 0 ? 'left' : i === items.length - 1 ? 'r
 
   .title {
     margin: 0;
+    color: var(--ui-color-heading);
     font-size: var(--ui-feature-card-title-size, var(--ui-size-title));
-    line-height: 1.2;
+    font-weight: var(--ui-feature-card-title-weight, var(--ui-font-weight-heading));
+    line-height: var(--ui-feature-card-title-line-height, 1.2);
   }
 
   .text {
     margin: 0;
-    font-size: var(--ui-font-size-body);
-    line-height: 1.5;
+    font-size: var(--ui-feature-cards-text-size, var(--ui-font-size-body));
+    line-height: var(--ui-feature-cards-text-line-height, 1.5);
     opacity: var(--ui-color-text-muted-opacity);
   }
 
@@ -179,17 +205,17 @@ const direction = (i: number) => (i === 0 ? 'left' : i === items.length - 1 ? 'r
 
   @media (max-width: 767px) {
     .text {
-      font-size: var(--ui-size-small);
+      font-size: var(--ui-feature-cards-text-size-mobile, var(--ui-size-small));
     }
   }
 
   @media (max-width: 479px) {
     .grid {
-      row-gap: 1.75rem;
+      row-gap: var(--ui-feature-cards-row-gap-small, 1.75rem);
     }
 
     .bleed-none {
-      padding: 1.25rem;
+      padding: var(--ui-feature-cards-pad-small, 1.25rem);
     }
 
     .bleed-bottom {
