@@ -21,13 +21,17 @@ packages/ui/            @noirvision/ui — the shared library
   layouts/              BaseLayout (head, meta, noindex, fonts preload, reveal), LegalLayout
   scripts/              vanilla TS: reveal-on-scroll, in-page links, select, slider, waitlist form
   assets/               shared assets (Hyper logo)
+  content/              schema fields for the sites' content (fields.ts) and HTML helpers (html.ts)
 sites/oddacademia/
   astro.config.mjs      site URL, static output, clean URLs
   public/               _headers, _redirects, favicon, OG image
   src/theme.css         the site's token values — the only place its look is defined
-  src/content.ts        brand, socials, footer data shared by all pages
+  src/content/          all copy, one file per page: home.yaml, privacy-policy.md,
+                        terms-and-conditions.md, + site.yaml (logo, socials, footer)
+  src/content.config.ts the zod schema of each content file (fails the build on a bad edit)
+  src/site.ts           reads site.yaml into the brand / footer props shared by all pages
   src/layouts/          Site.astro / Legal.astro: fonts + theme + library layout
-  src/pages/            index, privacy-policy, terms-and-conditions
+  src/pages/            index, privacy-policy, terms-and-conditions — read src/content only
   src/assets/           content images and icons (optimised at build time)
   src/images/           theme artwork referenced from theme.css
 sites/policybox/        same shape; src/fonts holds self-hosted Figtree (WOFF2, OFL licence alongside)
@@ -97,6 +101,35 @@ Each component's header comment lists the tokens it reads beyond `tokens/base.cs
 - **In-page links** — `href="#waitlist"` scrolls smoothly (instantly with reduced motion) and
   moves focus to the first field of the form there (`scripts/anchor.ts`).
 
+## Content (edit by chat)
+
+Copy never lives in `.astro` files. Each page reads one data file in `sites/<site>/src/content/`:
+landing pages are **YAML** (`home.yaml`, sections top to bottom; no brackets, commas or closing
+tags, comments allowed, long text needs no escaping — the format a non-developer reads most
+easily), legal pages are **Markdown** with a `title` front-matter field. `site.yaml` holds what all
+pages of a site share. Images are referenced by path relative to the data file
+(`../assets/hero.webp`) with `alt` next to them.
+
+Each site's `src/content.config.ts` defines an Astro content collection per file with a zod schema
+built from `@noirvision/ui/content/fields.ts`: unknown or missing fields, wrong types, empty text,
+HTML in plain-text fields and image paths that don't exist fail the build with the file and field
+named (`join.heading: must not be empty`). Section headings are `richText` (only `<em>`, `<br>`,
+`&nbsp;`, rendered with `richHtml`); legal Markdown is rendered with GFM autolinks and smart
+punctuation off (`astro.config.mjs`) and compacted by `documentHtml`.
+
+Layout choices (card sizes, reveal directions, image widths) stay in the pages as code, matched to
+data items by position.
+
+Non-developers edit through Claude Code: `CLAUDE.md` sets the rules (scope, one branch + PR per
+request, preview link, revert to undo), `.claude/commands/` has `/edit-text`, `/replace-image`,
+`/preview` and `/undo`, and `EDITING.md` is the guide for the person asking.
+
+### Checks
+
+`.github/workflows/pr-checks.yml` runs on every pull request to `main`, job **Check and build all
+sites**: `npm ci`, `npm run check` (`astro check` for the library and each site) and the three Pages
+build commands. Make it a required status check on `main`.
+
 ## Run and build
 
 Requires Node 24 (`.nvmrc`). Run everything from the repo root.
@@ -109,6 +142,7 @@ npm run preview:oddacademia   # serve the build
 npm run dev:policybox         # same three scripts per site
 npm run dev:rithm
 npm run build                 # build every site
+npm run check                 # astro check: library + every site
 ```
 
 ## Deploy (Cloudflare Pages)
@@ -168,10 +202,11 @@ never into client code.
    (`size-adjust`, `ascent-override`/`descent-override`) and the `--ui-font-weight-*` tokens, as
    `sites/policybox/src/layouts/fonts.css` and `sites/rithm/src/layouts/fonts.css` do (the latter
    records how each value was measured against a screenshot of the live site).
-4. **Content.** Replace `src/content.ts` (brand, socials, footer), images in `src/assets`, and
+4. **Content.** Write `src/content/site.yaml` (brand, socials, footer), one data file per page in
+   `src/content/` with its schema in `src/content.config.ts`, images in `src/assets`, and
    `public/` files (favicon, `opengraph.png`, `_headers`, `_redirects`). Write the pages by
-   composing components; keep copy verbatim from the reference (fix obvious typos only and
-   list them in the PR).
+   composing components that read only the data; keep copy verbatim from the reference (fix
+   obvious typos only and list them in the PR). Add the new files to the table in `CLAUDE.md`.
 5. **New components.** If a section differs only in layout, add a `layout`/`variant` prop to the
    existing component. If it is genuinely new, add it to `packages/ui/components` named by role,
    not by site, reading only tokens. Check it doesn't change existing sites: screenshot every
