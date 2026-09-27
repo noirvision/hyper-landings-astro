@@ -204,9 +204,18 @@ a {
   border: 0;
 }
 
+/* An element's reveal delay is its own: nested [data-reveal] elements must not
+   inherit a parent's --ui-reveal-delay (a heading inside a delayed group would
+   otherwise wait twice). */
+@property --ui-reveal-delay {
+  syntax: '<time>';
+  inherits: false;
+  initial-value: 0ms;
+}
+
 /* ---- Scroll reveal ----
  * Elements opt in with data-reveal="up|left|right|fade" and optionally
- * data-reveal-delay="300" (ms) and data-reveal-offset="0" (% of viewport from
+ * style="--ui-reveal-delay:300ms" and data-reveal-offset="0" (% of viewport from
  * the bottom edge that must be passed, default 20). The hidden state only
  * applies once scripts/reveal.ts has marked <html> with .ui-reveal-ready, so
  * content stays visible without JS. Desktop only and never with reduced motion. */
