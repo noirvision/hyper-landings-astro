@@ -14,7 +14,7 @@ form:
   successMessage: Thank you! Your submission has been received!
 
 hero:
-  heading: Feel your Rithm
+  heading: Find your Rithm
   text: Manage your health, one data point at a time, with our AI-powered personalised health companion for the busy professional
   image:
     src: ../assets/hero-img.webp
