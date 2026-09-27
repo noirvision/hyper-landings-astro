@@ -87,6 +87,8 @@ Each component's header comment lists the tokens it reads beyond `tokens/base.cs
 - **Scroll reveal** — add `data-reveal="up|left|right|fade"` (optional
   `data-reveal-offset`, `--ui-reveal-delay`). CSS transitions + IntersectionObserver, desktop only
   (as in the Webflow originals), off with `prefers-reduced-motion`, and nothing is hidden without JS.
+  An element scrolled past without ever intersecting (instant jumps, flings, restored scroll
+  positions) is shown at once, without animation, as soon as it is above the viewport.
 - **Dropdown** — native `<select>`; the placeholder is not selectable. In Chromium the open list
   is styled with `appearance: base-select`; other browsers show their native list.
 - **Slider** — CSS scroll-snap; dots and arrow/Home/End keys wired by `scripts/slider.ts`.

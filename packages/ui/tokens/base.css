@@ -236,6 +236,11 @@ a {
     transition: none;
   }
 
+  /* Scrolled past without being seen: shown at once (scripts/reveal.ts). */
+  .ui-reveal-ready [data-reveal].ui-reveal-instant {
+    transition: none;
+  }
+
   .ui-reveal-ready [data-reveal='up']:not(.is-revealed) {
     transform: translate3d(0, var(--ui-reveal-distance), 0);
   }
