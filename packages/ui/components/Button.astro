@@ -1,0 +1,41 @@
+---
+/**
+ * Primary button (or link styled as one).
+ *
+ * Height and radius read --ui-button-height / --ui-button-radius, so a parent
+ * component can size it for its context without touching its internals.
+ */
+import type { HTMLAttributes } from 'astro/types';
+
+type Props = (HTMLAttributes<'button'> & { href?: undefined }) | (HTMLAttributes<'a'> & { href: string });
+
+const { href, class: className, ...attrs } = Astro.props as HTMLAttributes<'button'> & { href?: string };
+const Tag = href ? 'a' : 'button';
+---
+
+<Tag href={href} class:list={['button', className]} {...(href ? {} : { type: 'button' })} {...attrs}><slot /></Tag>
+
+<style>
+  .button {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    height: var(--ui-button-height, auto);
+    padding: var(--ui-button-pad-y, 0.5625rem) var(--ui-button-pad-x, 1.5rem);
+    border: 0;
+    border-radius: var(--ui-button-radius, var(--ui-radius-button));
+    background: var(--ui-color-accent);
+    color: var(--ui-color-on-accent);
+    font-size: var(--ui-size-small);
+    font-weight: var(--ui-font-weight-heading);
+    line-height: 1.4;
+    text-decoration: none;
+    cursor: pointer;
+    transition: filter 0.2s ease;
+  }
+
+  .button:hover {
+    filter: brightness(1.08);
+  }
+</style>

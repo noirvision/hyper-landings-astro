@@ -1,0 +1,392 @@
+---
+/**
+ * Waitlist form: optional "I am a" dropdown + email + button, in one white bar
+ * on desktop and stacked fields on mobile. `options` omitted = single-field
+ * variant (email + button).
+ *
+ * The dropdown is a native <select>: the placeholder option is not selectable,
+ * `required` makes the browser ask for a choice. Where the browser supports
+ * customisable selects (appearance: base-select) the open list is styled too.
+ * Submitting sends nothing yet (see scripts/form.ts); the success message
+ * replaces the form.
+ */
+import Button from './Button.astro';
+import SectionHeading from './SectionHeading.astro';
+
+interface Option {
+  value: string;
+  label: string;
+}
+
+interface Props {
+  heading?: string;
+  /** Dropdown options; omit for the single-field variant. */
+  options?: Option[];
+  selectPlaceholder?: string;
+  /** Accessible label for the dropdown. */
+  selectLabel?: string;
+  selectName?: string;
+  emailPlaceholder?: string;
+  emailLabel?: string;
+  buttonLabel?: string;
+  successMessage?: string;
+  /** Unique prefix for field ids when a page has more than one form. */
+  id?: string;
+}
+
+const {
+  heading,
+  options,
+  selectPlaceholder = "I'm a",
+  selectLabel = 'I am a',
+  selectName = 'role',
+  emailPlaceholder = 'Insert your email',
+  emailLabel = 'Email',
+  buttonLabel = 'Join Waitlist',
+  successMessage = 'Thank you! Your submission has been received!',
+  id = 'waitlist',
+} = Astro.props;
+const single = !options?.length;
+---
+
+{heading && <SectionHeading gap="sm" mobileSize="sm" data-reveal="up">{heading}</SectionHeading>}
+<div class:list={['waitlist', { single }]} data-ui-waitlist data-reveal="up">
+  <form class="form">
+    <div class="bar">
+      {
+        !single && (
+          <div class="select-wrap">
+            <label class="ui-visually-hidden" for={`${id}-select`}>{selectLabel}</label>
+            <select id={`${id}-select`} name={selectName} required autocomplete="off" data-ui-select data-empty="true" class="select">
+              <option value="" disabled selected hidden>{selectPlaceholder}</option>
+              {options!.map((o) => <option value={o.value}>{o.label}</option>)}
+            </select>
+          </div>
+        )
+      }
+      <div class="email-wrap">
+        <svg class="mail" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+          <path
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="1.7"
+            d="M2.5 5.42c0-.92.75-1.67 1.67-1.67h11.66c.92 0 1.67.75 1.67 1.67v9.16c0 .92-.75 1.67-1.67 1.67H4.17c-.92 0-1.67-.75-1.67-1.67z"
+          />
+          <path stroke="currentColor" stroke-linecap="round" stroke-width="1.7" d="m5.42 7.08 3.6 2.62a1.67 1.67 0 0 0 1.96 0l3.6-2.62" />
+        </svg>
+        <label class="ui-visually-hidden" for={`${id}-email`}>{emailLabel}</label>
+        <input id={`${id}-email`} class="email" type="email" name="email" maxlength="256" placeholder={emailPlaceholder} autocomplete="email" required />
+      </div>
+    </div>
+    <Button type="submit" class="submit">{buttonLabel}</Button>
+  </form>
+  <div class="success" data-ui-waitlist-success tabindex="-1" role="status" hidden>
+    {successMessage}
+  </div>
+</div>
+
+<script>
+  import '../scripts/select.ts';
+  import '../scripts/form.ts';
+</script>
+
+<style>
+  .waitlist {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 45.625rem;
+    margin: 0 auto 3.25rem;
+    color: var(--ui-color-field-text);
+    font-size: var(--ui-size-xs);
+  }
+
+  .waitlist.single {
+    max-width: 37.5rem;
+    margin-bottom: 0;
+  }
+
+  .form {
+    display: flex;
+    gap: 1rem;
+    align-items: stretch;
+    height: 4.125rem;
+    --ui-button-height: 100%;
+  }
+
+  .bar {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    background: var(--ui-color-field);
+    border-radius: var(--ui-radius-control);
+  }
+
+  .select-wrap {
+    position: relative;
+    display: flex;
+    flex: none;
+    height: 62px;
+    padding-right: 20px;
+  }
+
+  /* Chevron, drawn like the original: a rotated 2px corner. */
+  .select-wrap::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 45px;
+    box-sizing: content-box;
+    width: 5px;
+    height: 5px;
+    margin-top: -4px;
+    border-right: 2px solid var(--ui-color-field-text);
+    border-bottom: 2px solid var(--ui-color-field-text);
+    transform: rotate(45deg);
+    transform-origin: 66% 66%;
+    pointer-events: none;
+    transition: transform 0.15s ease-in-out;
+  }
+
+  .select-wrap:has(.select:open)::after {
+    transform: rotate(-135deg);
+  }
+
+  .select {
+    appearance: none;
+    width: 117px;
+    height: 100%;
+    margin: 0;
+    padding: 0 40px 0 24px;
+    border: 0;
+    border-radius: var(--ui-radius-control) 0 0 var(--ui-radius-control);
+    background: var(--ui-color-field);
+    color: var(--ui-color-field-text);
+    font-size: var(--ui-size-xs);
+    letter-spacing: -0.03em;
+    cursor: pointer;
+  }
+
+  .email-wrap {
+    position: relative;
+    flex: 1;
+    align-self: stretch;
+    display: flex;
+    align-items: center;
+    margin-right: 1rem;
+    color: var(--ui-color-field-icon);
+  }
+
+  /* Divider between dropdown and email, then the envelope. */
+  .email-wrap::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 1px;
+    height: 42px;
+    margin-top: -21px;
+    background: var(--ui-color-field-divider);
+  }
+
+  .single .email-wrap::before {
+    display: none;
+  }
+
+  .mail {
+    position: absolute;
+    left: 25px;
+    opacity: 0.85;
+    pointer-events: none;
+  }
+
+  .email {
+    width: 100%;
+    height: 100%;
+    padding: 0 12px 0 4.5rem;
+    border: 0;
+    border-radius: 0 var(--ui-radius-control) var(--ui-radius-control) 0;
+    background: transparent;
+    color: var(--ui-color-field-text);
+    font-size: var(--ui-size-xs);
+    line-height: 1;
+  }
+
+  .single .email {
+    border-radius: var(--ui-radius-control);
+  }
+
+  .email::placeholder {
+    color: var(--ui-color-field-text);
+    opacity: 1;
+  }
+
+  .email:focus,
+  .select:focus {
+    outline: none;
+  }
+
+  .email:focus-visible,
+  .select:focus-visible {
+    outline: 2px solid var(--ui-color-field-focus);
+    outline-offset: -2px;
+  }
+
+  .success {
+    padding: 20px;
+    border-radius: var(--ui-radius-card);
+    background: var(--ui-color-success-bg);
+    color: var(--ui-color-success-text);
+    font-size: var(--ui-size-body, 1rem);
+    text-align: center;
+  }
+
+  .success[hidden],
+  .form[hidden] {
+    display: none;
+  }
+
+  /* Customisable select (Chromium 135+): style the open list like the original
+     nice-select menu. Other browsers keep their native list. */
+  @supports (appearance: base-select) {
+    .select,
+    .select::picker(select) {
+      appearance: base-select;
+    }
+
+    .select {
+      display: flex;
+      align-items: center;
+    }
+
+    .select::picker-icon {
+      display: none;
+    }
+
+    .select::picker(select) {
+      margin-top: 4px;
+      padding: 10px 0;
+      border: 0;
+      border-radius: 5px;
+      background: var(--ui-color-menu);
+      box-shadow: var(--ui-shadow-menu);
+      color: var(--ui-color-field-text);
+      opacity: 0;
+      transform: scale(0.75) translateY(-21px);
+      transform-origin: 50% 0;
+      transition:
+        transform 0.2s cubic-bezier(0.5, 0, 0, 1.25),
+        opacity 0.15s ease-out,
+        overlay 0.2s allow-discrete,
+        display 0.2s allow-discrete;
+    }
+
+    .select:open::picker(select) {
+      opacity: 1;
+      transform: none;
+    }
+
+    @starting-style {
+      .select:open::picker(select) {
+        opacity: 0;
+        transform: scale(0.75) translateY(-21px);
+      }
+    }
+
+    .select option {
+      min-height: 40px;
+      padding: 0 18px;
+      line-height: 40px;
+      cursor: pointer;
+    }
+
+    .select option::checkmark {
+      display: none;
+    }
+
+    .select option:hover,
+    .select option:focus-visible {
+      background: var(--ui-color-menu-hover);
+      outline: none;
+    }
+
+    .select option:checked {
+      font-weight: 700;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .form {
+      flex-direction: column;
+      gap: 8px;
+      height: auto;
+      --ui-button-height: 40px;
+      --ui-button-radius: 8px;
+    }
+
+    .bar {
+      flex-direction: column;
+      align-items: stretch;
+      background: transparent;
+      border-radius: 0;
+    }
+
+    .select-wrap {
+      width: 100%;
+      height: 40px;
+      margin-bottom: 8px;
+      padding-right: 0;
+    }
+
+    .select-wrap::after {
+      right: 25px;
+    }
+
+    .select {
+      flex: 1;
+      width: 100%;
+      border-radius: 8px;
+    }
+
+    .email-wrap {
+      flex: none;
+      height: 40px;
+      margin-right: 0;
+      border-radius: 8px;
+      background: var(--ui-color-field);
+    }
+
+    .email-wrap::before {
+      display: none;
+    }
+
+    .mail {
+      left: 16px;
+      color: var(--ui-color-field-icon-mobile, #0b2d39);
+      opacity: 0.6;
+    }
+
+    .email {
+      border-radius: 8px;
+    }
+  }
+
+  @media (max-width: 479px) {
+    .form {
+      --ui-button-radius: var(--ui-radius-control-sm);
+      --ui-button-pad-x: 30px;
+    }
+
+    .select {
+      padding-left: 16px;
+      border-radius: var(--ui-radius-control-sm);
+      font-size: var(--ui-size-small);
+    }
+
+    .email-wrap,
+    .email {
+      border-radius: var(--ui-radius-control-sm);
+    }
+  }
+</style>

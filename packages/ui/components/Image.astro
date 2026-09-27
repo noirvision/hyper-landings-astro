@@ -1,0 +1,56 @@
+---
+/**
+ * Content image: astro:assets <Picture> with AVIF + WebP sources and a WebP
+ * fallback, responsive widths, intrinsic width/height (no layout shift).
+ *
+ * width     rendered CSS width in px (caps the image; it still shrinks to fit)
+ * widths    candidate widths for srcset (clamped to the source size)
+ * priority  above the fold: eager + fetchpriority=high; otherwise lazy
+ */
+import { Picture } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import type { HTMLAttributes } from 'astro/types';
+
+type Props = Omit<HTMLAttributes<'img'>, 'src' | 'width' | 'height'> & {
+  src: ImageMetadata;
+  alt?: string;
+  width: number;
+  widths?: number[];
+  sizes: string;
+  priority?: boolean;
+};
+
+const { src, alt = '', width, widths, sizes, priority = false, class: className, ...attrs } = Astro.props;
+const candidates = (widths ?? [width, width * 2]).filter((w) => w <= src.width);
+if (!candidates.length) candidates.push(src.width);
+---
+
+<Picture
+  src={src}
+  alt={alt}
+  width={Math.min(width, src.width)}
+  widths={candidates}
+  sizes={sizes}
+  formats={['avif', 'webp']}
+  fallbackFormat="webp"
+  loading={priority ? 'eager' : 'lazy'}
+  decoding={priority ? 'sync' : 'async'}
+  fetchpriority={priority ? 'high' : undefined}
+  pictureAttributes={{ class: 'picture' }}
+  class:list={['img', className]}
+  {...attrs}
+/>
+
+<style>
+  /* <picture> stays a real box (no display: contents) so it is the flex/grid item. */
+  .picture {
+    display: block;
+    max-width: 100%;
+  }
+
+  .img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+  }
+</style>

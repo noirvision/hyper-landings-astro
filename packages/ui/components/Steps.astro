@@ -1,0 +1,282 @@
+---
+/**
+ * Steps ("How it works"): numbered glass cards on a deep section.
+ *
+ * Desktop (≥992px), layout="path": the cards sit at staggered heights on a
+ * connecting line — each card has a node on its edges, S-curves join the
+ * nodes, and every joint also branches to a faded "ghost" card, as in the
+ * original design. Drawn with CSS grid (subgrid) + inline SVG; the text
+ * stays real HTML at every width.
+ * Below 992px (and with layout="stack") the cards stack in one column.
+ *
+ * offsets  vertical offset of each card in px on desktop (cycled if there are
+ *          more steps than values). Default: the original stagger.
+ */
+import Section from './Section.astro';
+import SectionHeading from './SectionHeading.astro';
+
+interface Step {
+  title: string;
+  text: string;
+}
+
+interface Props {
+  heading: string;
+  steps: Step[];
+  tone?: 'deep' | 'accent' | 'plain';
+  layout?: 'path' | 'stack';
+  offsets?: number[];
+}
+
+const { heading, steps, tone = 'deep', layout = 'path', offsets = [140, 0, 221] } = Astro.props;
+
+const n = steps.length;
+const off = steps.map((_, i) => offsets[i % offsets.length]);
+const maxOff = Math.max(...off);
+// Card and gap columns in the original's proportions (326px cards, 131px gaps at 1242px).
+const columns = Array.from({ length: n }, () => '326fr').join(' 131fr ');
+
+// One connector per gap: from card i's right node to card i+1's left node,
+// plus a branch the other way to a ghost card in column i+1.
+const BRANCH_DOWN = 142;
+const BRANCH_UP = 101;
+const gaps = Array.from({ length: Math.max(n - 1, 0) }, (_, i) => {
+  const from = off[i];
+  const to = off[i + 1];
+  const branch = to < from ? BRANCH_DOWN : -BRANCH_UP;
+  return { i, from, to, branch };
+});
+
+// Leave the node horizontally, turn into a vertical run mid-gap, enter the next node horizontally.
+const curve = (down: boolean) =>
+  down ? 'M0 0C38 0 50 8 50 30V70C50 92 62 100 100 100' : 'M0 100C38 100 50 92 50 70V30C50 8 62 0 100 0';
+---
+
+<Section tone={tone} spacing="steps">
+<SectionHeading data-reveal="up">{heading}</SectionHeading>
+<div
+  class:list={['steps', `layout-${layout}`]}
+  data-reveal="fade"
+  style={`--_cols:${columns};--_n:${n};--_max-off:${maxOff}px`}
+>
+  <ol class="list">
+    {
+      steps.map((step, i) => (
+        <li
+          class:list={['card', { 'node-left': i > 0, 'node-right': i < n - 1 }]}
+          style={`--_col:${i * 2 + 1};--_off:${off[i]}px`}
+        >
+          <span class="badge" aria-hidden="true">
+            {i + 1}
+          </span>
+          <h3 class="title">
+            <span class="ui-visually-hidden">Step {i + 1}: </span>
+            {step.title}
+          </h3>
+          <p class="text">{step.text}</p>
+        </li>
+      ))
+    }
+  </ol>
+
+  {
+    layout === 'path' && (
+      <div class="decor" aria-hidden="true">
+        {gaps.map((g) => (
+          <>
+            <svg
+              class="link"
+              style={`--_col:${g.i * 2 + 2};--_top:${Math.min(g.from, g.to)}px;--_h:${Math.abs(g.to - g.from)}px`}
+              viewBox="0 0 100 100"
+              preserveAspectRatio="none"
+            >
+              <path d={curve(g.to > g.from)} />
+            </svg>
+            <svg
+              class="link faint"
+              style={`--_col:${g.i * 2 + 2};--_top:${Math.min(g.from, g.from + g.branch)}px;--_h:${Math.abs(g.branch)}px`}
+              viewBox="0 0 100 100"
+              preserveAspectRatio="none"
+            >
+              <path d={curve(g.branch > 0)} />
+            </svg>
+            <span class="ghost" style={`--_col:${g.i * 2 + 3};--_y:${g.from + g.branch}px`} />
+          </>
+        ))}
+      </div>
+    )
+  }
+</div>
+</Section>
+
+<style>
+  .list {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    gap: var(--ui-grid-gap);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem;
+    border: 1px solid var(--ui-color-glass-border);
+    border-radius: var(--ui-radius-card);
+    background: var(--ui-color-glass);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    text-align: center;
+  }
+
+  .badge {
+    display: grid;
+    place-items: center;
+    width: 50px;
+    height: 50px;
+    margin: 3px 3px calc(0.875rem + 3px);
+    border-radius: 50%;
+    background: var(--ui-color-badge);
+    outline: 1px solid var(--ui-color-badge-ring, rgb(255 255 255 / 0.2));
+    outline-offset: 2px;
+    color: var(--ui-color-on-badge);
+    font-size: 1.375rem;
+    font-weight: var(--ui-font-weight-semibold);
+    line-height: 1;
+  }
+
+  .title {
+    margin: 0 0 0.5rem;
+    font-size: var(--ui-size-title-sm);
+    line-height: 1.25;
+  }
+
+  .text {
+    margin: 0 0 1.5rem;
+    font-size: var(--ui-size-small);
+    line-height: 1.5;
+    opacity: var(--ui-color-text-muted-opacity);
+  }
+
+  .decor {
+    display: none;
+  }
+
+  @media (max-width: 479px) {
+    .card {
+      border-radius: var(--ui-radius-card-sm);
+    }
+  }
+
+  /* ---------- Desktop path layout ---------- */
+  @media (min-width: 992px) {
+    .layout-path {
+      display: grid;
+      grid-template-columns: var(--_cols);
+      max-width: 1242px;
+      margin: 0 auto var(--_max-off);
+    }
+
+    .layout-path .list,
+    .layout-path .decor {
+      grid-row: 1;
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: subgrid;
+      gap: 0;
+    }
+
+    .layout-path .card {
+      position: relative;
+      top: var(--_off);
+      grid-row: 1;
+      grid-column: var(--_col);
+      min-height: 267px;
+      padding: 2rem 1.5rem;
+      border-radius: var(--ui-radius-card-xs);
+    }
+
+    .layout-path .title {
+      font-weight: var(--ui-font-weight-semibold);
+    }
+
+    .layout-path .text {
+      margin-bottom: 0;
+    }
+
+    /* Nodes on the card edges, centred vertically. */
+    .layout-path .node-left::before,
+    .layout-path .node-right::after,
+    .ghost::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      z-index: 1;
+      width: 26px;
+      height: 26px;
+      margin-top: -13px;
+      border: 3px solid var(--ui-color-connector-node, #fff);
+      border-radius: 50%;
+      background: var(--ui-color-deep);
+    }
+
+    .layout-path .node-left::before,
+    .ghost::before {
+      left: -13px;
+    }
+
+    .layout-path .node-right::after {
+      right: -13px;
+    }
+
+    .decor {
+      position: relative;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .link {
+      position: absolute;
+      top: calc(50% + var(--_top));
+      /* Abspos grid items need both lines, or the end snaps to the container edge. */
+      grid-column: var(--_col) / span 1;
+      width: 100%;
+      height: max(var(--_h), 1px);
+      overflow: visible;
+    }
+
+    .link path {
+      fill: none;
+      stroke: var(--ui-color-connector);
+      stroke-width: 1.5;
+      vector-effect: non-scaling-stroke;
+    }
+
+    .link.faint path {
+      stroke: var(--ui-color-connector-faint);
+    }
+
+    /* The .link boxes are positioned inside their grid column. */
+    .decor > * {
+      grid-row: 1;
+    }
+
+    .ghost {
+      position: absolute;
+      top: calc(50% + var(--_y) - 35px);
+      grid-column: var(--_col) / span 1;
+      width: 60%;
+      height: 70px;
+      border-radius: var(--ui-radius-card-xs) 0 0 var(--ui-radius-card-xs);
+      background: linear-gradient(90deg, var(--ui-color-glass), transparent);
+    }
+
+    .ghost::before {
+      opacity: 0.35;
+    }
+  }
+</style>

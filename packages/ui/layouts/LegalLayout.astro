@@ -1,0 +1,78 @@
+---
+/**
+ * Legal page (privacy policy, terms): header bar on a deep panel, the legal
+ * text as prose, legal footer. The default slot takes the document's HTML
+ * (headings, paragraphs, lists); this layout styles it.
+ *
+ * `header` and `footer` take the same props as <Header> and <Footer>
+ * (footer variant is always "legal").
+ */
+import type { ComponentProps } from 'astro/types';
+import BaseLayout from './BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import Section from '../components/Section.astro';
+
+type Props = ComponentProps<typeof BaseLayout> & {
+  header: ComponentProps<typeof Header>;
+  footer: Omit<ComponentProps<typeof Footer>, 'variant' | 'current'>;
+};
+
+const { header, footer, ...base } = Astro.props;
+const current = Astro.url.pathname.replace(/\.html$/, '').replace(/\/$/, '') || '/';
+---
+
+<BaseLayout {...base}>
+  <slot name="head" slot="head" />
+  <Section tone="deep" spacing="legal-header" as="div">
+    <Header {...header} />
+  </Section>
+  <Section as="div" spacing="legal">
+    <article class="prose">
+      <slot />
+    </article>
+  </Section>
+  <Footer slot="footer" {...footer} variant="legal" current={current} />
+</BaseLayout>
+
+<style>
+  .prose {
+    display: flow-root; /* keep the first heading's top margin inside, like the original */
+    margin-top: 20px;
+    line-height: 1.5;
+  }
+
+  .prose :global(h1) {
+    margin: 20px 0 10px;
+    font-size: 38px;
+    line-height: 44px;
+  }
+
+  .prose :global(h2) {
+    margin: 20px 0 10px;
+    font-size: 32px;
+    line-height: 36px;
+  }
+
+  .prose :global(h3) {
+    margin: 20px 0 10px;
+    font-size: 24px;
+    line-height: 30px;
+  }
+
+  .prose :global(p) {
+    margin: 0 0 10px;
+  }
+
+  .prose :global(ul),
+  .prose :global(ol) {
+    margin: 0 0 10px;
+    padding-left: 40px;
+    overflow: hidden;
+  }
+
+  .prose :global(li ul),
+  .prose :global(li ol) {
+    margin-bottom: 0;
+  }
+</style>

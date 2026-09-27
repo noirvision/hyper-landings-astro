@@ -1,0 +1,19 @@
+{
+  "name": "hyper-landings-astro",
+  "private": true,
+  "type": "module",
+  "description": "Hyper landing pages rebuilt in Astro on one shared component library.",
+  "engines": {
+    "node": ">=24"
+  },
+  "workspaces": [
+    "packages/*",
+    "sites/*"
+  ],
+  "scripts": {
+    "dev:oddacademia": "npm run dev -w @noirvision/site-oddacademia",
+    "build:oddacademia": "npm run build -w @noirvision/site-oddacademia",
+    "preview:oddacademia": "npm run preview -w @noirvision/site-oddacademia",
+    "build": "npm run build --workspaces --if-present"
+  }
+}

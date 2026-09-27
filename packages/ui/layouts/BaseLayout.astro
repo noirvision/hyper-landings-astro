@@ -1,0 +1,81 @@
+---
+/**
+ * Page shell for every landing: <head> (title, description, Open Graph /
+ * Twitter, noindex, icons, font preloads), base tokens, the scroll-reveal
+ * script and a page wrapper that clips horizontal overflow from reveals.
+ * The default slot goes in <main>; put the footer in slot="footer".
+ *
+ * Sites wrap this in their own layout that imports their fonts and
+ * `theme.css` (after this file's tokens) — see sites/oddacademia.
+ */
+import '../tokens/base.css';
+
+interface Props {
+  title: string;
+  /** Meta + OG/Twitter description. Omit for pages that had none (legal). */
+  description?: string;
+  /** Absolute or site-relative path of the social preview image. */
+  ogImage?: string;
+  lang?: string;
+  /** Keep out of search indexes (portfolio copies). Default true. */
+  noindex?: boolean;
+  favicon?: string;
+  appleTouchIcon?: string;
+  /** Font files (URLs) to preload, e.g. the latin subset of the body font. */
+  preloadFonts?: string[];
+}
+
+const {
+  title,
+  description,
+  ogImage = '/opengraph.png',
+  lang = 'en',
+  noindex = true,
+  favicon,
+  appleTouchIcon,
+  preloadFonts = [],
+} = Astro.props;
+const ogImageUrl = new URL(ogImage, Astro.site ?? Astro.url).href;
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    {noindex && <meta name="robots" content="noindex" />}
+    {description && <meta name="description" content={description} />}
+    <meta property="og:title" content={title} />
+    {description && <meta property="og:description" content={description} />}
+    {description && <meta property="og:image" content={ogImageUrl} />}
+    {description && <meta property="og:type" content="website" />}
+    <meta name="twitter:title" content={title} />
+    {description && <meta name="twitter:description" content={description} />}
+    {description && <meta name="twitter:image" content={ogImageUrl} />}
+    {description && <meta name="twitter:card" content="summary_large_image" />}
+    {favicon && <link rel="icon" href={favicon} type="image/png" />}
+    {appleTouchIcon && <link rel="apple-touch-icon" href={appleTouchIcon} />}
+    {preloadFonts.map((href) => <link rel="preload" href={href} as="font" type="font/woff2" crossorigin />)}
+    <slot name="head" />
+  </head>
+  <body>
+    <div class="page">
+      <main>
+        <slot />
+      </main>
+      <slot name="footer" />
+    </div>
+    <script>
+      import '../scripts/reveal.ts';
+    </script>
+  </body>
+</html>
+
+<style>
+  /* Clips the 100px slide-ins horizontally without creating a scroll container. */
+  .page {
+    overflow-x: clip;
+    padding-bottom: var(--ui-panel-gap);
+  }
+</style>

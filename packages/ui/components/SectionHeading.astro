@@ -1,0 +1,92 @@
+---
+/**
+ * Section title. Wrap a word in <em> to colour it with the accent
+ * (e.g. `Why <em>Choose</em> Us?`).
+ *
+ * size        xl (section titles) | lg (smaller titles)
+ * mobileSize  sm | md | lg — size at ≤767px
+ * align       center | start | start-center (start on desktop, centred on mobile)
+ * gap         space below: sm (0.75rem) | md (2rem) | lg (2.5rem) |
+ *             xl (3.25rem, 2rem on mobile). Default: xl, or md for size lg.
+ */
+import type { HTMLAttributes } from 'astro/types';
+
+type Props = HTMLAttributes<'h2'> & {
+  as?: 'h1' | 'h2' | 'h3';
+  size?: 'xl' | 'lg';
+  mobileSize?: 'sm' | 'md' | 'lg';
+  align?: 'center' | 'start' | 'start-center';
+  gap?: 'sm' | 'md' | 'lg' | 'xl';
+};
+
+const { as: Tag = 'h2', size = 'xl', mobileSize = 'md', align = 'center', gap, class: className, ...attrs } = Astro.props;
+const space = gap ?? (size === 'lg' ? 'md' : 'xl');
+---
+
+<Tag class:list={['heading', `size-${size}`, `m-${mobileSize}`, `align-${align}`, `gap-${space}`, className]} {...attrs}><slot /></Tag>
+
+<style>
+  .heading {
+    position: relative;
+    margin: 0 0 var(--_mb);
+    font-size: var(--_fs);
+    line-height: var(--_lh);
+  }
+
+  .size-xl {
+    --_fs: var(--ui-size-heading-xl);
+    --_lh: 1.5;
+  }
+
+  .size-lg {
+    --_fs: var(--ui-size-heading-lg);
+    --_lh: 1.25;
+  }
+
+  .gap-sm {
+    --_mb: 0.75rem;
+  }
+
+  .gap-md {
+    --_mb: 2rem;
+  }
+
+  .gap-lg {
+    --_mb: 2.5rem;
+  }
+
+  .gap-xl {
+    --_mb: 3.25rem;
+  }
+
+  .align-center {
+    text-align: center;
+  }
+
+  .heading :global(em) {
+    font-style: normal;
+    color: var(--ui-color-accent);
+  }
+
+  @media (max-width: 767px) {
+    .gap-xl {
+      --_mb: 2rem;
+    }
+
+    .m-sm {
+      --_fs: var(--ui-size-heading-mobile-sm);
+    }
+
+    .m-md {
+      --_fs: var(--ui-size-heading-mobile-md);
+    }
+
+    .m-lg {
+      --_fs: var(--ui-size-heading-mobile-lg);
+    }
+
+    .align-start-center {
+      text-align: center;
+    }
+  }
+</style>

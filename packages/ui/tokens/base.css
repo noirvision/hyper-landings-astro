@@ -1,0 +1,207 @@
+/*
+ * @noirvision/ui — base tokens and element defaults.
+ *
+ * Every visual decision a component makes reads one of these custom
+ * properties. A site overrides them in its own `src/theme.css` (loaded after
+ * this file); it never targets component internals. Defaults describe a
+ * neutral light theme, so a site only sets what differs.
+ *
+ * Breakpoints are fixed (custom properties can't be used in media queries):
+ *   desktop ≥ 992px · tablet ≤ 991px · mobile ≤ 767px · small ≤ 479px
+ */
+
+:root {
+  /* ---- Typography ---- */
+  --ui-font-body: system-ui, sans-serif;
+  --ui-font-heading: var(--ui-font-body);
+  --ui-font-size-body: 1.125rem;
+  --ui-line-height-body: 1.5;
+  --ui-font-weight-heading: 700;
+  --ui-font-weight-medium: 500;
+  --ui-font-weight-semibold: 600;
+
+  /* Display sizes: desktop / mobile (≤767px) */
+  --ui-size-h1: 3rem;
+  --ui-size-h1-mobile: 2rem;
+  --ui-size-heading-xl: 3rem;       /* section titles */
+  --ui-size-heading-lg: 2.25rem;    /* feature-row titles, CTA titles */
+  --ui-size-heading-mobile-sm: 1.5rem;
+  --ui-size-heading-mobile-md: 1.75rem;
+  --ui-size-heading-mobile-lg: 2rem;
+  --ui-size-title: 1.5rem;          /* card titles */
+  --ui-size-title-sm: 1.25rem;
+  --ui-size-lead: 1.25rem;
+  --ui-size-small: 1rem;
+  --ui-size-xs: 0.875rem;
+
+  /* ---- Colour ---- */
+  --ui-color-page: #f7f7f7;               /* page background */
+  --ui-color-text: #000;                  /* body text on page / plain sections */
+  --ui-color-text-muted-opacity: 0.7;     /* secondary copy is text at this opacity */
+  --ui-color-accent: #0062ff;             /* accent sections, buttons, highlights */
+  --ui-color-on-accent: #fff;             /* text on accent */
+  --ui-color-deep: #003995;               /* deep sections, footer */
+  --ui-color-on-deep: #fff;               /* text on deep */
+  --ui-color-on-strong-muted: rgb(255 255 255 / 0.7); /* secondary copy on accent/deep */
+  --ui-color-divider: rgb(0 0 0 / 0.1);
+  --ui-color-divider-strong: rgb(255 255 255 / 0.3);  /* dividers on accent/deep */
+  --ui-color-divider-footer: rgb(255 255 255 / 0.1);
+
+  /* Form controls */
+  --ui-color-field: #fff;
+  --ui-color-field-text: #282f31;
+  --ui-color-field-icon: #212121;
+  --ui-color-field-divider: rgb(0 0 0 / 0.3);
+  --ui-color-field-focus: var(--ui-color-accent);
+  --ui-color-menu: #fff;                  /* open dropdown panel (where stylable) */
+  --ui-color-menu-hover: #f2f2f2;
+  --ui-shadow-menu: 0 7px 20px 0 rgb(68 68 68 / 0.11);
+  --ui-color-success-bg: #ddd;
+  --ui-color-success-text: #333;
+
+  /* Slider dots */
+  --ui-color-dot: #cce0ff;
+  --ui-color-dot-active: #0661ff;
+
+  /* Glass cards on deep sections (steps) */
+  --ui-color-glass: rgb(255 255 255 / 0.1);
+  --ui-color-glass-border: rgb(255 255 255 / 0.1);
+  --ui-color-connector: rgb(255 255 255 / 0.75);
+  --ui-color-connector-faint: rgb(255 255 255 / 0.25);
+  --ui-color-connector-node: #fff;
+  --ui-color-badge-ring: rgb(255 255 255 / 0.2);
+  --ui-color-badge: #fff;
+  --ui-color-on-badge: var(--ui-color-accent);
+
+  /* ---- Surfaces: full `background` values, so a site can add images ---- */
+  --ui-bg-plain: transparent;
+  --ui-bg-accent: var(--ui-color-accent);
+  --ui-bg-deep: var(--ui-color-deep);
+  --ui-hero-backdrop: none;                /* extra layer behind the hero, desktop only */
+
+  /* ---- Shape ---- */
+  --ui-radius-panel: 20px;     /* sections */
+  --ui-radius-card: 16px;
+  --ui-radius-card-sm: 12px;
+  --ui-radius-card-xs: 8px;
+  --ui-radius-image: 12px;
+  --ui-radius-image-sm: 8px;
+  --ui-radius-control: 12px;   /* form bar */
+  --ui-radius-control-sm: 6px;
+  --ui-radius-button: 10px;
+  --ui-panel-gap: 0.625rem;    /* margin around every section panel */
+
+  /* ---- Layout ---- */
+  --ui-container-max: 81.5rem;
+  --ui-container-pad: 2rem;
+  --ui-container-pad-sm: 1rem;
+  --ui-grid-gap: 1rem;
+
+  /* Section padding: default + per-section overrides (see Section.astro).
+     A section called with spacing="steps" reads --ui-space-steps-top etc. */
+  --ui-space-top: 6.25rem;
+  --ui-space-bottom: 6.25rem;
+  --ui-space-top-mobile: 3rem;
+  --ui-space-bottom-mobile: 3rem;
+
+  /* ---- Motion (scroll reveal, desktop only like the Webflow originals) ---- */
+  --ui-reveal-distance: 100px;
+  --ui-reveal-duration: 1000ms;
+  --ui-reveal-ease: cubic-bezier(0.25, 1, 0.5, 1); /* easeOutQuart */
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100%;
+  background: var(--ui-color-page);
+  color: var(--ui-color-text);
+  font-family: var(--ui-font-body);
+  font-size: var(--ui-font-size-body);
+  line-height: var(--ui-line-height-body);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--ui-font-heading);
+  font-weight: var(--ui-font-weight-heading);
+}
+
+img {
+  max-width: 100%;
+  vertical-align: middle;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+a {
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--ui-color-field-focus);
+  outline-offset: 2px;
+}
+
+.ui-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---- Scroll reveal ----
+ * Elements opt in with data-reveal="up|left|right|fade" and optionally
+ * data-reveal-delay="300" (ms) and data-reveal-offset="0" (% of viewport from
+ * the bottom edge that must be passed, default 20). The hidden state only
+ * applies once scripts/reveal.ts has marked <html> with .ui-reveal-ready, so
+ * content stays visible without JS. Desktop only and never with reduced motion. */
+@media (min-width: 992px) and (prefers-reduced-motion: no-preference) {
+  .ui-reveal-ready [data-reveal] {
+    transition:
+      opacity var(--ui-reveal-duration) var(--ui-reveal-ease),
+      transform var(--ui-reveal-duration) var(--ui-reveal-ease);
+    transition-delay: var(--ui-reveal-delay, 0ms);
+  }
+
+  .ui-reveal-ready [data-reveal]:not(.is-revealed) {
+    opacity: 0;
+  }
+
+  .ui-reveal-ready [data-reveal='up']:not(.is-revealed) {
+    transform: translate3d(0, var(--ui-reveal-distance), 0);
+  }
+
+  .ui-reveal-ready [data-reveal='left']:not(.is-revealed) {
+    transform: translate3d(calc(var(--ui-reveal-distance) * -1), 0, 0);
+  }
+
+  .ui-reveal-ready [data-reveal='right']:not(.is-revealed) {
+    transform: translate3d(var(--ui-reveal-distance), 0, 0);
+  }
+}

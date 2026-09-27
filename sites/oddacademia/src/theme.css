@@ -1,0 +1,49 @@
+/*
+ * Odd Academia theme: token values only. Loaded after @noirvision/ui's
+ * tokens/base.css; components read these, the site never styles their internals.
+ */
+:root {
+  --ui-font-body: 'Plus Jakarta Sans Variable', 'Plus Jakarta Sans', sans-serif;
+
+  --ui-color-page: #f7f7f7;
+  --ui-color-text: #000;
+  --ui-color-accent: #0062ff;
+  --ui-color-on-accent: #fff;
+  --ui-color-deep: #003995;
+  --ui-color-on-deep: #fff;
+  --ui-color-field-text: #282f31;
+  --ui-color-dot: #cce0ff;
+  --ui-color-dot-active: #0661ff;
+
+  /* Hero: the Webflow backdrop artwork (desktop only). */
+  --ui-hero-backdrop: url('./images/hero-bg_1.avif') 50% 100% / 1511px no-repeat;
+  /* How it works: grid artwork over a navy radial gradient. */
+  --ui-bg-steps: url('./images/how-bg.svg') 50% / cover no-repeat, radial-gradient(circle, #092d67, #08275a);
+
+  /* Display sizes on phones */
+  --ui-size-h1-mobile: 28px;
+  --ui-size-h1-small: 32px;
+  --ui-size-heading-mobile-md: 28px;
+
+  /* Section spacing (desktop / ≤991px / ≤767px) */
+  --ui-space-waitlist-top: 3.75rem;
+  --ui-space-waitlist-top-mobile: 3.75rem;
+  --ui-space-waitlist-bottom-mobile: 6.25rem;
+  --ui-space-steps-top: 6.875rem;
+  --ui-space-steps-bottom: 6.875rem;
+  --ui-space-features-top: 7.5rem;
+  --ui-space-features-bottom: 7.5rem;
+  --ui-space-features-top-mobile: 2rem;
+  --ui-space-features-bottom-mobile: 2rem;
+  --ui-space-audience-top: 6.875rem;
+  --ui-space-audience-bottom: 8.125rem;
+  --ui-space-audience-bottom-mobile: 4.375rem;
+  --ui-space-legal-header-top: 6.25rem;
+  --ui-space-legal-header-bottom: 6.25rem;
+  --ui-space-legal-header-top-tablet: 2rem;
+  --ui-space-legal-header-bottom-tablet: 2rem;
+  --ui-space-legal-header-top-mobile: 57px;
+  --ui-space-legal-header-bottom-mobile: 57px;
+  --ui-space-legal-top-tablet: 3rem;
+  --ui-space-legal-bottom-tablet: 3rem;
+}

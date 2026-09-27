@@ -1,0 +1,122 @@
+---
+/**
+ * Audience call-to-action cards ("Join us"): icon, title, text per audience,
+ * columns separated by rules on desktop, stacked below 992px.
+ */
+import type { ImageMetadata } from 'astro';
+import Section from './Section.astro';
+import SectionHeading from './SectionHeading.astro';
+
+interface Card {
+  icon: ImageMetadata;
+  title: string;
+  text: string;
+  /** Optional link for the whole card. */
+  href?: string;
+}
+
+interface Props {
+  heading: string;
+  cards: Card[];
+  tone?: 'accent' | 'deep' | 'plain';
+}
+
+const { heading, cards, tone = 'accent' } = Astro.props;
+const direction = (i: number) => (i === 0 ? 'left' : i === cards.length - 1 ? 'right' : 'up');
+---
+
+<Section tone={tone} spacing="audience">
+  <SectionHeading size="lg" mobileSize="sm" data-reveal="up">{heading}</SectionHeading>
+  <ul class="cards" style={`--_cols:${cards.length}`}>
+    {
+      cards.map((card, i) => {
+        const Tag = card.href ? 'a' : 'div';
+        return (
+          <li data-reveal={direction(i)}>
+            <Tag class="card" href={card.href}>
+              <img class="icon" src={card.icon.src} width={card.icon.width} height={card.icon.height} alt="" loading="lazy" />
+              <h3 class="title">{card.title}</h3>
+              <p class="text">{card.text}</p>
+            </Tag>
+          </li>
+        );
+      })
+    }
+  </ul>
+</Section>
+
+<style>
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(var(--_cols), 1fr);
+    gap: calc(4rem * 2 + 1px);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  li {
+    position: relative;
+  }
+
+  li + li::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: calc(-4rem - 1px);
+    width: 1px;
+    background: var(--ui-color-divider-strong);
+  }
+
+  .card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: inherit;
+    text-align: center;
+    text-decoration: none;
+  }
+
+  .icon {
+    display: block;
+    width: 60px;
+    height: 60px;
+    margin-bottom: 0.5rem;
+  }
+
+  .title {
+    margin: 0 0 12px;
+    font-size: var(--ui-size-title);
+    line-height: 1.25;
+  }
+
+  .text {
+    margin: 0;
+    color: var(--ui-color-on-strong-muted);
+    font-size: var(--ui-font-size-body);
+  }
+
+  @media (max-width: 991px) {
+    .cards {
+      grid-template-columns: 1fr;
+      gap: 4rem;
+    }
+
+    li + li::before {
+      display: none;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .text {
+      font-size: var(--ui-size-small);
+    }
+  }
+
+  @media (max-width: 479px) {
+    .icon {
+      margin-bottom: 16px;
+    }
+  }
+</style>

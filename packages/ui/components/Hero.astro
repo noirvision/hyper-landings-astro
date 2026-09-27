@@ -1,0 +1,181 @@
+---
+/**
+ * Hero with a product visual: accent panel, header slot on top, centred
+ * title + lead, then a large screenshot that bleeds off the bottom edge.
+ *
+ * Slots: header (usually <Header>), default (optional extra content under
+ * the lead, e.g. a waitlist form).
+ * The backdrop layer (--ui-hero-backdrop) shows on desktop only.
+ */
+import type { ImageMetadata } from 'astro';
+import Image from './Image.astro';
+
+interface Props {
+  title: string;
+  lead?: string;
+  image: ImageMetadata;
+  imageAlt?: string;
+  /** Rendered width of the visual in px. */
+  imageWidth?: number;
+  imageSizes?: string;
+  tone?: 'accent' | 'deep';
+}
+
+const {
+  title,
+  lead,
+  image,
+  imageAlt = '',
+  imageWidth = 962,
+  imageSizes = '(max-width: 479px) 83vw, (max-width: 767px) 89vw, (max-width: 1045px) 92vw, 962px',
+  tone = 'accent',
+} = Astro.props;
+---
+
+<section class:list={['hero', `tone-${tone}`]} data-reveal="fade" data-reveal-offset="0" style="--ui-reveal-delay:100ms">
+  <div class="container">
+    <div class="top"><slot name="header" /></div>
+    <div class="copy">
+      <h1 class="title" data-reveal="up" data-reveal-offset="0" style="--ui-reveal-delay:600ms">{title}</h1>
+      {lead && <p class="lead" data-reveal="up" data-reveal-offset="0" style="--ui-reveal-delay:900ms">{lead}</p>}
+      <slot />
+    </div>
+    <div class="visual" data-reveal="up" data-reveal-offset="0" style="--ui-reveal-delay:1200ms">
+      <Image
+        src={image}
+        alt={imageAlt}
+        width={imageWidth}
+        widths={[480, 800, imageWidth, Math.round(imageWidth * 1.5)]}
+        sizes={imageSizes}
+        priority
+        class="shot"
+      />
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    margin: var(--ui-panel-gap);
+    padding-top: 2rem;
+    overflow: hidden;
+    border-radius: var(--ui-radius-panel);
+  }
+
+  .tone-accent {
+    background: var(--ui-hero-backdrop), var(--ui-bg-accent);
+    color: var(--ui-color-on-accent);
+  }
+
+  .tone-deep {
+    background: var(--ui-hero-backdrop), var(--ui-bg-deep);
+    color: var(--ui-color-on-deep);
+  }
+
+  .container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: var(--ui-container-max);
+    margin-inline: auto;
+    padding-inline: var(--ui-container-pad);
+  }
+
+  .top {
+    width: 100%;
+    max-width: 1300px;
+    margin-bottom: 1.125rem;
+    padding-block: 3rem 2.8125rem;
+  }
+
+  .copy {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 3.5625rem;
+    padding-inline: 2rem;
+  }
+
+  .title {
+    margin: 0 0 1.5rem;
+    font-size: var(--ui-size-h1);
+    line-height: 1.5;
+    text-align: center;
+  }
+
+  .lead {
+    max-width: 62.9375rem;
+    margin: 0;
+    font-size: var(--ui-size-lead);
+    line-height: 1.6;
+    text-align: center;
+  }
+
+  .visual {
+    position: relative;
+    bottom: -10px;
+    max-width: 100%;
+  }
+
+  .visual :global(.shot) {
+    border-radius: var(--ui-radius-image) var(--ui-radius-image) 0 0;
+  }
+
+  @media (max-width: 991px) {
+    .hero.tone-accent {
+      background: var(--ui-bg-accent);
+    }
+
+    .hero.tone-deep {
+      background: var(--ui-bg-deep);
+    }
+
+    .copy {
+      padding-bottom: 40px;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .hero {
+      padding-top: 1rem;
+    }
+
+    .top {
+      margin-bottom: 0;
+      padding-block: 0 3.125rem;
+    }
+
+    .copy {
+      align-items: flex-start;
+      margin-bottom: 0;
+      padding: 0 0 5.375rem;
+    }
+
+    .title {
+      font-size: var(--ui-size-h1-mobile);
+      line-height: 1.4;
+      text-align: left;
+    }
+
+    .lead {
+      font-size: var(--ui-size-xs);
+      text-align: left;
+    }
+  }
+
+  @media (max-width: 479px) {
+    .copy {
+      margin-bottom: 20px;
+      padding-bottom: 0;
+    }
+
+    .title {
+      font-size: var(--ui-size-h1-small, var(--ui-size-h1-mobile));
+      line-height: 1.2;
+    }
+
+    .visual :global(.shot) {
+      border-radius: var(--ui-radius-image-sm) var(--ui-radius-image-sm) 0 0;
+    }
+  }
+</style>

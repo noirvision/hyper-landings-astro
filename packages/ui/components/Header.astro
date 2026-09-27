@@ -1,0 +1,68 @@
+---
+/**
+ * Top bar: logo linking home, optional social links on the right.
+ * Used inside the hero and on its own (in a deep Section) on legal pages.
+ */
+import type { ImageMetadata } from 'astro';
+import SocialLinks, { type SocialLink } from './SocialLinks.astro';
+
+interface Props {
+  logo: ImageMetadata;
+  logoAlt: string;
+  homeHref?: string;
+  socials?: SocialLink[];
+  /** Reveal the logo and socials on scroll (hero). */
+  reveal?: boolean;
+}
+
+const { logo, logoAlt, homeHref = '/', socials, reveal = false } = Astro.props;
+const revealAttrs = (dir: string) => (reveal ? { 'data-reveal': dir, 'data-reveal-offset': '0', style: '--ui-reveal-delay:300ms' } : {});
+---
+
+<header class:list={['header', { 'has-socials': socials?.length }]}>
+  <a href={homeHref} class="brand" aria-label={`${logoAlt} home`} {...revealAttrs('left')}>
+    <img src={logo.src} width={logo.width} height={logo.height} alt="" class="logo" />
+  </a>
+  {socials?.length ? (
+    <div class="socials" {...revealAttrs('right')}>
+      <SocialLinks links={socials} sizeSmall={22} />
+    </div>
+  ) : null}
+</header>
+
+<style>
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .brand {
+    display: block;
+    max-width: 100%;
+  }
+
+  .logo {
+    display: block;
+    height: auto;
+  }
+
+  @media (max-width: 767px) {
+    .brand {
+      max-width: 136px;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .header:not(.has-socials) {
+      justify-content: center;
+    }
+  }
+
+  @media (max-width: 479px) {
+    .has-socials .logo {
+      width: 120px;
+    }
+  }
+</style>

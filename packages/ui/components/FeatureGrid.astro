@@ -1,0 +1,211 @@
+---
+/**
+ * Feature grid ("Why choose us"): image + title + text per item, columns
+ * separated by thin rules on desktop. Below 992px the same list becomes a
+ * one-item-per-view scroll-snap slider with dots (scripts/slider.ts).
+ *
+ * Slot `heading` renders above the grid (usually a <SectionHeading>).
+ */
+import type { ImageMetadata } from 'astro';
+import Image from './Image.astro';
+
+interface Item {
+  image: ImageMetadata;
+  imageAlt?: string;
+  title: string;
+  text: string;
+}
+
+interface Props {
+  items: Item[];
+  /** Accessible name of the list/slider. */
+  label: string;
+  /** Rendered image width in px. */
+  imageWidth?: number;
+}
+
+const { items, label, imageWidth = 371 } = Astro.props;
+// Desktop reveal directions: first column from the left, last from the right, the rest from below.
+const direction = (i: number) => (i === 0 ? 'left' : i === items.length - 1 ? 'right' : 'up');
+---
+
+<div class="features" data-ui-slider>
+  <slot name="heading" />
+  <ul class="track" data-ui-slider-track aria-label={label} tabindex="0" style={`--_cols:${items.length}`}>
+    {
+      items.map((item, i) => (
+        <li class="item" data-reveal={direction(i)}>
+          <Image
+            src={item.image}
+            alt={item.imageAlt}
+            width={imageWidth}
+            widths={[imageWidth, Math.round(imageWidth * 1.5), imageWidth * 2]}
+            sizes={`(max-width: 479px) 78vw, ${imageWidth}px`}
+            class="image"
+          />
+          <div class="text">
+            <h3 class="title">{item.title}</h3>
+            <p class="body">{item.text}</p>
+          </div>
+        </li>
+      ))
+    }
+  </ul>
+  <div class="dots" data-ui-slider-dots>
+    {items.map((item, i) => <button type="button" class="dot" aria-label={`Show slide ${i + 1}: ${item.title}`} />)}
+  </div>
+</div>
+
+<script>
+  import '../scripts/slider.ts';
+</script>
+
+<style>
+  .features {
+    position: relative;
+  }
+
+  .track {
+    display: grid;
+    grid-template-columns: repeat(var(--_cols), 1fr);
+    gap: calc(var(--ui-grid-gap) * 2 + 1px);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .track:focus-visible {
+    outline-offset: 4px;
+  }
+
+  .item {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  /* Column rules: a 1px line in the middle of each gap (gap, rule, gap). */
+  .item + .item {
+    position: relative;
+  }
+
+  .item + .item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: calc((var(--ui-grid-gap) + 1px) * -1);
+    width: 1px;
+    background: var(--ui-color-divider);
+  }
+
+  .item :global(.image) {
+    margin-bottom: 2rem;
+  }
+
+  .title {
+    margin: 0 0 12px;
+    font-size: var(--ui-size-title);
+    line-height: 1.25;
+  }
+
+  .body {
+    margin: 0;
+    font-size: var(--ui-font-size-body);
+    opacity: var(--ui-color-text-muted-opacity);
+  }
+
+  .dots {
+    display: none;
+  }
+
+  @media (max-width: 991px) {
+    .track {
+      display: flex;
+      gap: 0;
+      overflow-x: auto;
+      overscroll-behavior-x: contain;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none;
+    }
+
+    .track::-webkit-scrollbar {
+      display: none;
+    }
+
+    .item {
+      flex: 0 0 100%;
+      scroll-snap-align: start;
+      scroll-snap-stop: always;
+    }
+
+    .item + .item::before {
+      display: none;
+    }
+
+    .dots {
+      position: absolute;
+      top: calc(100% + 34px - (24px - 1em) / 2);
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: center;
+      font-size: 0.8rem;
+    }
+
+    /* 24px targets; the visible dot is drawn inside. */
+    .dot {
+      position: relative;
+      width: 24px;
+      height: 24px;
+      padding: 0;
+      border: 0;
+      background: none;
+      cursor: pointer;
+    }
+
+    .dot::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      width: 1em;
+      height: 1em;
+      margin: auto;
+      border-radius: 50%;
+      background: var(--ui-color-dot);
+      transition: background-color 0.1s;
+    }
+
+    .dot:global(.is-active)::before {
+      background: var(--ui-color-dot-active);
+    }
+  }
+
+  @media (max-width: 479px) {
+    .item {
+      align-items: center;
+    }
+
+    .item :global(.image) {
+      margin-bottom: 10px;
+    }
+
+    .text {
+      align-self: stretch;
+    }
+
+    .title {
+      margin-bottom: 6px;
+      font-size: var(--ui-size-title-sm);
+    }
+
+    .body {
+      font-size: var(--ui-size-small);
+    }
+
+    .dots {
+      top: calc(100% + 12px - (24px - 1em) / 2);
+    }
+  }
+</style>
