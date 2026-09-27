@@ -12,8 +12,9 @@
  *          (≤767px), falling back to --ui-space-top etc. The same name also
  *          reads --ui-margin-{spacing} (default: --ui-panel-gap-y / -x) and
  *          --ui-radius-{spacing} (default: --ui-radius-panel), so a site can
- *          run one section edge to edge or join it to the next panel.
- *          Sites set them in theme.css.
+ *          run one section edge to edge or join it to the next panel, and
+ *          --ui-container-max-{spacing} (default: --ui-container-max) to
+ *          widen or narrow its container. Sites set them in theme.css.
  */
 import type { HTMLAttributes } from 'astro/types';
 
@@ -41,6 +42,7 @@ const vars = [
     ? [
         `--_m:var(--ui-margin-${spacing}, var(--ui-panel-gap-y) var(--ui-panel-gap-x))`,
         `--_r:var(--ui-radius-${spacing}, var(--ui-radius-panel))`,
+        `--_cm:var(--ui-container-max-${spacing}, var(--ui-container-max))`,
       ]
     : []),
 ].join(';');
@@ -83,7 +85,7 @@ const vars = [
 
   .container {
     position: relative;
-    max-width: var(--ui-container-max);
+    max-width: var(--_cm, var(--ui-container-max));
     margin-inline: auto;
     padding-inline: var(--ui-container-pad);
   }

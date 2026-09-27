@@ -4,6 +4,8 @@
  *
  * Height and radius read --ui-button-height / --ui-button-radius, so a parent
  * component (or a site theme) can size it without touching its internals.
+ * Also --ui-button-font-size, and the hover effect --ui-button-hover-filter /
+ * --ui-button-hover-opacity with --ui-button-transition.
  *
  * variant  primary (accent fill) | inverse (light fill, accent text — for
  *          accent/deep panels).
@@ -31,12 +33,12 @@ const Tag = href ? 'a' : 'button';
     border-radius: var(--ui-button-radius, var(--ui-radius-button));
     background: var(--ui-color-accent);
     color: var(--ui-color-on-accent);
-    font-size: var(--ui-size-small);
+    font-size: var(--ui-button-font-size, var(--ui-size-small));
     font-weight: var(--ui-button-weight, var(--ui-font-weight-button));
     line-height: 1.4;
     text-decoration: none;
     cursor: pointer;
-    transition: filter 0.2s ease;
+    transition: var(--ui-button-transition, filter 0.2s ease);
   }
 
   .variant-inverse {
@@ -45,7 +47,8 @@ const Tag = href ? 'a' : 'button';
   }
 
   .button:hover {
-    filter: brightness(1.08);
+    filter: var(--ui-button-hover-filter, brightness(1.08));
+    opacity: var(--ui-button-hover-opacity, 1);
   }
 
   @media (max-width: 767px) {

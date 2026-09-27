@@ -9,8 +9,7 @@ from existing sections instead of copied from an old one.
 | --- | --- | --- |
 | Odd Academia | `sites/oddacademia` | https://oddacademia-astro.pages.dev |
 | Policy Box | `sites/policybox` | https://policybox-astro.pages.dev (once the Pages project exists) |
-
-Next up: Rithm (dark theme).
+| Rithm | `sites/rithm` | https://rithm-astro.pages.dev (once the Pages project exists) — dark theme |
 
 ## Structure
 
@@ -32,6 +31,7 @@ sites/oddacademia/
   src/assets/           content images and icons (optimised at build time)
   src/images/           theme artwork referenced from theme.css
 sites/policybox/        same shape; src/fonts holds self-hosted Figtree (WOFF2, OFL licence alongside)
+sites/rithm/            same shape, dark theme; src/fonts holds Nunito Sans, Archivo, Space Grotesk (OFL licences alongside)
 reference/<site>/       the original Webflow exports, kept for comparison (not built)
 ```
 
@@ -51,29 +51,34 @@ reference/<site>/       the original Webflow exports, kept for comparison (not b
   (e.g. `Hero layout="split"`), and tokens still decide every colour, size and space.
 - Breakpoints are fixed across the library: desktop ≥992px, tablet ≤991px, mobile ≤767px,
   small ≤479px.
+- Themes are tokens only, light or dark. Colours a component used to hard-code are tokens whose
+  default keeps the old look (e.g. `--ui-color-heading`, default the text colour). Rithm is the dark
+  reference: `--ui-color-page`/`-text`, `--ui-color-deep` set to the page colour, and
+  `--ui-color-text-muted-opacity: 1`.
 
 ### Components
 
 | Component | Role | Main props / slots |
 | --- | --- | --- |
-| `Section` | Rounded panel + container | `tone` (plain/accent/deep), `spacing` (token name), `as` |
-| `SectionHeading` | Section title; `<em>` = accent word, or a highlighter bar if the site sets `--ui-heading-mark` | `as`, `size`, `mobileSize`, `align`, `gap` (xs/sm/md/lg/xl, each a token per breakpoint) |
+| `Section` | Rounded panel + container | `tone` (plain/accent/deep), `spacing` (token name; also reads `--ui-container-max-{name}`), `as` |
+| `SectionHeading` | Section title; `<em>` = accent word, or a highlighter bar if the site sets `--ui-heading-mark`. Colour `--ui-color-heading` | `as`, `size`, `mobileSize`, `align`, `gap` (xs/sm/md/lg/xl, each a token per breakpoint), `eyebrow` + `eyebrowIcon` (uppercase label above, `--ui-eyebrow-*`; reveals like the heading) |
 | `Header` | Logo + social links | `logo`, `logoAlt`, `homeHref`, `socials`, `bar` (floating pill), `reveal` (`true` or `{ delay, logoDistance }`), `socialSize`, `socialSizeSmall` |
-| `Hero` | Hero with product visual | `layout` (centered/split), `title`, `titleMuted` (lighter first line), `lead` (string or paragraphs), `image`, `imageAlt`, `imageWidth`, `tone`; slots `header`, default |
-| `WaitlistForm` | Dropdown + email + button, or email only | `layout` (separate/inline: button inside the bar), `heading` or slot `heading`, `lead`, `options` (omit → single field), `selectPlaceholder`, `selectLabel`, `selectIcon`, `emailPlaceholder`, `buttonLabel`, `successMessage`, `id`, `revealGroup` (`{ delay, offset }`) |
+| `Hero` | Hero with product visual | `layout` (centered/split), `visual` (split: bleed/contained — centred at `imageWidth`, e.g. a phone over a `--ui-hero-backdrop` photo), `mobileAlign` (start/center), `reveal` (split delays `{ copy, title, lead, content, visual }`, `copy: null` = off), `title`, `titleMuted` (lighter first line), `lead` (string or paragraphs), `image`, `imageAlt`, `imageWidth`, `tone`; slots `header` (top row, only rendered when given), `brand` (split: above the title), default (under the lead, e.g. a form) |
+| `WaitlistForm` | Dropdown + email + button, or email only | `layout` (separate/inline: button inside the bar), `heading` or slot `heading`, `lead`, `options` (omit → single field), `selectPlaceholder`, `selectLabel`, `selectIcon`, `emailPlaceholder`, `buttonLabel`, `successMessage`, `id`, `revealGroup` (`{ delay, offset }`), `reveal` (`false` when a parent block reveals it) |
 | `FeatureGrid` | "Why choose" grid, slider below 992px | `items` ({image, title, text}), `label`, `imageWidth`; slot `heading` |
-| `FeatureCards` | "Why choose" as mixed-size cards (bento) | `items` ({icon, title, text, image, imageWidth, span {cols, rows}, bleed bottom/right/none, reveal}), `label`, `columns`; slot `heading` |
+| `FeatureCards` | "Why choose" as mixed-size cards (bento), or plain icon cards | `items` ({icon, title, text, image?, imageWidth, span {cols, rows}, bleed bottom/right/none, reveal}), `label`, `columns`, `iconLayout` (inline/stacked: icon above the title), `reveal` (`{ offset, grid: 'fade'\|'up', gridOffset }`); slot `heading` |
+| `MediaText` | One text block beside one image ("Solutions") | `eyebrow`, `eyebrowIcon`, `heading` or slot `heading`, `text` (paragraphs), `image`, `imageAlt`, `imageWidth`, `flip` (image right), `backdrop` + `backdropWidth` (decorative photo at the bottom-left, desktop), `revealOffset` |
 | `Steps` | "How it works" | `layout` (path/stack/list), `heading` or slot `heading`, `steps` ({title, text, textWidth}), `offsets`, `tone`, `image`/`imageAlt`/`imageWidth` (list) |
 | `FeatureRows` | Alternating text + image rows | `variant` (rules/cards), `heading` or slot `heading`, `rows` ({icon, title, lead, text, image, flip}; `\n` in text = line break), `tone`, `imageWidth` |
 | `FeatureList` | Heading + intro left, icon items right ("Alternate uses") | `heading` or slot `heading`, `intro` (paragraphs), `items` ({icon, title, text}), `columns`, `tone` |
-| `CallToAction` | Centred heading, line, button | `heading` or slot `heading`, `text`, `button` ({label, href}), `tone` |
+| `CallToAction` | Centred heading, line, button; or a coloured panel with a form and an image | `layout` (centered/panel), `heading` or slot `heading`, `text`, `button` ({label, href}, optional), `image`/`imageAlt`/`imageWidth` (panel, desktop), `reveal` (up/left), `tone`; default slot (panel) = the action, e.g. a `WaitlistForm` |
 | `AudienceCards` | Audience CTAs ("Join us") | `variant` (columns/glass), `heading` or slot `heading`, `lead`, `cards` ({icon, title, text, href?, cta? {label, href}}), `tone`, `as` |
-| `Footer` | Footer with "Launched with Hyper" + credit line | `layout` (split/card), `logo`, `logoAlt`, `email`, `emailLabel`, `socials`, `copyright`, `legalLinks`, `current`, `variant` (landing/legal), `hyperText`, `hyperLogo`, `frame`, `reveal`; default slot = content inside the card above the rows |
+| `Footer` | Footer with "Launched with Hyper" + credit line | `layout` (split/card/compact: logo, legal links and copyright stacked left, Hyper right, no panel), `logo`, `logoAlt`, `email`, `emailLabel`, `socials`, `copyright`, `legalLinks`, `current`, `variant` (landing/legal), `hyperText`, `hyperLogo`, `frame`, `reveal`; default slot = content inside the card above the rows |
 | `SocialLinks` | Icon links | `links` ({href, label, icon}), `size`, `sizeSmall` |
-| `Button` | Button or link-as-button | `href?`, `variant` (primary/inverse), native attributes; sized by `--ui-button-*` |
+| `Button` | Button or link-as-button | `href?`, `variant` (primary/inverse), native attributes; sized by `--ui-button-*` (incl. `-font-size`, `-hover-filter`/`-hover-opacity`, `-transition`) |
 | `Image` | `<Picture>`: AVIF + WebP, WebP fallback | `src`, `alt`, `width`, `widths`, `sizes`, `priority` |
-| `BaseLayout` | `<head>`, `<main>`, reveal + in-page-link scripts | `title`, `description`, `ogImage`, `noindex`, `favicon`, `appleTouchIcon`, `preloadFonts`; slots default, `head`, `footer` |
-| `LegalLayout` | Legal page: header, prose, legal footer | BaseLayout props + `header`, `footer`; default slot = the legal HTML |
+| `BaseLayout` | `<head>`, `<main>`, reveal + in-page-link scripts | `title`, `description`, `ogImage`, `noindex`, `favicon`, `appleTouchIcon`, `preloadFonts`, `ogTitle` (default true); slots default, `head`, `footer` |
+| `LegalLayout` | Legal page: header, prose, legal footer | BaseLayout props + `header`, `footer`; default slot = the legal HTML. Document rhythm by tokens (`--ui-prose-h2-gap`, `--ui-prose-h3-space`, `--ui-prose-heading-font`), never spacer paragraphs |
 
 Each component's header comment lists the tokens it reads beyond `tokens/base.css`.
 
@@ -82,6 +87,8 @@ Each component's header comment lists the tokens it reads beyond `tokens/base.cs
 - **Scroll reveal** — add `data-reveal="up|left|right|fade"` (optional
   `data-reveal-offset`, `--ui-reveal-delay`). CSS transitions + IntersectionObserver, desktop only
   (as in the Webflow originals), off with `prefers-reduced-motion`, and nothing is hidden without JS.
+  An element scrolled past without ever intersecting (instant jumps, flings, restored scroll
+  positions) is shown at once, without animation, as soon as it is above the viewport.
 - **Dropdown** — native `<select>`; the placeholder is not selectable. In Chromium the open list
   is styled with `appearance: base-select`; other browsers show their native list.
 - **Slider** — CSS scroll-snap; dots and arrow/Home/End keys wired by `scripts/slider.ts`.
@@ -100,6 +107,7 @@ npm run dev:oddacademia       # http://localhost:4321
 npm run build:oddacademia     # static site in sites/oddacademia/dist
 npm run preview:oddacademia   # serve the build
 npm run dev:policybox         # same three scripts per site
+npm run dev:rithm
 npm run build                 # build every site
 ```
 
@@ -109,17 +117,17 @@ One Pages project per site, all connected to this repository. Set **Root directo
 repo root (leave it empty) so npm installs the workspaces from the root `package-lock.json`;
 Pages runs `npm clean-install` automatically before the build command.
 
-| Setting | Odd Academia | Policy Box |
-| --- | --- | --- |
-| Project name | `oddacademia-astro` | `policybox-astro` |
-| Production branch | `main` | `main` |
-| Framework preset | None | None |
-| Root directory | *(empty — repository root)* | *(empty — repository root)* |
-| Build command | `npm run build:oddacademia` | `npm run build:policybox` |
-| Build output directory | `sites/oddacademia/dist` | `sites/policybox/dist` |
-| Environment variable | `NODE_VERSION` = `24` | `NODE_VERSION` = `24` |
-| Build watch paths — include | `sites/oddacademia/*`, `packages/ui/*`, `package.json`, `package-lock.json`, `.nvmrc` | `sites/policybox/*`, `packages/ui/*`, `package.json`, `package-lock.json`, `.nvmrc` |
-| Build watch paths — exclude | *(none)* | *(none)* |
+| Setting | Odd Academia | Policy Box | Rithm |
+| --- | --- | --- | --- |
+| Project name | `oddacademia-astro` | `policybox-astro` | `rithm-astro` |
+| Production branch | `main` | `main` | `main` |
+| Framework preset | None | None | None |
+| Root directory | *(empty — repository root)* | *(empty — repository root)* | *(empty — repository root)* |
+| Build command | `npm run build:oddacademia` | `npm run build:policybox` | `npm run build:rithm` |
+| Build output directory | `sites/oddacademia/dist` | `sites/policybox/dist` | `sites/rithm/dist` |
+| Environment variable | `NODE_VERSION` = `24` | `NODE_VERSION` = `24` | `NODE_VERSION` = `24` |
+| Build watch paths — include | `sites/oddacademia/*`, `packages/ui/*`, `package.json`, `package-lock.json`, `.nvmrc` | `sites/policybox/*`, `packages/ui/*`, `package.json`, `package-lock.json`, `.nvmrc` | `sites/rithm/*`, `packages/ui/*`, `package.json`, `package-lock.json`, `.nvmrc` |
+| Build watch paths — exclude | *(none)* | *(none)* | *(none)* |
 
 The project name matches `site` in the site's `astro.config.mjs`; if you create a differently named
 project, update `site` there.
@@ -158,7 +166,8 @@ never into client code.
    allows redistribution (e.g. SIL OFL, with the licence file next to them). If the original
    uses a commercial font, pick the closest free one and tune it in `@font-face`
    (`size-adjust`, `ascent-override`/`descent-override`) and the `--ui-font-weight-*` tokens, as
-   `sites/policybox/src/layouts/fonts.css` does.
+   `sites/policybox/src/layouts/fonts.css` and `sites/rithm/src/layouts/fonts.css` do (the latter
+   records how each value was measured against a screenshot of the live site).
 4. **Content.** Replace `src/content.ts` (brand, socials, footer), images in `src/assets`, and
    `public/` files (favicon, `opengraph.png`, `_headers`, `_redirects`). Write the pages by
    composing components; keep copy verbatim from the reference (fix obvious typos only and

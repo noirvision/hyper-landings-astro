@@ -1,33 +1,93 @@
 ---
 /**
- * Call to action: centred heading, one line of text and a button, on its own
- * section panel (<Section spacing="cta">: --ui-bg-cta, --ui-space-cta-*,
- * --ui-margin-cta, --ui-radius-cta). Heading, text and button rise in turn.
+ * Call to action on its own section (<Section spacing="cta">: --ui-bg-cta,
+ * --ui-space-cta-*, --ui-margin-cta, --ui-radius-cta, --ui-container-max-cta).
+ *
+ * layout   centered (default): centred heading, one line of text and a
+ *          button. Heading, text and button rise in turn.
+ *          panel: a coloured panel inside the container, copy on the left
+ *          (heading, text, then the default slot — e.g. a <WaitlistForm> —
+ *          or the button) and an optional `image` on the right, filling the
+ *          panel's height and hidden below 992px. At ≤767px the copy is
+ *          centred. Tokens: --ui-cta-panel-bg, --ui-color-on-cta-panel,
+ *          --ui-cta-panel-heading (heading colour, default the panel text),
+ *          --ui-cta-panel-radius(-small), --ui-cta-panel-pad(-mobile/-small),
+ *          --ui-cta-panel-copy-max, --ui-cta-text-size(-small), --ui-cta-text-gap.
+ * reveal   up (default) | left — direction the heading, text and action use.
  *
  * heading may be replaced by a `heading` slot (for <em> markup).
  */
+import type { ImageMetadata } from 'astro';
 import Section from './Section.astro';
 import SectionHeading from './SectionHeading.astro';
 import Button from './Button.astro';
+import Image from './Image.astro';
 
 interface Props {
   heading?: string;
   text?: string;
-  button: { label: string; href: string };
+  button?: { label: string; href: string };
   tone?: 'plain' | 'accent' | 'deep';
+  layout?: 'centered' | 'panel';
+  image?: ImageMetadata;
+  imageAlt?: string;
+  /** Width in px the image is sized for (default: half the file's width). */
+  imageWidth?: number;
+  reveal?: 'up' | 'left';
 }
 
-const { heading, text, button, tone = 'plain' } = Astro.props;
+const { heading, text, button, tone = 'plain', layout = 'centered', image, imageAlt, reveal = 'up' } = Astro.props;
+const panel = layout === 'panel';
+const imageWidth = Astro.props.imageWidth ?? (image ? Math.round(image.width / 2) : 0);
+const hasAction = Astro.slots.has('default');
 ---
 
 <Section tone={tone} spacing="cta">
-  <SectionHeading gap="sm" mobileSize="md" data-reveal="up">
-    {Astro.slots.has('heading') ? <slot name="heading" /> : heading}
-  </SectionHeading>
-  {text && <p class="text" data-reveal="up">{text}</p>}
-  <div class="action" data-reveal="up">
-    <Button href={button.href}>{button.label}</Button>
-  </div>
+  {
+    panel ? (
+      <div class="panel">
+        <div class="copy">
+          <SectionHeading align="start-center" gap="xs" mobileSize="md" data-reveal={reveal}>
+            {Astro.slots.has('heading') ? <slot name="heading" /> : heading}
+          </SectionHeading>
+          {text && <p class="panel-text" data-reveal={reveal}>{text}</p>}
+          {hasAction && (
+            <div class="panel-action" data-reveal={reveal}>
+              <slot />
+            </div>
+          )}
+          {button && (
+            <div class="panel-action" data-reveal={reveal}>
+              <Button href={button.href}>{button.label}</Button>
+            </div>
+          )}
+        </div>
+        {image && (
+          <div class="media">
+            <Image
+              src={image}
+              alt={imageAlt}
+              width={imageWidth}
+              widths={[imageWidth, Math.round(imageWidth * 1.5), imageWidth * 2]}
+              sizes={`${imageWidth}px`}
+            />
+          </div>
+        )}
+      </div>
+    ) : (
+      <Fragment>
+        <SectionHeading gap="sm" mobileSize="md" data-reveal={reveal}>
+          {Astro.slots.has('heading') ? <slot name="heading" /> : heading}
+        </SectionHeading>
+        {text && <p class="text" data-reveal={reveal}>{text}</p>}
+        {button && (
+          <div class="action" data-reveal={reveal}>
+            <Button href={button.href}>{button.label}</Button>
+          </div>
+        )}
+      </Fragment>
+    )
+  }
 </Section>
 
 <style>
@@ -44,15 +104,82 @@ const { heading, text, button, tone = 'plain' } = Astro.props;
     align-items: center;
   }
 
+  /* ---------- Panel ---------- */
+  .panel {
+    position: relative;
+    overflow: hidden;
+    padding: var(--ui-cta-panel-pad, 3.5rem 3.5rem 3.5rem 5rem);
+    border-radius: var(--ui-cta-panel-radius, var(--ui-radius-panel));
+    background: var(--ui-cta-panel-bg, var(--ui-bg-accent));
+    color: var(--ui-color-on-cta-panel, var(--ui-color-on-accent));
+    --ui-color-heading: var(--ui-cta-panel-heading, currentColor);
+  }
+
+  .copy {
+    position: relative;
+    z-index: 1;
+    max-width: var(--ui-cta-panel-copy-max, 30.625rem);
+  }
+
+  .panel-text {
+    margin: 0 0 var(--ui-cta-text-gap, 1.5rem);
+    font-size: var(--ui-cta-text-size, var(--ui-font-size-body));
+    letter-spacing: var(--ui-lead-letter-spacing, normal);
+    opacity: var(--ui-color-text-muted-opacity);
+  }
+
+  .media {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .media :global(.picture),
+  .media :global(.img) {
+    width: auto;
+    max-width: none;
+    height: 100%;
+  }
+
+  @media (max-width: 991px) {
+    .media {
+      display: none;
+    }
+  }
+
   @media (max-width: 767px) {
     .text {
       font-size: var(--ui-size-small);
+    }
+
+    .panel {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: var(--ui-cta-panel-pad-mobile, 2.5rem);
+    }
+
+    .copy {
+      width: 100%;
     }
   }
 
   @media (max-width: 479px) {
     .text {
       margin-bottom: 1.5rem;
+    }
+
+    .panel {
+      padding: var(--ui-cta-panel-pad-small, var(--ui-cta-panel-pad-mobile, 2.5rem));
+      border-radius: var(--ui-cta-panel-radius-small, var(--ui-cta-panel-radius, var(--ui-radius-panel)));
+    }
+
+    .panel-text {
+      font-size: var(--ui-cta-text-size-small, var(--ui-cta-text-size, var(--ui-font-size-body)));
+      text-align: center;
     }
   }
 </style>

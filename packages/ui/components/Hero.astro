@@ -9,6 +9,18 @@
  *   bleeding off the right and bottom edges (the image itself carries any
  *   perspective). Copy slides in from the left, the visual from the right.
  *   Sized by --ui-hero-copy-width and --ui-hero-visual-height(-tablet/-small).
+ *   visual="contained": the visual is not bled off the edges but centred in
+ *   its column at `imageWidth` (e.g. a phone mockup over a backdrop photo).
+ *   Grid and spacing tokens: --ui-hero-gap(-tablet/-small), --ui-hero-grid-mb
+ *   (-mobile), --ui-hero-copy-max, --ui-hero-brand-gap(-tablet),
+ *   --ui-hero-title-gap(-mobile/-small), --ui-hero-content-gap,
+ *   --ui-hero-lead-size(-mobile), --ui-space-hero-top-tablet,
+ *   --ui-hero-copy-offset-small (space above the copy at ≤479px).
+ *   mobileAlign="center": at ≤767px the copy column is centred (brand,
+ *   title, form); lead text follows --ui-hero-lead-align-mobile / -small.
+ *   reveal: override the split choreography's delays in ms
+ *   ({ copy, title, lead, content, visual }); copy: null = no reveal on the
+ *   whole column; content = the default slot (e.g. a form), off by default.
  *
  * titleMuted  optional opening words of the title in --ui-hero-title-muted
  *             (e.g. "Decisions" + "made simple"); the title wraps naturally,
@@ -16,8 +28,10 @@
  * lead        one paragraph, or several (on phones the first can be set
  *             smaller with --ui-hero-first-lead-size-small).
  *
- * Slots: header (usually <Header>), default (optional extra content under
- * the lead, e.g. a waitlist form).
+ * Slots: header (usually <Header>; the top row is only rendered when given),
+ * brand (split: content above the title in the copy column, e.g. <Header>
+ * with just the logo), default (optional extra content under the lead, e.g.
+ * a waitlist form). Title colour: --ui-color-heading.
  * The backdrop layer (--ui-hero-backdrop) shows on desktop; below 992px
  * --ui-hero-backdrop-tablet (default none) replaces it.
  */
@@ -35,6 +49,11 @@ interface Props {
   imageSizes?: string;
   tone?: 'accent' | 'deep';
   layout?: 'centered' | 'split';
+  /** split: bleed the visual off the edges (default) or centre it in its column. */
+  visual?: 'bleed' | 'contained';
+  mobileAlign?: 'start' | 'center';
+  /** split: reveal delays in ms; copy: null turns the column's own reveal off. */
+  reveal?: { copy?: number | null; title?: number; lead?: number; content?: number; visual?: number };
 }
 
 const {
@@ -45,54 +64,97 @@ const {
   imageAlt = '',
   tone = 'accent',
   layout = 'centered',
-  imageWidth = layout === 'split' ? 1652 : 962,
-  imageSizes = layout === 'split'
-    ? `(max-width: 767px) 150vw, (max-width: 991px) 160vw, ${imageWidth}px`
-    : '(max-width: 479px) 83vw, (max-width: 767px) 89vw, (max-width: 1045px) 92vw, 962px',
+  visual = 'bleed',
+  mobileAlign = 'start',
+  reveal: delays = {},
 } = Astro.props;
 const split = layout === 'split';
+const contained = split && visual === 'contained';
+const imageWidth = Astro.props.imageWidth ?? (contained ? 266 : split ? 1652 : 962);
+const imageSizes =
+  Astro.props.imageSizes ??
+  (contained
+    ? `${imageWidth}px`
+    : split
+      ? `(max-width: 767px) 150vw, (max-width: 991px) 160vw, ${imageWidth}px`
+      : '(max-width: 479px) 83vw, (max-width: 767px) 89vw, (max-width: 1045px) 92vw, 962px');
 const leads = lead ? (Array.isArray(lead) ? lead : [lead]) : [];
-const widths = split
-  ? [800, 1200, imageWidth, Math.round(imageWidth * 1.5), imageWidth * 2]
-  : [480, 800, imageWidth, Math.round(imageWidth * 1.5)];
+const widths = contained
+  ? [imageWidth, Math.round(imageWidth * 1.5), imageWidth * 2]
+  : split
+    ? [800, 1200, imageWidth, Math.round(imageWidth * 1.5), imageWidth * 2]
+    : [480, 800, imageWidth, Math.round(imageWidth * 1.5)];
+const hasHeader = Astro.slots.has('header');
+const hasBrand = split && Astro.slots.has('brand');
+const hasContent = Astro.slots.has('default');
+type Motion = [string, number] | null;
+const step = (dir: string, fallback: Motion, delay: number | null | undefined): Motion =>
+  delay === null ? null : delay === undefined ? fallback : [dir, delay];
 // Reveal choreography per layout: [attribute, delay ms].
-const motion = split
-  ? { section: null, copy: ['left', 300], title: ['left', 400], lead: ['left', 700], visual: ['right', 1000] }
-  : { section: ['fade', 100], copy: null, title: ['up', 600], lead: ['up', 900], visual: ['up', 1200] };
-const reveal = (m: (string | number)[] | null) =>
+const motion: Record<string, Motion> = split
+  ? {
+      section: null,
+      copy: step('left', ['left', 300], delays.copy),
+      title: step('left', ['left', 400], delays.title),
+      lead: step('left', ['left', 700], delays.lead),
+      content: step('left', null, delays.content),
+      visual: step('right', ['right', 1000], delays.visual),
+    }
+  : { section: ['fade', 100], copy: null, title: ['up', 600], lead: ['up', 900], content: null, visual: ['up', 1200] };
+const reveal = (m: Motion) =>
   m ? { 'data-reveal': m[0], 'data-reveal-offset': '0', style: `--ui-reveal-delay:${m[1]}ms` } : {};
 ---
 
-<section class:list={['hero', `tone-${tone}`, `layout-${layout}`]} {...reveal(motion.section)}>
-  <div class:list={['container', { 'top-container': split }]}>
-    <div class="top"><slot name="header" /></div>
-    {!split && (
-      <div class="copy">
-        <h1 class="title" {...reveal(motion.title)}>
-          {titleMuted && <span class="muted">{titleMuted} </span>}
-          {title}
-        </h1>
-        {leads.map((p) => <p class="lead" {...reveal(motion.lead)}>{p}</p>)}
-        <slot />
-      </div>
-    )}
-    {!split && (
-      <div class="visual" {...reveal(motion.visual)}>
-        <Image src={image} alt={imageAlt} width={imageWidth} widths={widths} sizes={imageSizes} priority class="shot" />
-      </div>
-    )}
-  </div>
+<section
+  class:list={['hero', `tone-${tone}`, `layout-${layout}`, { 'visual-contained': contained, 'align-mobile-center': mobileAlign === 'center' }]}
+  {...reveal(motion.section)}
+>
   {
-    split && (
-      <div class="container">
-        <div class="grid">
-          <div class="copy" {...reveal(motion.copy)}>
+    (!split || hasHeader) && (
+      <div class:list={['container', { 'top-container': split }]}>
+        <div class="top"><slot name="header" /></div>
+        {!split && (
+          <div class="copy">
             <h1 class="title" {...reveal(motion.title)}>
               {titleMuted && <span class="muted">{titleMuted} </span>}
               {title}
             </h1>
             {leads.map((p) => <p class="lead" {...reveal(motion.lead)}>{p}</p>)}
             <slot />
+          </div>
+        )}
+        {!split && (
+          <div class="visual" {...reveal(motion.visual)}>
+            <Image src={image} alt={imageAlt} width={imageWidth} widths={widths} sizes={imageSizes} priority class="shot" />
+          </div>
+        )}
+      </div>
+    )
+  }
+  {
+    split && (
+      <div class="container">
+        <div class="grid">
+          <div class="copy" {...reveal(motion.copy)}>
+            {
+              hasBrand && (
+                <div class="brand-slot">
+                  <slot name="brand" />
+                </div>
+              )
+            }
+            <h1 class="title" {...reveal(motion.title)}>
+              {titleMuted && <span class="muted">{titleMuted} </span>}
+              {title}
+            </h1>
+            {leads.map((p) => <p class="lead" {...reveal(motion.lead)}>{p}</p>)}
+            {
+              hasContent && (
+                <div class="content" {...reveal(motion.content)}>
+                  <slot />
+                </div>
+              )
+            }
           </div>
           <div class="visual" {...reveal(motion.visual)}>
             <Image src={image} alt={imageAlt} width={imageWidth} widths={widths} sizes={imageSizes} priority class="shot" />
@@ -128,6 +190,7 @@ const reveal = (m: (string | number)[] | null) =>
   }
 
   .title {
+    color: var(--ui-color-heading);
     font-size: var(--ui-size-h1);
     font-weight: var(--ui-hero-title-weight, var(--ui-font-weight-heading));
     line-height: var(--ui-hero-title-line-height, 1.5);
@@ -206,25 +269,37 @@ const reveal = (m: (string | number)[] | null) =>
   .grid {
     display: grid;
     grid-template-columns: var(--ui-hero-copy-width, 31rem) 1fr;
-    gap: 5rem;
+    gap: var(--ui-hero-gap, 5rem);
     align-items: center;
-    margin-bottom: 4rem;
+    margin-bottom: var(--ui-hero-grid-mb, 4rem);
   }
 
   .layout-split .copy {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+    max-width: var(--ui-hero-copy-max, none);
+  }
+
+  .brand-slot {
+    align-self: stretch;
+    margin-bottom: var(--ui-hero-brand-gap, 2rem);
   }
 
   .layout-split .title {
-    margin: 0 0 2rem;
+    margin: 0 0 var(--ui-hero-title-gap, 2rem);
   }
 
   .layout-split .lead {
     margin: 0;
-    font-size: var(--ui-font-size-body);
+    font-size: var(--ui-hero-lead-size, var(--ui-font-size-body));
     line-height: 1.5;
+    letter-spacing: var(--ui-lead-letter-spacing, normal);
+  }
+
+  .content {
+    align-self: stretch;
+    margin-top: var(--ui-hero-content-gap, 0);
   }
 
   .layout-split .lead + .lead {
@@ -244,7 +319,28 @@ const reveal = (m: (string | number)[] | null) =>
     max-width: none;
   }
 
+  /* Contained visual: centred in its column at its own width. */
+  .layout-split.visual-contained .visual {
+    align-self: center;
+    justify-self: center;
+    min-height: 0;
+  }
+
+  .layout-split.visual-contained .visual :global(.picture) {
+    position: static;
+    width: auto;
+    max-width: 100%;
+  }
+
   @media (max-width: 991px) {
+    .hero {
+      padding-top: var(--ui-space-hero-top-tablet, var(--ui-space-hero-top, 2rem));
+    }
+
+    .brand-slot {
+      margin-bottom: var(--ui-hero-brand-gap-tablet, var(--ui-hero-brand-gap, 2rem));
+    }
+
     .hero.tone-accent {
       background: var(--ui-hero-backdrop-tablet, none), var(--ui-bg-accent);
     }
@@ -267,7 +363,7 @@ const reveal = (m: (string | number)[] | null) =>
 
     .grid {
       grid-template-columns: 1fr;
-      gap: 0;
+      gap: var(--ui-hero-gap-tablet, 0);
     }
 
     .layout-split .visual {
@@ -276,6 +372,14 @@ const reveal = (m: (string | number)[] | null) =>
 
     .layout-split .visual :global(.picture) {
       width: var(--ui-hero-visual-scale-tablet, 160%);
+    }
+
+    .layout-split.visual-contained .visual {
+      min-height: 0;
+    }
+
+    .layout-split.visual-contained .visual :global(.picture) {
+      width: auto;
     }
   }
 
@@ -315,19 +419,37 @@ const reveal = (m: (string | number)[] | null) =>
     }
 
     .grid {
-      margin-bottom: 0;
+      margin-bottom: var(--ui-hero-grid-mb-mobile, 0);
     }
 
     .layout-split .title {
-      margin-bottom: 1.5rem;
+      margin-bottom: var(--ui-hero-title-gap-mobile, 1.5rem);
     }
 
     .layout-split .lead {
-      font-size: var(--ui-size-small);
+      font-size: var(--ui-hero-lead-size-mobile, var(--ui-size-small));
     }
 
     .layout-split .visual :global(.picture) {
       width: var(--ui-hero-visual-scale-mobile, 150%);
+    }
+
+    .layout-split.visual-contained .visual :global(.picture) {
+      width: auto;
+    }
+
+    /* Centred copy on phones: brand, title and form centred, the column too. */
+    .align-mobile-center .copy {
+      align-items: center;
+      justify-self: center;
+    }
+
+    .align-mobile-center .title {
+      text-align: center;
+    }
+
+    .align-mobile-center .lead {
+      text-align: var(--ui-hero-lead-align-mobile, start);
     }
   }
 
@@ -359,11 +481,15 @@ const reveal = (m: (string | number)[] | null) =>
     }
 
     .grid {
-      gap: 2.5rem;
+      gap: var(--ui-hero-gap-small, 2.5rem);
+    }
+
+    .align-mobile-center .lead {
+      text-align: var(--ui-hero-lead-align-small, var(--ui-hero-lead-align-mobile, start));
     }
 
     .layout-split .copy {
-      margin-top: 1.5rem;
+      margin-top: var(--ui-hero-copy-offset-small, 1.5rem);
     }
 
     /* On phones the muted words always get their own line. */
@@ -376,7 +502,7 @@ const reveal = (m: (string | number)[] | null) =>
     }
 
     .layout-split .title {
-      margin-bottom: 1rem;
+      margin-bottom: var(--ui-hero-title-gap-small, 1rem);
     }
 
     .layout-split .visual {
@@ -385,6 +511,10 @@ const reveal = (m: (string | number)[] | null) =>
 
     .layout-split .visual :global(.picture) {
       left: 16px;
+    }
+
+    .layout-split.visual-contained .visual :global(.picture) {
+      left: auto;
     }
   }
 </style>

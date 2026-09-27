@@ -17,6 +17,9 @@
     "dev:policybox": "npm run dev -w @noirvision/site-policybox",
     "build:policybox": "npm run build -w @noirvision/site-policybox",
     "preview:policybox": "npm run preview -w @noirvision/site-policybox",
+    "dev:rithm": "npm run dev -w @noirvision/site-rithm",
+    "build:rithm": "npm run build -w @noirvision/site-rithm",
+    "preview:rithm": "npm run preview -w @noirvision/site-rithm",
     "build": "npm run build --workspaces --if-present"
   }
 }
