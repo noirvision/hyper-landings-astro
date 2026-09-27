@@ -16,9 +16,14 @@
   --ui-font-heading: var(--ui-font-body);
   --ui-font-size-body: 1.125rem;
   --ui-line-height-body: 1.5;
+  --ui-font-weight-body: 400;
   --ui-font-weight-heading: 700;
   --ui-font-weight-medium: 500;
   --ui-font-weight-semibold: 600;
+  --ui-font-weight-button: var(--ui-font-weight-heading);
+  --ui-heading-line-height: 1.5;      /* SectionHeading size xl */
+  --ui-heading-line-height-lg: 1.25;  /* SectionHeading size lg */
+  --ui-heading-letter-spacing: normal;
 
   /* Display sizes: desktop / mobile (≤767px) */
   --ui-size-h1: 3rem;
@@ -46,6 +51,17 @@
   --ui-color-divider: rgb(0 0 0 / 0.1);
   --ui-color-divider-strong: rgb(255 255 255 / 0.3);  /* dividers on accent/deep */
   --ui-color-divider-footer: rgb(255 255 255 / 0.1);
+  --ui-color-prose: currentColor;         /* legal page text */
+
+  /* <em> in a SectionHeading: accent-coloured by default. A site can turn it
+     into a highlighter mark instead (a rounded bar behind the word). On
+     accent/deep sections the mark is never drawn and --ui-heading-em-color-on-strong applies. */
+  --ui-heading-em-color: var(--ui-color-accent);
+  --ui-heading-em-color-on-strong: var(--ui-heading-em-color);
+  --ui-heading-mark: transparent;          /* mark colour; transparent = no mark */
+  --ui-heading-mark-height: 0.5em;
+  --ui-heading-mark-radius: 6px;
+  --ui-heading-mark-pad: 0;                /* inline padding around the marked word */
 
   /* Form controls */
   --ui-color-field: #fff;
@@ -90,6 +106,9 @@
   --ui-radius-control-sm: 6px;
   --ui-radius-button: 10px;
   --ui-panel-gap: 0.625rem;    /* margin around every section panel */
+  --ui-panel-gap-x: var(--ui-panel-gap);
+  --ui-panel-gap-y: var(--ui-panel-gap);
+  --ui-page-pad-bottom: var(--ui-panel-gap); /* space under the last panel */
 
   /* ---- Layout ---- */
   --ui-container-max: 81.5rem;
@@ -98,7 +117,8 @@
   --ui-grid-gap: 1rem;
 
   /* Section padding: default + per-section overrides (see Section.astro).
-     A section called with spacing="steps" reads --ui-space-steps-top etc. */
+     A section called with spacing="steps" reads --ui-space-steps-top etc.,
+     and optionally --ui-margin-steps / --ui-radius-steps / --ui-bg-steps. */
   --ui-space-top: 6.25rem;
   --ui-space-bottom: 6.25rem;
   --ui-space-top-mobile: 3rem;
@@ -108,6 +128,14 @@
   --ui-reveal-distance: 100px;
   --ui-reveal-duration: 1000ms;
   --ui-reveal-ease: cubic-bezier(0.25, 1, 0.5, 1); /* easeOutQuart */
+}
+
+/* In-page links (e.g. "Join the waitlist" → #waitlist) scroll smoothly unless
+   the visitor asked for reduced motion; scripts/anchor.ts moves focus. */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
 }
 
 *,
@@ -128,6 +156,7 @@ body {
   color: var(--ui-color-text);
   font-family: var(--ui-font-body);
   font-size: var(--ui-font-size-body);
+  font-weight: var(--ui-font-weight-body);
   line-height: var(--ui-line-height-body);
 }
 
@@ -191,6 +220,10 @@ a {
 
   .ui-reveal-ready [data-reveal]:not(.is-revealed) {
     opacity: 0;
+  }
+
+  .ui-reveal-init [data-reveal] {
+    transition: none;
   }
 
   .ui-reveal-ready [data-reveal='up']:not(.is-revealed) {

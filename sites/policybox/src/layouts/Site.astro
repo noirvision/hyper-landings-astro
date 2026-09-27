@@ -1,0 +1,14 @@
+---
+import type { ComponentProps } from 'astro/types';
+import BaseLayout from '@noirvision/ui/layouts/BaseLayout.astro';
+import { preloadFonts } from './fonts';
+import { head } from '../content';
+import '../theme.css';
+
+type Props = ComponentProps<typeof BaseLayout>;
+---
+
+<BaseLayout {...head} preloadFonts={preloadFonts} {...Astro.props}>
+  <slot />
+  <slot name="footer" slot="footer" />
+</BaseLayout>

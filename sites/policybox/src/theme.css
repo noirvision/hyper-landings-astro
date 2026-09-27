@@ -1,0 +1,232 @@
+/*
+ * Policy Box theme: token values only. Loaded after @noirvision/ui's
+ * tokens/base.css; components read these, the site never styles their internals.
+ * Values come from the Webflow export (reference/policybox/css/policybox.css).
+ */
+:root {
+  /* ---- Type ---- */
+  /* Figtree stands in for the original's Proxima Nova (layouts/fonts.css). Its
+     weights are tuned to Proxima's stroke darkness: 400 → 370, 600 → 580,
+     700 → 680, 800 → 780. */
+  --ui-font-body: 'Figtree', Arial, sans-serif;
+  --ui-font-size-body: 1.125rem;
+  --ui-font-weight-body: 370;
+  --ui-font-weight-semibold: 580;
+  --ui-font-weight-heading: 780;
+  --ui-font-weight-button: 580;
+  --ui-waitlist-button-weight: 680;
+  --ui-footer-launched-weight: 370;
+  --ui-prose-heading-weight: 680; /* Webflow rich text headings are "bold" */
+  --ui-heading-line-height: 1.2;
+  --ui-heading-letter-spacing: -0.02em;
+  --ui-size-heading-xl: 3rem;
+  --ui-size-heading-mobile-sm: 2rem;
+  --ui-size-heading-mobile-md: 2rem;
+  --ui-size-title: 1.625rem;
+  --ui-size-title-sm: 1.25rem;
+  --ui-feature-card-title-size-small: 1.4rem;
+  --ui-steps-title-size: 1.375rem;
+  --ui-feature-list-title-size: 1.5rem;
+
+  /* ---- Colour ---- */
+  --ui-color-page: #fff;
+  --ui-color-text: #263238;
+  --ui-color-text-muted-opacity: 0.7;
+  --ui-color-accent: #0091ea;
+  --ui-color-on-accent: #fff;
+  --ui-color-deep: #1a1a1a;
+  --ui-color-on-deep: #fff;
+  --ui-color-on-strong-muted: rgb(255 255 255 / 0.88);
+  --ui-color-divider-footer: #525252;
+  --ui-color-prose: rgb(38 50 56 / 0.7);
+  --ui-prose-offset: 0;
+  --ui-prose-nested-list-gap: 10px;
+  --ui-color-glass: rgb(255 255 255 / 0.12);
+  --ui-color-glass-border: rgb(255 255 255 / 0.16);
+  --ui-color-step-line: #ccecff;
+  --ui-color-step-badge: #e7f5fd;
+
+  /* Headings: the <em> word gets a light-blue highlighter bar; on the blue
+     panels it is a lighter white instead. */
+  --ui-heading-em-color: currentColor;
+  --ui-heading-em-color-on-strong: rgb(255 255 255 / 0.6);
+  --ui-heading-mark: #d0ebfb;
+  --ui-heading-mark-height: 0.5em;
+  --ui-heading-mark-pad: 0.7rem;
+
+  /* Heading spacing: desktop / ≤767px / ≤479px */
+  --ui-heading-gap-xs: 0.75rem;
+  --ui-heading-gap-xs-small: 0.5rem;
+  --ui-heading-gap-sm: 1.25rem;
+  --ui-heading-gap-sm-mobile: 12px;
+  --ui-heading-gap-sm-small: 0.5rem;
+  --ui-heading-gap-md: 1.5rem;
+  --ui-heading-gap-lg: 3rem;
+  --ui-heading-gap-lg-small: 2rem;
+  --ui-heading-gap-xl: 3.75rem;
+  --ui-heading-gap-xl-mobile: 3.75rem;
+  --ui-heading-gap-xl-small: 2rem;
+
+  /* ---- Shape & layout ---- */
+  --ui-radius-panel: 1rem;
+  --ui-radius-card: 1rem;
+  --ui-radius-button: 50px;
+  --ui-radius-control: 50px;
+  --ui-radius-control-sm: 8px;
+  --ui-panel-gap: 1.25rem;
+  --ui-panel-gap-y: 0;
+  --ui-page-pad-bottom: 0;
+  --ui-container-pad-sm: 0.75rem;
+
+  /* Buttons: pills, full width on phones */
+  --ui-button-height: 44px;
+  --ui-button-pad-y: 3px;
+  --ui-button-width-mobile: 100%;
+  --ui-button-height-mobile: 48px;
+  --ui-button-radius-mobile: 0.5rem;
+
+  /* ---- Header & hero ---- */
+  --ui-header-bar-shadow: 0 1px 4px -1px rgb(26 26 26 / 0.06);
+  --ui-header-logo-max-mobile: none;
+  --ui-header-logo-small: 105px;
+  --ui-header-align-mobile: flex-start;
+  --ui-social-gap-small: 0.5rem;
+
+  --ui-margin-hero: 1.25rem 1.25rem 0;
+  --ui-space-hero-top: 1.25rem;
+  --ui-space-hero-top-mobile: 1.25rem;
+  --ui-space-hero-top-small: 1rem;
+  --ui-hero-backdrop: url('./images/hero-bg.avif') 0 0 / 710px no-repeat;
+  --ui-hero-backdrop-tablet: var(--ui-hero-backdrop);
+  --ui-size-h1: 5.5rem;
+  --ui-size-h1-mobile: 2.75rem;
+  --ui-size-h1-small: 3rem;
+  --ui-hero-title-weight: 680;
+  --ui-hero-title-line-height: 1.04;
+  --ui-hero-title-line-height-mobile: 1.45833;
+  --ui-hero-title-line-height-small: 1.2;
+  --ui-hero-title-muted: rgb(255 255 255 / 0.6);
+  --ui-hero-lead-color: rgb(255 255 255 / 0.88);
+  --ui-hero-first-lead-size-small: 0.875rem;
+  --ui-hero-copy-width: 497px;
+  --ui-hero-visual-height: 730px;
+  --ui-hero-visual-height-tablet: 410px;
+  --ui-hero-visual-height-small: 230px;
+  --ui-hero-visual-scale-tablet: 160%;
+  --ui-hero-visual-scale-mobile: 150%;
+
+  /* ---- Waitlist form ---- */
+  --ui-waitlist-max: 45.5rem;
+  --ui-waitlist-margin-bottom: 0;
+  --ui-field-height: 60px;
+  --ui-field-height-mobile: 48px;
+  --ui-field-gap-mobile: 1rem;
+  --ui-field-border: 1px solid rgb(33 33 33 / 0.1);
+  --ui-field-font-size: 1rem;
+  --ui-field-font-size-small: 0.875rem;
+  --ui-select-font-size-small: 0.875rem;
+  --ui-color-field-text: #787878;
+  --ui-color-field-icon: #212121;
+  --ui-color-field-icon-mobile: #212121;
+  --ui-color-field-divider: rgb(225 228 234 / 0.5);
+  --ui-field-icon-opacity: 1;
+  --ui-field-icon-opacity-mobile: 1;
+  --ui-field-icon-left-mobile: 28px;
+  --ui-email-pad-mobile: 3.5rem;
+  --ui-email-pad-small: 1rem;
+  --ui-email-icon-small: none;
+  --ui-select-width: auto;
+  --ui-select-min-width: 140px;
+  --ui-select-pad-end: 48px;
+  --ui-select-chevron-right: 25px;
+  --ui-select-chevron-color: #171a27;
+  --ui-select-letter-spacing: normal;
+
+  /* ---- Cards ---- */
+  --ui-feature-card-fill: rgb(0 145 234 / 0.08);
+  --ui-feature-card-border: #c9e8fa;
+  --ui-feature-cards-art: url('./images/card-bg.png') 0 0 / 301px no-repeat;
+  --ui-feature-card-art: url('./images/elab-bg.png') 0 0 / 392px no-repeat;
+  --ui-feature-card-art-flip: url('./images/elab-bg-2.webp') 100% 0 / 393px no-repeat;
+  --ui-feature-cards-bleed-width: 150%;
+  --ui-feature-cards-bleed-offset: -12rem;
+  --ui-feature-cards-bleed-width-small: 220%;
+  --ui-feature-cards-bleed-offset-small: -14rem;
+  --ui-steps-list-width: 656px;
+  --ui-feature-list-intro-width: 340px;
+  --ui-feature-list-lead-min: 283px;
+
+  /* ---- Sections: padding (desktop / ≤767px), margins, backgrounds ---- */
+  --ui-space-top: 5rem;
+  --ui-space-bottom: 5rem;
+  --ui-space-top-mobile: 2.5rem;
+  --ui-space-bottom-mobile: 2.5rem;
+
+  --ui-margin-waitlist: 0;
+  --ui-margin-steps: 0;
+  --ui-margin-feature-list: 0;
+  --ui-margin-legal: 0;
+
+  --ui-bg-why: #f5fbfe;
+  --ui-bg-features: #f5fbfe;
+  --ui-space-features-bottom: 6.5rem; /* 5rem + the last card's 1.5rem margin */
+  --ui-space-features-bottom-mobile: 4rem;
+
+  /* White label CTA: the light panel continues into the footer frame. */
+  --ui-bg-cta: url('./images/elab-bg-2.webp') 100% 0 / 393px no-repeat, url('./images/elab-bg.png') 0 0 / 392px no-repeat, #f5fbfe;
+  --ui-radius-cta: 1rem 1rem 0 0;
+  --ui-space-cta-top: 3.75rem;
+  --ui-space-cta-bottom: 3.75rem;
+  --ui-space-cta-top-mobile: 3.75rem;
+  --ui-space-cta-bottom-mobile: 3.75rem;
+
+  /* "Find out more about our AML Stream": blue panel inside the footer card. */
+  --ui-bg-audience: url('./images/cta-bg.webp') 0 0 / 1320px no-repeat, #0091ea;
+  --ui-margin-audience: 0 0 2.5rem;
+  --ui-radius-audience: 12px;
+  --ui-space-audience-top: 2rem;
+  --ui-space-audience-bottom: 2rem;
+  --ui-space-audience-top-tablet: 2.5rem;
+  --ui-space-audience-bottom-tablet: 2.5rem;
+  --ui-space-audience-top-mobile: 2.5rem;
+  --ui-space-audience-bottom-mobile: 2.5rem;
+
+  /* Legal pages: full-bleed blue header bar. */
+  --ui-bg-legal-header: #0091ea;
+  --ui-margin-legal-header: 0;
+  --ui-radius-legal-header: 0;
+  --ui-space-legal-header-top: 5rem;
+  --ui-space-legal-header-bottom: 5rem;
+
+  /* ---- Footer ---- */
+  --ui-bg-footer: #1a1a1a;
+  --ui-radius-footer: 1rem;
+  --ui-radius-footer-small: 12px;
+  --ui-margin-footer: 20px;
+  --ui-bg-footer-frame: #f5fbfe;
+  --ui-radius-footer-frame: 0 0 1rem 1rem;
+  /* The export's "|" between the legal links: body text colour at 70% opacity,
+     as in its CSS — on the dark footer it is practically invisible, as live. */
+  --ui-footer-legal-separator: '|';
+  --ui-color-footer-separator: rgb(38 50 56 / 0.7);
+}
+
+@media (max-width: 479px) {
+  :root {
+    --ui-panel-gap-x: 0.5rem;
+
+    --ui-space-waitlist-top-mobile: 1.75rem;
+    --ui-space-waitlist-bottom-mobile: 1.75rem;
+    --ui-space-steps-top-mobile: 3rem;
+    --ui-space-steps-bottom-mobile: 3rem;
+    --ui-space-feature-list-top-mobile: 3rem;
+    --ui-space-feature-list-bottom-mobile: 3rem;
+    --ui-space-cta-top-mobile: 2.5rem;
+    --ui-space-cta-bottom-mobile: 2.625rem;
+    --ui-space-audience-bottom-mobile: 1rem;
+    --ui-space-legal-header-top-mobile: 36px;
+    --ui-space-legal-header-bottom-mobile: 36px;
+    --ui-space-legal-top-mobile: 1.75rem;
+    --ui-space-legal-bottom-mobile: 1.75rem;
+  }
+}

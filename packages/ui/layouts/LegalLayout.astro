@@ -38,7 +38,8 @@ const current = Astro.url.pathname.replace(/\.html$/, '').replace(/\/$/, '') || 
 <style>
   .prose {
     display: flow-root; /* keep the first heading's top margin inside, like the original */
-    margin-top: 20px;
+    margin-top: var(--ui-prose-offset, 20px);
+    color: var(--ui-color-prose);
     line-height: 1.5;
   }
 
@@ -60,6 +61,12 @@ const current = Astro.url.pathname.replace(/\.html$/, '').replace(/\/$/, '') || 
     line-height: 30px;
   }
 
+  .prose :global(h1),
+  .prose :global(h2),
+  .prose :global(h3) {
+    font-weight: var(--ui-prose-heading-weight, var(--ui-font-weight-heading));
+  }
+
   .prose :global(p) {
     margin: 0 0 10px;
   }
@@ -73,6 +80,6 @@ const current = Astro.url.pathname.replace(/\.html$/, '').replace(/\/$/, '') || 
 
   .prose :global(li ul),
   .prose :global(li ol) {
-    margin-bottom: 0;
+    margin-bottom: var(--ui-prose-nested-list-gap, 0);
   }
 </style>

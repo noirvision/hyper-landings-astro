@@ -2,6 +2,11 @@
 /**
  * Top bar: logo linking home, optional social links on the right.
  * Used inside the hero and on its own (in a deep Section) on legal pages.
+ *
+ * bar     draw the header as a floating bar (pill) — its look comes from the
+ *         --ui-header-bar-* tokens.
+ * reveal  slide the logo in from the left and the socials from the right on
+ *         load. `true` = 300ms delay; or { delay, logoDistance } in ms / px.
  */
 import type { ImageMetadata } from 'astro';
 import SocialLinks, { type SocialLink } from './SocialLinks.astro';
@@ -11,21 +16,32 @@ interface Props {
   logoAlt: string;
   homeHref?: string;
   socials?: SocialLink[];
-  /** Reveal the logo and socials on scroll (hero). */
-  reveal?: boolean;
+  bar?: boolean;
+  reveal?: boolean | { delay?: number; logoDistance?: number };
+  /** Social icon size in px, desktop / ≤479px. */
+  socialSize?: number;
+  socialSizeSmall?: number;
 }
 
-const { logo, logoAlt, homeHref = '/', socials, reveal = false } = Astro.props;
-const revealAttrs = (dir: string) => (reveal ? { 'data-reveal': dir, 'data-reveal-offset': '0', style: '--ui-reveal-delay:300ms' } : {});
+const { logo, logoAlt, homeHref = '/', socials, bar = false, reveal = false, socialSize = 32, socialSizeSmall = 22 } = Astro.props;
+const motion = reveal === true ? {} : reveal || null;
+const revealAttrs = (dir: string, distance?: number) =>
+  motion
+    ? {
+        'data-reveal': dir,
+        'data-reveal-offset': '0',
+        style: [`--ui-reveal-delay:${motion.delay ?? 300}ms`, distance ? `--ui-reveal-distance:${distance}px` : ''].filter(Boolean).join(';'),
+      }
+    : {};
 ---
 
-<header class:list={['header', { 'has-socials': socials?.length }]}>
-  <a href={homeHref} class="brand" aria-label={`${logoAlt} home`} {...revealAttrs('left')}>
+<header class:list={['header', { 'has-socials': socials?.length, bar }]}>
+  <a href={homeHref} class="brand" aria-label={`${logoAlt} home`} {...revealAttrs('left', motion?.logoDistance)}>
     <img src={logo.src} width={logo.width} height={logo.height} alt="" class="logo" />
   </a>
   {socials?.length ? (
     <div class="socials" {...revealAttrs('right')}>
-      <SocialLinks links={socials} sizeSmall={22} />
+      <SocialLinks links={socials} size={socialSize} sizeSmall={socialSizeSmall} />
     </div>
   ) : null}
 </header>
@@ -36,6 +52,15 @@ const revealAttrs = (dir: string) => (reveal ? { 'data-reveal': dir, 'data-revea
     align-items: center;
     justify-content: space-between;
     width: 100%;
+  }
+
+  .bar {
+    padding: var(--ui-header-bar-pad, 0.625rem 1.5rem);
+    border-radius: var(--ui-header-bar-radius, 50px);
+    background: var(--ui-header-bar-bg, rgb(255 255 255 / 0.12));
+    box-shadow: var(--ui-header-bar-shadow, none);
+    -webkit-backdrop-filter: blur(var(--ui-header-bar-blur, 20px));
+    backdrop-filter: blur(var(--ui-header-bar-blur, 20px));
   }
 
   .brand {
@@ -50,19 +75,21 @@ const revealAttrs = (dir: string) => (reveal ? { 'data-reveal': dir, 'data-revea
 
   @media (max-width: 767px) {
     .brand {
-      max-width: 136px;
+      max-width: var(--ui-header-logo-max-mobile, 136px);
     }
-  }
 
-  @media (max-width: 767px) {
     .header:not(.has-socials) {
-      justify-content: center;
+      justify-content: var(--ui-header-align-mobile, center);
     }
   }
 
   @media (max-width: 479px) {
+    .bar {
+      padding: var(--ui-header-bar-pad-small, 0.5rem 1rem);
+    }
+
     .has-socials .logo {
-      width: 120px;
+      width: var(--ui-header-logo-small, 120px);
     }
   }
 </style>

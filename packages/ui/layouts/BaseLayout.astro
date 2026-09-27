@@ -2,11 +2,11 @@
 /**
  * Page shell for every landing: <head> (title, description, Open Graph /
  * Twitter, noindex, icons, font preloads), base tokens, the scroll-reveal
- * script and a page wrapper that clips horizontal overflow from reveals.
+ * and in-page-link scripts and a page wrapper that clips horizontal overflow from reveals.
  * The default slot goes in <main>; put the footer in slot="footer".
  *
  * Sites wrap this in their own layout that imports their fonts and
- * `theme.css` (after this file's tokens) — see sites/oddacademia.
+ * `theme.css` (after this file's tokens) — see any folder in sites/.
  */
 import '../tokens/base.css';
 
@@ -68,6 +68,7 @@ const ogImageUrl = new URL(ogImage, Astro.site ?? Astro.url).href;
     </div>
     <script>
       import '../scripts/reveal.ts';
+      import '../scripts/anchor.ts';
     </script>
   </body>
 </html>
@@ -76,6 +77,6 @@ const ogImageUrl = new URL(ogImage, Astro.site ?? Astro.url).href;
   /* Clips the 100px slide-ins horizontally without creating a scroll container. */
   .page {
     overflow-x: clip;
-    padding-bottom: var(--ui-panel-gap);
+    padding-bottom: var(--ui-page-pad-bottom);
   }
 </style>

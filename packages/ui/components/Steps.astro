@@ -9,26 +9,45 @@
  * stays real HTML at every width.
  * Below 992px (and with layout="stack") the cards stack in one column.
  *
+ * layout="list": a plain column of numbered steps, each on a short vertical
+ * rule with an accent tick, heading above, and `image` beside the column
+ * (bleeding off the right edge on desktop, full width below 992px). The
+ * column slides in from the left and the image from the right.
+ * Tokens: --ui-steps-list-width, --ui-steps-title-size, --ui-color-step-line,
+ * --ui-color-step-badge.
+ *
+ * heading may be replaced by a `heading` slot (for <em> markup).
+ *
  * offsets  vertical offset of each card in px on desktop (cycled if there are
  *          more steps than values). Default: the original stagger.
  */
+import type { ImageMetadata } from 'astro';
 import Section from './Section.astro';
 import SectionHeading from './SectionHeading.astro';
+import Image from './Image.astro';
 
 interface Step {
   title: string;
   text: string;
+  /** layout="list": max width of the text in px, to keep the original line breaks. */
+  textWidth?: number;
 }
 
 interface Props {
-  heading: string;
+  heading?: string;
   steps: Step[];
   tone?: 'deep' | 'accent' | 'plain';
-  layout?: 'path' | 'stack';
+  layout?: 'path' | 'stack' | 'list';
   offsets?: number[];
+  /** layout="list": the visual beside the steps. */
+  image?: ImageMetadata;
+  imageAlt?: string;
+  /** Rendered image width in px (desktop). */
+  imageWidth?: number;
 }
 
-const { heading, steps, tone = 'deep', layout = 'path', offsets = [140, 0, 221] } = Astro.props;
+const { heading, steps, tone = 'deep', layout = 'path', offsets = [140, 0, 221], image, imageAlt = '', imageWidth = 811 } = Astro.props;
+const list = layout === 'list';
 
 const n = steps.length;
 const off = steps.map((_, i) => offsets[i % offsets.length]);
@@ -53,7 +72,43 @@ const curve = (down: boolean) =>
 ---
 
 <Section tone={tone} spacing="steps">
-<SectionHeading data-reveal="up">{heading}</SectionHeading>
+{
+  list ? (
+    <div class="layout-list">
+      <div class="column" data-reveal="left">
+        <SectionHeading align="start-center" gap="lg">
+          {Astro.slots.has('heading') ? <slot name="heading" /> : heading}
+        </SectionHeading>
+        <ol class="rows">
+          {steps.map((step, i) => (
+            <li class="row">
+              <div class="row-head">
+                <span class="num" aria-hidden="true">{i + 1}</span>
+                <h3 class="row-title">
+                  <span class="ui-visually-hidden">Step {i + 1}: </span>
+                  {step.title}
+                </h3>
+              </div>
+              <p class="row-text" style={step.textWidth ? `max-width:${step.textWidth}px` : undefined}>{step.text}</p>
+            </li>
+          ))}
+        </ol>
+      </div>
+      {image && (
+        <div class="media" data-reveal="right">
+          <Image
+            src={image}
+            alt={imageAlt}
+            width={imageWidth}
+            widths={[500, 800, imageWidth, Math.round(imageWidth * 1.5), imageWidth * 2]}
+            sizes={`(max-width: 991px) 92vw, ${imageWidth}px`}
+          />
+        </div>
+      )}
+    </div>
+  ) : (
+    <>
+<SectionHeading data-reveal="up">{Astro.slots.has('heading') ? <slot name="heading" /> : heading}</SectionHeading>
 <div
   class:list={['steps', `layout-${layout}`]}
   data-reveal="fade"
@@ -107,6 +162,9 @@ const curve = (down: boolean) =>
     )
   }
 </div>
+</>
+  )
+}
 </Section>
 
 <style>
@@ -166,6 +224,113 @@ const curve = (down: boolean) =>
     display: none;
   }
 
+  /* ---------- List layout ---------- */
+  .layout-list {
+    display: grid;
+    grid-template-columns: var(--ui-steps-list-width, 41rem) 1fr;
+    gap: 100px;
+    align-items: start;
+  }
+
+  .rows {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .row {
+    position: relative;
+    padding-left: 1.25rem;
+  }
+
+  .row + .row {
+    margin-top: 2.5rem;
+  }
+
+  /* The rule, and an accent tick level with the number. */
+  .row::before,
+  .row::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    border-radius: 1px;
+  }
+
+  .row::before {
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: var(--ui-color-step-line, var(--ui-color-divider));
+  }
+
+  .row::after {
+    top: 5.7%;
+    height: 17.3%;
+    width: 2px;
+    background: var(--ui-color-accent);
+  }
+
+  .row-head {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    margin-bottom: 0.75rem;
+  }
+
+  .num {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--ui-color-step-badge, rgb(0 98 255 / 0.1));
+    color: var(--ui-color-accent);
+    font-size: 15px;
+    font-weight: var(--ui-font-weight-semibold);
+    line-height: 1;
+  }
+
+  .row-title {
+    margin: 0;
+    font-size: var(--ui-steps-title-size, var(--ui-size-title-sm));
+    line-height: 1.32;
+  }
+
+  .row-text {
+    margin: 0;
+    font-size: var(--ui-font-size-body);
+    line-height: 1.5;
+    opacity: var(--ui-color-text-muted-opacity);
+  }
+
+  .media :global(.picture) {
+    width: max-content;
+    max-width: none;
+  }
+
+  @media (max-width: 991px) {
+    .layout-list {
+      grid-template-columns: 1fr;
+      gap: 3rem;
+    }
+
+    .layout-list > * {
+      min-width: 0;
+    }
+
+    .media :global(.picture) {
+      width: auto;
+      max-width: 100%;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .row-text {
+      font-size: var(--ui-size-small);
+    }
+  }
+
   @media (max-width: 479px) {
     .card {
       border-radius: var(--ui-radius-card-sm);
@@ -221,7 +386,7 @@ const curve = (down: boolean) =>
       margin-top: -13px;
       border: 3px solid var(--ui-color-connector-node, #fff);
       border-radius: 50%;
-      background: var(--ui-color-deep);
+      background: transparent;
     }
 
     .layout-path .node-left::before,
@@ -244,7 +409,9 @@ const curve = (down: boolean) =>
       top: calc(50% + var(--_top));
       /* Abspos grid items need both lines, or the end snaps to the container edge. */
       grid-column: var(--_col) / span 1;
-      width: 100%;
+      /* Start and end at the rings' outer edge: the rings are see-through. */
+      left: 13px;
+      width: calc(100% - 26px);
       height: max(var(--_h), 1px);
       overflow: visible;
     }

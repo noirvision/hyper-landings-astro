@@ -1,0 +1,58 @@
+---
+/**
+ * Call to action: centred heading, one line of text and a button, on its own
+ * section panel (<Section spacing="cta">: --ui-bg-cta, --ui-space-cta-*,
+ * --ui-margin-cta, --ui-radius-cta). Heading, text and button rise in turn.
+ *
+ * heading may be replaced by a `heading` slot (for <em> markup).
+ */
+import Section from './Section.astro';
+import SectionHeading from './SectionHeading.astro';
+import Button from './Button.astro';
+
+interface Props {
+  heading?: string;
+  text?: string;
+  button: { label: string; href: string };
+  tone?: 'plain' | 'accent' | 'deep';
+}
+
+const { heading, text, button, tone = 'plain' } = Astro.props;
+---
+
+<Section tone={tone} spacing="cta">
+  <SectionHeading gap="sm" mobileSize="md" data-reveal="up">
+    {Astro.slots.has('heading') ? <slot name="heading" /> : heading}
+  </SectionHeading>
+  {text && <p class="text" data-reveal="up">{text}</p>}
+  <div class="action" data-reveal="up">
+    <Button href={button.href}>{button.label}</Button>
+  </div>
+</Section>
+
+<style>
+  .text {
+    margin: 0 0 2.5rem;
+    font-size: var(--ui-font-size-body);
+    text-align: center;
+    opacity: var(--ui-color-text-muted-opacity);
+  }
+
+  .action {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  @media (max-width: 767px) {
+    .text {
+      font-size: var(--ui-size-small);
+    }
+  }
+
+  @media (max-width: 479px) {
+    .text {
+      margin-bottom: 1.5rem;
+    }
+  }
+</style>

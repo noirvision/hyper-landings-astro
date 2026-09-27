@@ -37,5 +37,10 @@ if (elements.length && motionOk && 'IntersectionObserver' in window) {
     if (el.getBoundingClientRect().bottom < 0) el.classList.add('is-revealed');
     else observerFor(el.dataset.revealOffset ?? '20').observe(el);
   }
-  document.documentElement.classList.add('ui-reveal-ready');
+  // Apply the hidden state at once, not as a 1s fade-out: transitions are off
+  // (.ui-reveal-init, tokens/base.css) until the styles have been flushed.
+  const root = document.documentElement;
+  root.classList.add('ui-reveal-init', 'ui-reveal-ready');
+  void getComputedStyle(elements[0]).opacity;
+  root.classList.remove('ui-reveal-init');
 }

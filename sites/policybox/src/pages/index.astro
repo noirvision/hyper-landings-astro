@@ -1,0 +1,223 @@
+---
+import Site from '../layouts/Site.astro';
+import Hero from '@noirvision/ui/components/Hero.astro';
+import Header from '@noirvision/ui/components/Header.astro';
+import Section from '@noirvision/ui/components/Section.astro';
+import SectionHeading from '@noirvision/ui/components/SectionHeading.astro';
+import WaitlistForm from '@noirvision/ui/components/WaitlistForm.astro';
+import FeatureCards from '@noirvision/ui/components/FeatureCards.astro';
+import Steps from '@noirvision/ui/components/Steps.astro';
+import FeatureRows from '@noirvision/ui/components/FeatureRows.astro';
+import FeatureList from '@noirvision/ui/components/FeatureList.astro';
+import CallToAction from '@noirvision/ui/components/CallToAction.astro';
+import AudienceCards from '@noirvision/ui/components/AudienceCards.astro';
+import Footer from '@noirvision/ui/components/Footer.astro';
+import { brand, socials, footer } from '../content';
+
+import hero from '../assets/hero-img.png';
+import card1 from '../assets/card-01.png';
+import card2 from '../assets/card-02.png';
+import card3 from '../assets/card-03.png';
+import card4 from '../assets/card-04.png';
+import hiw from '../assets/hiw.png';
+import elab1 from '../assets/elab-img-01.png';
+import elab2 from '../assets/elab-img-02.png';
+import elab3 from '../assets/elab-img-03.png';
+import industry from '../assets/icons/industry.svg';
+import cardIcon1 from '../assets/icons/card-01-icon.svg';
+import cardIcon2 from '../assets/icons/card-02-icon.svg';
+import cardIcon3 from '../assets/icons/card-03-icon.svg';
+import cardIcon4 from '../assets/icons/card-04-icon.svg';
+import elabIcon1 from '../assets/icons/elab-icon-01.svg';
+import elabIcon2 from '../assets/icons/elab-icon-02.svg';
+import elabIcon3 from '../assets/icons/elab-icon-03.svg';
+import altIcon1 from '../assets/icons/alt-icon-01.svg';
+import altIcon2 from '../assets/icons/alt-icon-02.svg';
+import altIcon3 from '../assets/icons/alt-icon-03.svg';
+import altIcon4 from '../assets/icons/alt-icon-04.svg';
+import altIcon5 from '../assets/icons/alt-icon-05.svg';
+import usersIcon from '../assets/icons/users-icon.svg';
+import partnersIcon from '../assets/icons/partners-icon.svg';
+
+// Title and description exactly as published (they contain U+2028 line separators).
+const title = 'PolicyBox | Decisions \u2028made simple';
+const description =
+  'PolicyBox is the first AI toolkit that makes compliance\u2028instant and effortless. Ask plain-language questions, and our AI instantly translates them into clear, actionable steps — so you know exactly what to do and why.';
+---
+
+<Site title={title} description={description}>
+  <Hero
+    layout="split"
+    titleMuted="Decisions"
+    title="made simple"
+    lead={[
+      'PolicyBox is the first AI toolkit that makes compliance instant and effortless. Ask plain-language questions, and our AI instantly translates them into clear, actionable steps — so you know exactly what to do and why.',
+      'All of this is delivered in a secure, auditable, managed SaaS platform, giving you confidence and control without the complexity.',
+    ]}
+    image={hero}
+    imageAlt="PolicyBox dashboard with the client activity feed"
+  >
+    <Header slot="header" {...brand} socials={socials} bar reveal={{ delay: 100, logoDistance: 200 }} socialSizeSmall={24} />
+  </Hero>
+
+  <Section spacing="waitlist" id="waitlist">
+    <WaitlistForm
+      layout="inline"
+      lead="Chat with us or simply receive more information on PolicyBox."
+      selectIcon={industry}
+      selectPlaceholder="Insert your industry"
+      selectLabel="Industry"
+      options={[
+        { value: 'User', label: 'User' },
+        { value: 'Partner', label: 'Partner' },
+        { value: 'Investor', label: 'Investor' },
+      ]}
+      revealGroup={{ delay: 1200, offset: 0 }}
+    >
+      <Fragment slot="heading"><em>Find out</em>&nbsp;more</Fragment>
+    </WaitlistForm>
+  </Section>
+
+  <Section spacing="why">
+    <FeatureCards
+      label="Why choose PolicyBox"
+      items={[
+        {
+          icon: cardIcon1,
+          title: 'PolicyBox for AML',
+          text: 'Simple and instant Out of the Box AML Program Compliance for minimal cost.',
+          image: card1,
+          bleed: 'bottom',
+          reveal: 'left',
+        },
+        {
+          icon: cardIcon2,
+          title: 'Expand with PolicyBox',
+          text: 'PolicyBox is not just for AML, you can use it for a host of other applications.',
+          image: card2,
+          reveal: 'up',
+        },
+        {
+          icon: cardIcon4,
+          title: 'Ask Anything, Get Exact Steps',
+          text: 'Use our LLM tool to ask simple non technical questions and have that mapped to compliant obligations that reference all of the relevant legislation and guidelines. Get the exact compliance steps, documents, tools and policies you need to follow.',
+          image: card4,
+          bleed: 'bottom',
+          span: { rows: 2 },
+          reveal: 'right',
+        },
+        {
+          icon: cardIcon3,
+          title: 'Complete Compliance Hub',
+          text: 'Integrated due diligence - Run KYC and KYB, PEP and sanctions screening, plus ongoing monitoring all in one place.',
+          image: card3,
+          bleed: 'right',
+          span: { cols: 2 },
+          reveal: 'left',
+        },
+      ]}
+    >
+      <SectionHeading slot="heading" data-reveal="up">Why choose&nbsp;<em>PolicyBox?</em></SectionHeading>
+    </FeatureCards>
+  </Section>
+
+  <Steps
+    layout="list"
+    tone="plain"
+    image={hiw}
+    imageAlt="PolicyBox identity verification step with document upload"
+    steps={[
+      {
+        title: 'Seamless Smart Onboarding',
+        text: 'When you onboard a new customer or matter simply ask the LLM a question or choose from a list.\u00a0 You will be provided with a set of obligations and the workflow to undertake them.',
+        textWidth: 576,
+      },
+      {
+        title: 'Build & Adapt Your Program',
+        text: 'Update the out of the Box program by adding your own policies or simply upload your own policies and/or legal advice.\u00a0 Build your program with the assistance of LLM-Powered Policies, controls and training you can adopt or adapt.',
+      },
+      {
+        title: 'Smart Client Verification',
+        text: 'Verify and monitor clients with KYC and sanctions screening, then store a tamper-proof audit trail.',
+        textWidth: 527,
+      },
+    ]}
+  >
+    <Fragment slot="heading">How it works for&nbsp;<em>AML</em></Fragment>
+  </Steps>
+
+  <FeatureRows
+    variant="cards"
+    imageWidth={620}
+    rows={[
+      {
+        icon: elabIcon1,
+        title: 'From question to compliant action',
+        text: 'Type "What are the AML requirements for this matter?" and\nPolicyBox translates it into precise steps, forms and records. The LLM-powered obligations engine keeps guidance clear for non-technical users.',
+        image: elab1,
+        imageAlt: 'PolicyBox chat turning a question into a compliance checklist',
+      },
+      {
+        icon: elabIcon2,
+        title: 'Due diligence without the busywork',
+        text: 'KYC and KYB, PEP and sanctions screening, and ongoing monitoring are built in, so you can verify faster and reduce vendor sprawl. Results feed straight into client files and your audit trail.',
+        image: elab2,
+        imageAlt: 'PolicyBox policy editor with suggestions and obligations',
+        flip: true,
+      },
+      {
+        icon: elabIcon3,
+        title: 'Your AML and CTF program, generated',
+        text: 'Create an AUSTRAC-aligned program with LLM-Curated policies, risk assessments and templates, then manage it via guided workflows and dashboards. White label options and API docs make it easy to extend as you grow.',
+        image: elab3,
+        imageAlt: 'PolicyBox dashboard with client activity and risk compliance',
+      },
+    ]}
+  >
+    <Fragment slot="heading">Elaboration on&nbsp;<em>Features</em></Fragment>
+  </FeatureRows>
+
+  <FeatureList
+    intro={[
+      'Our platform is built for workflow-driven compliance; starting with Anti-Money Laundering, but extends far beyond. The possibilities are virtually limitless.',
+      'Any policy can be uploaded to instantly create a tailored use case, enabling organisations to streamline compliance across every function.',
+    ]}
+    items={[
+      { icon: altIcon1, title: 'HR & Onboarding', text: 'New employee setup, compliance training, policy acknowledgements.' },
+      { icon: altIcon2, title: 'Health & Safety', text: 'Incident reporting, safety checklists, certification tracking.' },
+      { icon: altIcon3, title: 'Tax & Advisory', text: 'Automating client matters while referencing complex rules and legislation.' },
+      { icon: altIcon4, title: 'Credit Policy & Client Onboarding', text: 'Streamlined client creation with integrated compliance checks.' },
+      { icon: altIcon5, title: 'Customer Support', text: 'Case management and API connections to website support tools.' },
+    ]}
+  >
+    <Fragment slot="heading"><em>Alternate</em> Uses</Fragment>
+  </FeatureList>
+
+  <CallToAction text="Talk to us about using our white label capability." button={{ label: 'Click here', href: '#waitlist' }}>
+    <Fragment slot="heading">White Label&nbsp;<em>Opportunities</em></Fragment>
+  </CallToAction>
+
+  <Footer slot="footer" {...footer} frame reveal>
+    <AudienceCards
+      variant="glass"
+      as="div"
+      lead="Contact us to explore pilots, integrations and early access."
+      cards={[
+        {
+          icon: usersIcon,
+          title: 'For AML Users',
+          text: 'Cut the time and cost of Tranche 2 compliance with AI-generated policies, checks and audit trails.',
+          cta: { label: 'Find out More', href: '#waitlist' },
+        },
+        {
+          icon: partnersIcon,
+          title: 'For Partners',
+          text: 'Offer immediate AUSTRAC-aligned AML value to your clients with a simple, SME-friendly platform and integrations.',
+          cta: { label: 'Find out More', href: '#waitlist' },
+        },
+      ]}
+    >
+      <Fragment slot="heading">Find out more about our <em>AML Stream</em></Fragment>
+    </AudienceCards>
+  </Footer>
+</Site>

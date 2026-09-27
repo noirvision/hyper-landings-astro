@@ -14,6 +14,9 @@
     "dev:oddacademia": "npm run dev -w @noirvision/site-oddacademia",
     "build:oddacademia": "npm run build -w @noirvision/site-oddacademia",
     "preview:oddacademia": "npm run preview -w @noirvision/site-oddacademia",
+    "dev:policybox": "npm run dev -w @noirvision/site-policybox",
+    "build:policybox": "npm run build -w @noirvision/site-policybox",
+    "preview:policybox": "npm run preview -w @noirvision/site-policybox",
     "build": "npm run build --workspaces --if-present"
   }
 }

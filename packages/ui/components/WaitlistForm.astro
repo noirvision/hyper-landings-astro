@@ -4,12 +4,23 @@
  * on desktop and stacked fields on mobile. `options` omitted = single-field
  * variant (email + button).
  *
+ * layout      separate (button next to the bar) | inline (button inside the bar)
+ * heading     plain-text title; or pass a `heading` slot for markup (<em>)
+ * lead        line under the heading
+ * selectIcon  icon drawn at the start of the dropdown
+ * revealGroup reveal heading, lead and form as one block ({ delay, offset }),
+ *             instead of the heading and the form separately
+ *
+ * The bar, fields and button are sized by tokens (--ui-field-*, --ui-select-*,
+ * --ui-waitlist-*), defaults in the style block.
+ *
  * The dropdown is a native <select>: the placeholder option is not selectable,
  * `required` makes the browser ask for a choice. Where the browser supports
  * customisable selects (appearance: base-select) the open list is styled too.
  * Submitting sends nothing yet (see scripts/form.ts); the success message
  * replaces the form.
  */
+import type { ImageMetadata } from 'astro';
 import Button from './Button.astro';
 import SectionHeading from './SectionHeading.astro';
 
@@ -20,69 +31,97 @@ interface Option {
 
 interface Props {
   heading?: string;
+  lead?: string;
   /** Dropdown options; omit for the single-field variant. */
   options?: Option[];
   selectPlaceholder?: string;
   /** Accessible label for the dropdown. */
   selectLabel?: string;
   selectName?: string;
+  selectIcon?: ImageMetadata;
   emailPlaceholder?: string;
   emailLabel?: string;
   buttonLabel?: string;
   successMessage?: string;
   /** Unique prefix for field ids when a page has more than one form. */
   id?: string;
+  layout?: 'separate' | 'inline';
+  revealGroup?: { delay?: number; offset?: number };
 }
 
 const {
   heading,
+  lead,
   options,
   selectPlaceholder = "I'm a",
   selectLabel = 'I am a',
   selectName = 'role',
+  selectIcon,
   emailPlaceholder = 'Insert your email',
   emailLabel = 'Email',
   buttonLabel = 'Join Waitlist',
   successMessage = 'Thank you! Your submission has been received!',
   id = 'waitlist',
+  layout = 'separate',
+  revealGroup,
 } = Astro.props;
 const single = !options?.length;
+const inline = layout === 'inline';
+const hasHeading = heading || Astro.slots.has('heading');
+const group = revealGroup
+  ? {
+      'data-reveal': 'up',
+      'data-reveal-offset': String(revealGroup.offset ?? 20),
+      style: `--ui-reveal-delay:${revealGroup.delay ?? 0}ms`,
+    }
+  : {};
 ---
 
-{heading && <SectionHeading gap="sm" mobileSize="sm" data-reveal="up">{heading}</SectionHeading>}
-<div class:list={['waitlist', { single }]} data-ui-waitlist data-reveal="up">
-  <form class="form">
-    <div class="bar">
-      {
-        !single && (
-          <div class="select-wrap">
-            <label class="ui-visually-hidden" for={`${id}-select`}>{selectLabel}</label>
-            <select id={`${id}-select`} name={selectName} required autocomplete="off" data-ui-select data-empty="true" class="select">
-              <option value="" disabled selected hidden>{selectPlaceholder}</option>
-              {options!.map((o) => <option value={o.value}>{o.label}</option>)}
-            </select>
-          </div>
-        )
-      }
-      <div class="email-wrap">
-        <svg class="mail" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-          <path
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="1.7"
-            d="M2.5 5.42c0-.92.75-1.67 1.67-1.67h11.66c.92 0 1.67.75 1.67 1.67v9.16c0 .92-.75 1.67-1.67 1.67H4.17c-.92 0-1.67-.75-1.67-1.67z"
-          />
-          <path stroke="currentColor" stroke-linecap="round" stroke-width="1.7" d="m5.42 7.08 3.6 2.62a1.67 1.67 0 0 0 1.96 0l3.6-2.62" />
-        </svg>
-        <label class="ui-visually-hidden" for={`${id}-email`}>{emailLabel}</label>
-        <input id={`${id}-email`} class="email" type="email" name="email" maxlength="256" placeholder={emailPlaceholder} autocomplete="email" required />
+<div class="group" {...group}>
+  {
+    hasHeading && (
+      <SectionHeading gap="sm" mobileSize="sm" data-reveal="up">
+        {Astro.slots.has('heading') ? <slot name="heading" /> : heading}
+      </SectionHeading>
+    )
+  }
+  {lead && <p class="lead">{lead}</p>}
+  <div class:list={['waitlist', `layout-${layout}`, { single }]} data-ui-waitlist {...(revealGroup ? {} : { 'data-reveal': 'up' })}>
+    <form class="form">
+      <div class="bar">
+        {
+          !single && (
+            <div class:list={['select-wrap', { 'has-icon': selectIcon }]}>
+              {selectIcon && <img class="select-icon" src={selectIcon.src} width={selectIcon.width} height={selectIcon.height} alt="" />}
+              <label class="ui-visually-hidden" for={`${id}-select`}>{selectLabel}</label>
+              <select id={`${id}-select`} name={selectName} required autocomplete="off" data-ui-select data-empty="true" class="select">
+                <option value="" disabled selected hidden>{selectPlaceholder}</option>
+                {options!.map((o) => <option value={o.value}>{o.label}</option>)}
+              </select>
+            </div>
+          )
+        }
+        <div class="email-wrap">
+          <svg class="mail" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <path
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="1.7"
+              d="M2.5 5.42c0-.92.75-1.67 1.67-1.67h11.66c.92 0 1.67.75 1.67 1.67v9.16c0 .92-.75 1.67-1.67 1.67H4.17c-.92 0-1.67-.75-1.67-1.67z"
+            />
+            <path stroke="currentColor" stroke-linecap="round" stroke-width="1.7" d="m5.42 7.08 3.6 2.62a1.67 1.67 0 0 0 1.96 0l3.6-2.62" />
+          </svg>
+          <label class="ui-visually-hidden" for={`${id}-email`}>{emailLabel}</label>
+          <input id={`${id}-email`} class="email" type="email" name="email" maxlength="256" placeholder={emailPlaceholder} autocomplete="email" required />
+        </div>
+        {inline && <Button type="submit" class="submit">{buttonLabel}</Button>}
       </div>
+      {!inline && <Button type="submit" class="submit">{buttonLabel}</Button>}
+    </form>
+    <div class="success" data-ui-waitlist-success tabindex="-1" role="status" hidden>
+      {successMessage}
     </div>
-    <Button type="submit" class="submit">{buttonLabel}</Button>
-  </form>
-  <div class="success" data-ui-waitlist-success tabindex="-1" role="status" hidden>
-    {successMessage}
   </div>
 </div>
 
@@ -92,14 +131,21 @@ const single = !options?.length;
 </script>
 
 <style>
+  .lead {
+    margin: 0 0 var(--ui-waitlist-lead-gap, 2.5rem);
+    font-size: var(--ui-font-size-body);
+    text-align: center;
+    opacity: var(--ui-color-text-muted-opacity);
+  }
+
   .waitlist {
     position: relative;
     z-index: 2;
     width: 100%;
-    max-width: 45.625rem;
-    margin: 0 auto 3.25rem;
+    max-width: var(--ui-waitlist-max, 45.625rem);
+    margin: 0 auto var(--ui-waitlist-margin-bottom, 3.25rem);
     color: var(--ui-color-field-text);
-    font-size: var(--ui-size-xs);
+    font-size: var(--ui-field-font-size, var(--ui-size-xs));
   }
 
   .waitlist.single {
@@ -111,24 +157,43 @@ const single = !options?.length;
     display: flex;
     gap: 1rem;
     align-items: stretch;
-    height: 4.125rem;
+    height: var(--ui-field-height, 4.125rem);
     --ui-button-height: 100%;
+    --ui-button-weight: var(--ui-waitlist-button-weight, var(--ui-font-weight-button));
   }
 
   .bar {
     display: flex;
     flex: 1;
     align-items: center;
+    border: var(--ui-field-border, 0);
     background: var(--ui-color-field);
     border-radius: var(--ui-radius-control);
+  }
+
+  .layout-inline .bar {
+    gap: 1.5rem;
   }
 
   .select-wrap {
     position: relative;
     display: flex;
     flex: none;
-    height: 62px;
+    height: calc(var(--ui-field-height, 4.125rem) - 4px);
     padding-right: 20px;
+  }
+
+  .layout-inline .select-wrap {
+    padding-right: 0;
+  }
+
+  .select-icon {
+    position: absolute;
+    top: 50%;
+    left: 24px;
+    z-index: 1;
+    transform: translateY(-50%);
+    pointer-events: none;
   }
 
   /* Chevron, drawn like the original: a rotated 2px corner. */
@@ -136,13 +201,13 @@ const single = !options?.length;
     content: '';
     position: absolute;
     top: 50%;
-    right: 45px;
+    right: var(--ui-select-chevron-right, 45px);
     box-sizing: content-box;
     width: 5px;
     height: 5px;
     margin-top: -4px;
-    border-right: 2px solid var(--ui-color-field-text);
-    border-bottom: 2px solid var(--ui-color-field-text);
+    border-right: 2px solid var(--ui-select-chevron-color, var(--ui-color-field-text));
+    border-bottom: 2px solid var(--ui-select-chevron-color, var(--ui-color-field-text));
     transform: rotate(45deg);
     transform-origin: 66% 66%;
     pointer-events: none;
@@ -155,17 +220,22 @@ const single = !options?.length;
 
   .select {
     appearance: none;
-    width: 117px;
+    width: var(--ui-select-width, 117px);
+    min-width: var(--ui-select-min-width, 0);
     height: 100%;
     margin: 0;
-    padding: 0 40px 0 24px;
+    padding: 0 var(--ui-select-pad-end, 40px) 0 24px;
     border: 0;
     border-radius: var(--ui-radius-control) 0 0 var(--ui-radius-control);
     background: var(--ui-color-field);
     color: var(--ui-color-field-text);
-    font-size: var(--ui-size-xs);
-    letter-spacing: -0.03em;
+    font-size: var(--ui-field-font-size, var(--ui-size-xs));
+    letter-spacing: var(--ui-select-letter-spacing, -0.03em);
     cursor: pointer;
+  }
+
+  .has-icon .select {
+    padding-left: 3.625rem;
   }
 
   .email-wrap {
@@ -176,6 +246,10 @@ const single = !options?.length;
     align-items: center;
     margin-right: 1rem;
     color: var(--ui-color-field-icon);
+  }
+
+  .layout-inline .email-wrap {
+    margin-right: 0;
   }
 
   /* Divider between dropdown and email, then the envelope. */
@@ -197,7 +271,7 @@ const single = !options?.length;
   .mail {
     position: absolute;
     left: 25px;
-    opacity: 0.85;
+    opacity: var(--ui-field-icon-opacity, 0.85);
     pointer-events: none;
   }
 
@@ -209,7 +283,7 @@ const single = !options?.length;
     border-radius: 0 var(--ui-radius-control) var(--ui-radius-control) 0;
     background: transparent;
     color: var(--ui-color-field-text);
-    font-size: var(--ui-size-xs);
+    font-size: var(--ui-field-font-size, var(--ui-size-xs));
     line-height: 1;
   }
 
@@ -231,6 +305,13 @@ const single = !options?.length;
   .select:focus-visible {
     outline: 2px solid var(--ui-color-field-focus);
     outline-offset: -2px;
+  }
+
+  /* Button inside the bar, inset evenly from its edge. */
+  .layout-inline .form :global(.submit) {
+    align-self: center;
+    height: calc(var(--ui-field-height, 4.125rem) - 12px);
+    margin-right: 6px;
   }
 
   .success {
@@ -317,26 +398,42 @@ const single = !options?.length;
   }
 
   @media (max-width: 767px) {
+    .lead {
+      font-size: var(--ui-size-small);
+    }
+
     .form {
       flex-direction: column;
-      gap: 8px;
+      gap: var(--ui-field-gap-mobile, 8px);
       height: auto;
-      --ui-button-height: 40px;
+      --ui-button-height: var(--ui-field-height-mobile, 40px);
       --ui-button-radius: 8px;
     }
 
     .bar {
       flex-direction: column;
       align-items: stretch;
+      border: 0;
       background: transparent;
       border-radius: 0;
     }
 
+    .layout-inline .bar {
+      gap: var(--ui-field-gap-mobile, 8px);
+    }
+
     .select-wrap {
       width: 100%;
-      height: 40px;
+      height: var(--ui-field-height-mobile, 40px);
       margin-bottom: 8px;
       padding-right: 0;
+      border: var(--ui-field-border, 0);
+      border-radius: 8px;
+      background: var(--ui-color-field);
+    }
+
+    .layout-inline .select-wrap {
+      margin-bottom: 0;
     }
 
     .select-wrap::after {
@@ -351,8 +448,9 @@ const single = !options?.length;
 
     .email-wrap {
       flex: none;
-      height: 40px;
+      height: var(--ui-field-height-mobile, 40px);
       margin-right: 0;
+      border: var(--ui-field-border, 0);
       border-radius: 8px;
       background: var(--ui-color-field);
     }
@@ -362,13 +460,20 @@ const single = !options?.length;
     }
 
     .mail {
-      left: 16px;
+      left: var(--ui-field-icon-left-mobile, 16px);
       color: var(--ui-color-field-icon-mobile, #0b2d39);
-      opacity: 0.6;
+      opacity: var(--ui-field-icon-opacity-mobile, 0.6);
     }
 
     .email {
+      padding-left: var(--ui-email-pad-mobile, 4.5rem);
       border-radius: 8px;
+    }
+
+    .layout-inline .form :global(.submit) {
+      align-self: stretch;
+      height: var(--ui-field-height-mobile, 40px);
+      margin-right: 0;
     }
   }
 
@@ -381,12 +486,26 @@ const single = !options?.length;
     .select {
       padding-left: 16px;
       border-radius: var(--ui-radius-control-sm);
-      font-size: var(--ui-size-small);
+      font-size: var(--ui-select-font-size-small, var(--ui-size-small));
     }
 
+    .has-icon .select {
+      padding-left: 3.625rem;
+    }
+
+    .select-wrap,
     .email-wrap,
     .email {
       border-radius: var(--ui-radius-control-sm);
+    }
+
+    .mail {
+      display: var(--ui-email-icon-small, block);
+    }
+
+    .email {
+      padding-left: var(--ui-email-pad-small, var(--ui-email-pad-mobile, 4.5rem));
+      font-size: var(--ui-field-font-size-small, var(--ui-field-font-size, var(--ui-size-xs)));
     }
   }
 </style>

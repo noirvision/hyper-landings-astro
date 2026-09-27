@@ -3,17 +3,21 @@
  * Primary button (or link styled as one).
  *
  * Height and radius read --ui-button-height / --ui-button-radius, so a parent
- * component can size it for its context without touching its internals.
+ * component (or a site theme) can size it without touching its internals.
+ *
+ * variant  primary (accent fill) | inverse (light fill, accent text — for
+ *          accent/deep panels).
  */
 import type { HTMLAttributes } from 'astro/types';
 
-type Props = (HTMLAttributes<'button'> & { href?: undefined }) | (HTMLAttributes<'a'> & { href: string });
+type Variant = { variant?: 'primary' | 'inverse' };
+type Props = ((HTMLAttributes<'button'> & { href?: undefined }) | (HTMLAttributes<'a'> & { href: string })) & Variant;
 
-const { href, class: className, ...attrs } = Astro.props as HTMLAttributes<'button'> & { href?: string };
+const { href, class: className, variant = 'primary', ...attrs } = Astro.props as HTMLAttributes<'button'> & { href?: string } & Variant;
 const Tag = href ? 'a' : 'button';
 ---
 
-<Tag href={href} class:list={['button', className]} {...(href ? {} : { type: 'button' })} {...attrs}><slot /></Tag>
+<Tag href={href} class:list={['button', `variant-${variant}`, className]} {...(href ? {} : { type: 'button' })} {...attrs}><slot /></Tag>
 
 <style>
   .button {
@@ -28,14 +32,27 @@ const Tag = href ? 'a' : 'button';
     background: var(--ui-color-accent);
     color: var(--ui-color-on-accent);
     font-size: var(--ui-size-small);
-    font-weight: var(--ui-font-weight-heading);
+    font-weight: var(--ui-button-weight, var(--ui-font-weight-button));
     line-height: 1.4;
     text-decoration: none;
     cursor: pointer;
     transition: filter 0.2s ease;
   }
 
+  .variant-inverse {
+    background: var(--ui-color-on-accent);
+    color: var(--ui-color-accent);
+  }
+
   .button:hover {
     filter: brightness(1.08);
+  }
+
+  @media (max-width: 767px) {
+    .button {
+      width: var(--ui-button-width-mobile, auto);
+      height: var(--ui-button-height-mobile, var(--ui-button-height, auto));
+      border-radius: var(--ui-button-radius-mobile, var(--ui-button-radius, var(--ui-radius-button)));
+    }
   }
 </style>
