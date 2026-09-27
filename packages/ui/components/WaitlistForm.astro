@@ -9,7 +9,8 @@
  * lead        line under the heading
  * selectIcon  icon drawn at the start of the dropdown
  * revealGroup reveal heading, lead and form as one block ({ delay, offset }),
- *             instead of the heading and the form separately
+ *             instead of the heading and the form separately; the heading
+ *             then has no reveal of its own and moves with the form
  *
  * The bar, fields and button are sized by tokens (--ui-field-*, --ui-select-*,
  * --ui-waitlist-*), defaults in the style block.
@@ -80,7 +81,7 @@ const group = revealGroup
 <div class="group" {...group}>
   {
     hasHeading && (
-      <SectionHeading gap="sm" mobileSize="sm" data-reveal="up">
+      <SectionHeading gap="sm" mobileSize="sm" {...(revealGroup ? {} : { 'data-reveal': 'up' })}>
         {Astro.slots.has('heading') ? <slot name="heading" /> : heading}
       </SectionHeading>
     )
