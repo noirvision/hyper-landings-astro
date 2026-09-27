@@ -5,11 +5,18 @@
  */
 :root {
   /* ---- Type ---- */
-  --ui-font-body: 'Proxima Nova', Arial, sans-serif;
+  /* Figtree stands in for the original's Proxima Nova (layouts/fonts.css). Its
+     weights are tuned to Proxima's stroke darkness: 400 → 370, 600 → 580,
+     700 → 680, 800 → 780. */
+  --ui-font-body: 'Figtree', Arial, sans-serif;
   --ui-font-size-body: 1.125rem;
-  --ui-font-weight-heading: 800;
-  --ui-font-weight-button: 600;
-  --ui-waitlist-button-weight: 700;
+  --ui-font-weight-body: 370;
+  --ui-font-weight-semibold: 580;
+  --ui-font-weight-heading: 780;
+  --ui-font-weight-button: 580;
+  --ui-waitlist-button-weight: 680;
+  --ui-footer-launched-weight: 370;
+  --ui-prose-heading-weight: 680; /* Webflow rich text headings are "bold" */
   --ui-heading-line-height: 1.2;
   --ui-heading-letter-spacing: -0.02em;
   --ui-size-heading-xl: 3rem;
@@ -94,7 +101,7 @@
   --ui-size-h1: 5.5rem;
   --ui-size-h1-mobile: 2.75rem;
   --ui-size-h1-small: 3rem;
-  --ui-hero-title-weight: 700;
+  --ui-hero-title-weight: 680;
   --ui-hero-title-line-height: 1.04;
   --ui-hero-title-line-height-mobile: 1.45833;
   --ui-hero-title-line-height-small: 1.2;

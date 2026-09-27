@@ -31,7 +31,7 @@ sites/oddacademia/
   src/pages/            index, privacy-policy, terms-and-conditions
   src/assets/           content images and icons (optimised at build time)
   src/images/           theme artwork referenced from theme.css
-sites/policybox/        same shape; src/fonts holds the self-hosted Proxima Nova (WOFF2)
+sites/policybox/        same shape; src/fonts holds self-hosted Figtree (WOFF2, OFL licence alongside)
 reference/<site>/       the original Webflow exports, kept for comparison (not built)
 ```
 
@@ -154,7 +154,11 @@ never into client code.
    `packages/ui/tokens/base.css` for the full list with defaults and each component's header
    comment for the tokens it adds. Dark sites set `--ui-color-page`, `--ui-color-text` and the
    field/menu colours. Swap the font import in `src/layouts/fonts.ts` (a fontsource package, or
-   self-hosted WOFF2 files in `src/fonts` as Policy Box does).
+   self-hosted WOFF2 files in `src/fonts` as Policy Box does). Only commit fonts whose licence
+   allows redistribution (e.g. SIL OFL, with the licence file next to them). If the original
+   uses a commercial font, pick the closest free one and tune it in `@font-face`
+   (`size-adjust`, `ascent-override`/`descent-override`) and the `--ui-font-weight-*` tokens, as
+   `sites/policybox/src/layouts/fonts.css` does.
 4. **Content.** Replace `src/content.ts` (brand, socials, footer), images in `src/assets`, and
    `public/` files (favicon, `opengraph.png`, `_headers`, `_redirects`). Write the pages by
    composing components; keep copy verbatim from the reference (fix obvious typos only and

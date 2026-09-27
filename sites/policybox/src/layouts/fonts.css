@@ -1,31 +1,25 @@
+/*
+ * Figtree (SIL Open Font License 1.1, see ../fonts/OFL.txt), from
+ * @fontsource-variable/figtree 5.3.0, Latin subset: the closest free match to
+ * the original's Proxima Nova, which is commercial and not redistributed here.
+ *
+ * Tuned to Proxima Nova's metrics so the layout matches the original:
+ * - size-adjust 98% matches its set width (98–101%) and x-height (~101%);
+ * - ascent/descent overrides reproduce its 0.79 / 0.21 em line box, so text
+ *   sits on the same baseline (the values are divided by the 0.98 size-adjust);
+ * - the weights that match its stroke darkness are set as tokens in theme.css
+ *   (400 → 370, 600 → 580, 700 → 680, 800 → 780).
+ */
 @font-face {
-  font-family: 'Proxima Nova';
-  src: url('../fonts/proxima-nova-400.woff2') format('woff2');
-  font-weight: 400;
+  font-family: 'Figtree';
+  src: url('../fonts/figtree-latin-wght.woff2') format('woff2-variations');
+  font-weight: 300 900;
   font-style: normal;
   font-display: swap;
-}
-
-@font-face {
-  font-family: 'Proxima Nova';
-  src: url('../fonts/proxima-nova-600.woff2') format('woff2');
-  font-weight: 600;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Proxima Nova';
-  src: url('../fonts/proxima-nova-700.woff2') format('woff2');
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Proxima Nova';
-  src: url('../fonts/proxima-nova-800.woff2') format('woff2');
-  font-weight: 800;
-  font-style: normal;
-  font-display: swap;
+  size-adjust: 98%;
+  ascent-override: 80.6%;
+  descent-override: 21.4%;
+  line-gap-override: 0%;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }

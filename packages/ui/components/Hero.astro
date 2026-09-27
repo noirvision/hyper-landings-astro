@@ -11,7 +11,8 @@
  *   Sized by --ui-hero-copy-width and --ui-hero-visual-height(-tablet/-small).
  *
  * titleMuted  optional opening words of the title in --ui-hero-title-muted
- *             (e.g. "Decisions" + "made simple"); the title wraps naturally.
+ *             (e.g. "Decisions" + "made simple"); the title wraps naturally,
+ *             and on phones (≤479px) the muted words take their own line.
  * lead        one paragraph, or several (on phones the first can be set
  *             smaller with --ui-hero-first-lead-size-small).
  *
@@ -363,6 +364,11 @@ const reveal = (m: (string | number)[] | null) =>
 
     .layout-split .copy {
       margin-top: 1.5rem;
+    }
+
+    /* On phones the muted words always get their own line. */
+    .muted {
+      display: block;
     }
 
     .layout-split .lead:first-of-type {

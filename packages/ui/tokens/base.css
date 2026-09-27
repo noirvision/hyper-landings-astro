@@ -16,6 +16,7 @@
   --ui-font-heading: var(--ui-font-body);
   --ui-font-size-body: 1.125rem;
   --ui-line-height-body: 1.5;
+  --ui-font-weight-body: 400;
   --ui-font-weight-heading: 700;
   --ui-font-weight-medium: 500;
   --ui-font-weight-semibold: 600;
@@ -155,6 +156,7 @@ body {
   color: var(--ui-color-text);
   font-family: var(--ui-font-body);
   font-size: var(--ui-font-size-body);
+  font-weight: var(--ui-font-weight-body);
   line-height: var(--ui-line-height-body);
 }
 
@@ -218,6 +220,10 @@ a {
 
   .ui-reveal-ready [data-reveal]:not(.is-revealed) {
     opacity: 0;
+  }
+
+  .ui-reveal-init [data-reveal] {
+    transition: none;
   }
 
   .ui-reveal-ready [data-reveal='up']:not(.is-revealed) {

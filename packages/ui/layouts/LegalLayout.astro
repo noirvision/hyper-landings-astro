@@ -61,6 +61,12 @@ const current = Astro.url.pathname.replace(/\.html$/, '').replace(/\/$/, '') || 
     line-height: 30px;
   }
 
+  .prose :global(h1),
+  .prose :global(h2),
+  .prose :global(h3) {
+    font-weight: var(--ui-prose-heading-weight, var(--ui-font-weight-heading));
+  }
+
   .prose :global(p) {
     margin: 0 0 10px;
   }

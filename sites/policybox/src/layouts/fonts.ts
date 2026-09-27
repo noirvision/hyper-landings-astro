@@ -1,8 +1,6 @@
-// Self-hosted Proxima Nova (from the Webflow export), converted to WOFF2 and
-// subset to Latin. Weights used on the site: 400, 600, 700, 800.
+// Self-hosted Figtree (variable, Latin subset) — see fonts.css for why and how it is tuned.
 import './fonts.css';
-import regular from '../fonts/proxima-nova-400.woff2?url';
-import bold from '../fonts/proxima-nova-700.woff2?url';
+import figtree from '../fonts/figtree-latin-wght.woff2?url';
 
-/** Preloaded: body text and the hero title. */
-export const preloadFonts = [regular, bold];
+/** Preloaded: one variable file covers every weight on the site. */
+export const preloadFonts = [figtree];
