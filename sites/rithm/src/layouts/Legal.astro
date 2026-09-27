@@ -1,14 +1,20 @@
 ---
+import { getEntry } from 'astro:content';
 import LegalLayout from '@noirvision/ui/layouts/LegalLayout.astro';
+import { documentHtml } from '@noirvision/ui/content/html.ts';
 import { preloadFontsLegal } from './fonts';
-import { brand, footer, head } from '../content';
+import { brand, footer, head } from '../site';
 import '../theme.css';
 
 interface Props {
-  title: string;
+  /** File name in src/content/ without .md, e.g. "privacy-policy". */
+  document: string;
 }
+
+const entry = await getEntry('legal', Astro.props.document);
+if (!entry) throw new Error(`src/content/${Astro.props.document}.md is missing`);
 ---
 
-<LegalLayout {...head} title={Astro.props.title} preloadFonts={preloadFontsLegal} header={brand} footer={footer}>
-  <slot />
+<LegalLayout {...head} title={entry.data.title} preloadFonts={preloadFontsLegal} header={brand} footer={footer}>
+  <Fragment set:html={documentHtml(entry.rendered?.html)} />
 </LegalLayout>

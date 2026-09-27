@@ -1,0 +1,27 @@
+# Rithm — shared by every page: the logo, the footer and the browser icons.
+# Image paths are relative to this file; images live in src/assets/.
+
+logo:
+  src: ../assets/icons/rithm-logo.svg
+  alt: Rithm # also names the logo's link to the home page ("Rithm home")
+
+footer:
+  logo:
+    src: ../assets/icons/rithm-logo.svg
+    alt: Rithm
+  hyperLogo: ../assets/icons/hyper.svg
+  # "Launched with Hyper" blurb: one line per sentence.
+  hyperText:
+    - The best way to fund and launch your app.
+    - Celebrating over £170m raised for our founders.
+  copyright: Copyright Rithm© 2026. All Rights Reserved.
+  legalLinks:
+    - label: Terms and Conditions
+      href: /terms-and-conditions
+    - label: Privacy Policy
+      href: /privacy-policy
+
+# Files in public/images/ (served as-is).
+browserIcons:
+  favicon: /images/favicon.png
+  appleTouchIcon: /images/webclip.png

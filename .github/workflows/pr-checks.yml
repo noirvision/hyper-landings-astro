@@ -1,0 +1,47 @@
+# Runs on every pull request to main: type/template checks and the production
+# build of all three sites, exactly as Cloudflare Pages builds them. A broken
+# content edit (e.g. an empty heading or a missing image) fails the build step
+# with the file and field named in the log.
+#
+# The job name below is meant to be a required status check on main.
+name: PR checks
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pr-checks-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check-and-build:
+    name: Check and build all sites
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install (npm ci)
+        run: npm ci
+
+      - name: astro check (library and all sites)
+        run: npm run check
+
+      - name: Build Odd Academia
+        run: npm run build:oddacademia
+
+      - name: Build Policy Box
+        run: npm run build:policybox
+
+      - name: Build Rithm
+        run: npm run build:rithm

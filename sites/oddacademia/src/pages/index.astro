@@ -1,4 +1,6 @@
 ---
+// Text and images: src/content/home.yaml
+import { getEntry } from 'astro:content';
 import Site from '../layouts/Site.astro';
 import Hero from '@noirvision/ui/components/Hero.astro';
 import Header from '@noirvision/ui/components/Header.astro';
@@ -10,126 +12,59 @@ import Steps from '@noirvision/ui/components/Steps.astro';
 import FeatureRows from '@noirvision/ui/components/FeatureRows.astro';
 import AudienceCards from '@noirvision/ui/components/AudienceCards.astro';
 import Footer from '@noirvision/ui/components/Footer.astro';
-import { brand, socials, footer } from '../content';
+import { richHtml } from '@noirvision/ui/content/html.ts';
+import { brand, socials, footer } from '../site';
 
-import hero from '../assets/hero.avif';
-import why1 from '../assets/why-01.avif';
-import why2 from '../assets/why-02.avif';
-import why3 from '../assets/why-03.avif';
-import key1 from '../assets/key-01.avif';
-import key2 from '../assets/key-02.avif';
-import key3 from '../assets/key-03.png';
-import iconUser from '../assets/icons/icon-01.svg';
-import iconPartners from '../assets/icons/icon-02.svg';
-import iconInvestor from '../assets/icons/icon-03.svg';
+const entry = await getEntry('home', 'home');
+if (!entry) throw new Error('src/content/home.yaml is missing');
+const { seo, hero, waitlist, why, howItWorks, keyFeatures, joinUs } = entry.data;
 ---
 
-<Site title="oddAcademia" description="Where Deep Thinking Finds Its Voice.">
-  <Hero
-    title="The Home for Independent Research and Ideas"
-    lead="Odd Academia is a platform empowering early-career researchers and independent thinkers to publish and share their work without restraint. Bypassing traditional gatekeeping, we bring fresh ideas and perspectives that are true to the scientific method directly to readers, evolving the way people consume and produce new knowledge."
-    image={hero}
-  >
+<Site title={seo.title} description={seo.description} ogImage={seo.socialImage} ogTitle={seo.socialTitle}>
+  <Hero title={hero.heading} lead={hero.text} image={hero.image.src} imageAlt={hero.image.alt}>
     <Header slot="header" {...brand} socials={socials} reveal />
   </Hero>
 
   <Section spacing="waitlist">
     <WaitlistForm
-      heading="Join the waitlist"
-      options={[
-        { value: 'User', label: 'User' },
-        { value: 'Partner', label: 'Partner' },
-        { value: 'Investor', label: 'Investor' },
-      ]}
-    />
+      options={waitlist.options.map((option) => ({ value: option, label: option }))}
+      selectPlaceholder={waitlist.dropdownPlaceholder}
+      selectLabel={waitlist.dropdownLabel}
+      emailPlaceholder={waitlist.emailPlaceholder}
+      buttonLabel={waitlist.button}
+      successMessage={waitlist.successMessage}
+    >
+      <Fragment slot="heading" set:html={richHtml(waitlist.heading)} />
+    </WaitlistForm>
     <div class="accent-rule" data-reveal="fade" data-reveal-offset="25"></div>
     <FeatureGrid
-      label="Why choose Odd Academia"
-      items={[
-        {
-          image: why1,
-          title: 'Reach a Global Audience',
-          text: 'Showcase your research without the constraints of traditional journals.',
-        },
-        {
-          image: why2,
-          title: 'Build Your Professional Profile',
-          text: 'Gain credibility and career opportunities through a democratic review process.',
-        },
-        {
-          image: why3,
-          title: 'Break Free from Gatekeepers',
-          text: 'Publish innovative work without restrictions or barriers.',
-        },
-      ]}
+      label={why.listLabel}
+      items={why.items.map((item) => ({ image: item.image.src, imageAlt: item.image.alt, title: item.title, text: item.text }))}
     >
-      <SectionHeading slot="heading" data-reveal="up">Why <em>Choose</em> Odd Academia?</SectionHeading>
+      <SectionHeading slot="heading" data-reveal="up"><Fragment set:html={richHtml(why.heading)} /></SectionHeading>
     </FeatureGrid>
   </Section>
 
-  <Steps
-    heading="How It Works"
-    steps={[
-      {
-        title: 'Create a Profile',
-        text: 'Build a professional profile that links to all your published work, showcasing your expertise and contributions.',
-      },
-      {
-        title: 'Publish and Share',
-        text: 'Upload your research, which will be distributed directly to readers around the world.',
-      },
-      {
-        title: 'Receive Peer Validation',
-        text: 'Connect with a global community of independent thinkers and researchers who can engage with and validate your work.',
-      },
-    ]}
-  />
+  <Steps steps={howItWorks.steps}>
+    <Fragment slot="heading" set:html={richHtml(howItWorks.heading)} />
+  </Steps>
 
   <FeatureRows
-    heading="Key Features"
-    rows={[
-      {
-        title: 'Reach Key Audiences',
-        lead: 'Gain Visibility Beyond Traditional Platforms.',
-        text: 'Odd Academia lets you bypass conventional publishing channels and reach readers globally, allowing your work without gatekeeping to connect with the right people.',
-        image: key1,
-      },
-      {
-        title: 'Build Your Professional Profile',
-        lead: 'Enhance Your Career Through Peer Validation',
-        text: 'With each publication, strengthen your professional portfolio and build credibility through community-driven reviews, showcasing your expertise to future employers and collaborators.',
-        image: key2,
-        flip: true,
-      },
-      {
-        title: 'A Platform for Innovators',
-        lead: 'Freedom to Share Ideas and Break Barriers',
-        text: 'Odd Academia is a home for bold ideas and innovation, providing a publishing space for those with fresh insights and unconventional approaches to research.',
-        image: key3,
-      },
-    ]}
-  />
+    rows={keyFeatures.rows.map((row, i) => ({
+      title: row.title,
+      lead: row.lead,
+      text: row.text,
+      image: row.image.src,
+      imageAlt: row.image.alt,
+      flip: i % 2 === 1,
+    }))}
+  >
+    <Fragment slot="heading" set:html={richHtml(keyFeatures.heading)} />
+  </FeatureRows>
 
-  <AudienceCards
-    heading="Join us"
-    cards={[
-      {
-        icon: iconUser,
-        title: 'For User',
-        text: 'Ready to share your ideas with the world? Join Odd Academia and publish your work without limits.',
-      },
-      {
-        icon: iconPartners,
-        title: 'For Partners',
-        text: 'Collaborate with us to transform academic publishing and bring fresh voices to the forefront.',
-      },
-      {
-        icon: iconInvestor,
-        title: 'For Investor',
-        text: 'Help us build a future where independent research thrives.',
-      },
-    ]}
-  />
+  <AudienceCards cards={joinUs.cards}>
+    <Fragment slot="heading" set:html={richHtml(joinUs.heading)} />
+  </AudienceCards>
 
   <Footer slot="footer" {...footer} />
 </Site>

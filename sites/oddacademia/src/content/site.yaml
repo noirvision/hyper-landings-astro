@@ -1,0 +1,41 @@
+# Odd Academia — shared by every page: the logo, social links, the footer and
+# the browser icons. Image paths are relative to this file; images live in
+# src/assets/.
+
+logo:
+  src: ../assets/icons/odd-academia_logo.svg
+  alt: Odd Academia # also names the logo's link to the home page ("Odd Academia home")
+
+# Icons in the header and the footer. The label is read out by screen readers.
+socials:
+  - label: Facebook
+    href: https://www.facebook.com/profile.php?id=61567286615576
+    icon: ../assets/icons/facebook.svg
+  - label: Instagram
+    href: https://www.instagram.com/odd_academia/
+    icon: ../assets/icons/instagram.svg
+  - label: LinkedIn
+    href: https://www.linkedin.com/company/odd-academia/about/
+    icon: ../assets/icons/linkedin.svg
+
+footer:
+  logo:
+    src: ../assets/icons/odd-academia_logo.svg
+    alt: Odd Academia
+  emailLabel: "Email :"
+  email: se-on@oddacademia.com
+  # "Launched with Hyper" blurb: one line per sentence.
+  hyperText:
+    - The best way to fund and launch your app.
+    - Accelerate Process has helped 1,528 founders raise over $482 million since 2015.
+  copyright: ©2026 oddAcademia. All rights reserved.
+  legalLinks:
+    - label: Terms of Service
+      href: /terms-and-conditions
+    - label: Privacy Policy
+      href: /privacy-policy
+
+# Files in public/images/ (served as-is).
+browserIcons:
+  favicon: /images/favicon.png
+  appleTouchIcon: /images/webclip.png
