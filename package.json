@@ -20,6 +20,12 @@
     "dev:rithm": "npm run dev -w @noirvision/site-rithm",
     "build:rithm": "npm run build -w @noirvision/site-rithm",
     "preview:rithm": "npm run preview -w @noirvision/site-rithm",
-    "build": "npm run build --workspaces --if-present"
+    "build": "npm run build --workspaces --if-present",
+    "check": "npm run check --workspaces --if-present"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "@types/node": "^24.19.0",
+    "typescript": "^5.9.3"
   }
 }

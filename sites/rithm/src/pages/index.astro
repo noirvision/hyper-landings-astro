@@ -1,4 +1,6 @@
 ---
+// Text and images: src/content/home.yaml
+import { getEntry } from 'astro:content';
 import Site from '../layouts/Site.astro';
 import Hero from '@noirvision/ui/components/Hero.astro';
 import Header from '@noirvision/ui/components/Header.astro';
@@ -9,30 +11,31 @@ import MediaText from '@noirvision/ui/components/MediaText.astro';
 import FeatureCards from '@noirvision/ui/components/FeatureCards.astro';
 import CallToAction from '@noirvision/ui/components/CallToAction.astro';
 import Footer from '@noirvision/ui/components/Footer.astro';
-import { brand, footer } from '../content';
+import { richHtml } from '@noirvision/ui/content/html.ts';
+import { brand, footer } from '../site';
 
-import heroImage from '../assets/hero-img.webp';
-import sect1 from '../assets/sect-01.webp';
-import sect2 from '../assets/sect-02.webp';
-import athlete from '../assets/bg-img.webp';
-import ctaImage from '../assets/cta.webp';
-import arrow from '../assets/icons/arrow.svg';
-import bulb from '../assets/icons/icon.svg';
+const entry = await getEntry('home', 'home');
+if (!entry) throw new Error('src/content/home.yaml is missing');
+const { seo, hero, solutions, features, understand, join } = entry.data;
 
-// As published: title only, no description or social tags on the home page.
-const form = { emailPlaceholder: 'Your email here', buttonLabel: 'Join Now', reveal: false };
+const form = {
+  emailPlaceholder: entry.data.form.emailPlaceholder,
+  buttonLabel: entry.data.form.button,
+  successMessage: entry.data.form.successMessage,
+  reveal: false,
+};
 ---
 
-<Site title="Rithm" ogTitle={false}>
+<Site title={seo.title} description={seo.description} ogImage={seo.socialImage} ogTitle={seo.socialTitle}>
   <Hero
     layout="split"
     visual="contained"
     tone="deep"
     mobileAlign="center"
-    title="Feel your Rithm"
-    lead="Manage your health, one data point at a time, with our AI-powered personalised health companion for the busy professional"
-    image={heroImage}
-    imageAlt="Rithm app home screen with daily trackers for nutrition, cardio, sleep and strength"
+    title={hero.heading}
+    lead={hero.text}
+    image={hero.image.src}
+    imageAlt={hero.image.alt}
     reveal={{ copy: null, title: 600, lead: 900, content: 1200, visual: 1200 }}
   >
     <Header slot="brand" {...brand} reveal={{ delay: 300 }} />
@@ -44,54 +47,35 @@ const form = { emailPlaceholder: 'Your email here', buttonLabel: 'Join Now', rev
 
     <Section spacing="solutions">
       <MediaText
-        eyebrow="Solutions"
-        eyebrowIcon={arrow}
-        text={[
-          'In a world where you can know anything why is it so hard to know about what’s actually going on in your own body?',
-          'Rithm connects information from different data sources to give you personalised health and wellness recommendations so you can live your best life.',
-        ]}
-        image={sect1}
-        imageAlt="Rithm app progress tracking screen"
+        eyebrow={solutions.eyebrow}
+        eyebrowIcon={solutions.eyebrowIcon}
+        text={solutions.paragraphs}
+        image={solutions.image.src}
+        imageAlt={solutions.image.alt}
         imageWidth={650}
         revealOffset={25}
       >
-        <Fragment slot="heading">The world’s first <br />hyper-personalised AI health and wellness companion</Fragment>
+        <Fragment slot="heading" set:html={richHtml(solutions.heading)} />
       </MediaText>
     </Section>
 
     <Section spacing="check">
       <FeatureCards
-        label="Your health in your hands"
+        label={features.listLabel}
         iconLayout="stacked"
         reveal={{ offset: 25, grid: 'fade', gridOffset: 20 }}
-        items={[
-          {
-            icon: bulb,
-            title: 'Hyper Personalised',
-            text: 'Personal goals. Personal plans. Personal actions. The Rithm AI companion connects data from multiple sources to give you a hyper personalised picture of your health and wellness',
-          },
-          {
-            icon: bulb,
-            title: 'Human in the loop',
-            text: 'Rithm will connect you to a marketplace of specialists to help you achieve your goals; creating a consistent and personalised support experience from app to real life',
-          },
-          {
-            icon: bulb,
-            title: 'Holistic health tracking',
-            text: 'Aggregate all your health and wellness data in one place and get holistic insights that understand the multifaceted and multidimensional story of YOU.',
-          },
-        ]}
+        items={features.cards}
       >
         <SectionHeading
           slot="heading"
-          eyebrow="check this"
-          eyebrowIcon={arrow}
+          eyebrow={features.eyebrow}
+          eyebrowIcon={features.eyebrowIcon}
           align="start"
           gap="md"
           data-reveal="left"
           data-reveal-offset="25"
         >
-          Your health in your hands
+          <Fragment set:html={richHtml(features.heading)} />
         </SectionHeading>
       </FeatureCards>
     </Section>
@@ -99,18 +83,17 @@ const form = { emailPlaceholder: 'Your email here', buttonLabel: 'Join Now', rev
     <Section spacing="understand">
       <MediaText
         flip
-        eyebrow="Solutions"
-        eyebrowIcon={arrow}
-        heading="Understand what’s actually happening, all in one place"
-        text={[
-          'Rithm connects all your health data in one place to give you the full picture of what you need to optimise your health and wellness so you don’t have to do the hard work of working out what it all means.',
-        ]}
-        image={sect2}
-        imageAlt="Rithm app screens: a chat with HealthGPT, progress tracking and a personal health plan"
+        eyebrow={understand.eyebrow}
+        eyebrowIcon={understand.eyebrowIcon}
+        text={understand.paragraphs}
+        image={understand.image.src}
+        imageAlt={understand.image.alt}
         imageWidth={525}
-        backdrop={athlete}
+        backdrop={understand.backgroundImage}
         revealOffset={25}
-      />
+      >
+        <Fragment slot="heading" set:html={richHtml(understand.heading)} />
+      </MediaText>
       <div class="glow glow-right" aria-hidden="true"></div>
     </Section>
   </div>
@@ -118,12 +101,12 @@ const form = { emailPlaceholder: 'Your email here', buttonLabel: 'Join Now', rev
   <CallToAction
     layout="panel"
     reveal="left"
-    text="Let Rithm tell you everything you’ve always wanted to know about your health and wellness. We’ve got you."
-    image={ctaImage}
-    imageAlt="A hand holding a phone with the Rithm assistant chat"
+    text={join.text}
+    image={join.image.src}
+    imageAlt={join.image.alt}
     imageWidth={420}
   >
-    <Fragment slot="heading">Know yourself<br />Discover your Rithm</Fragment>
+    <Fragment slot="heading" set:html={richHtml(join.heading)} />
     <WaitlistForm id="cta" {...form} />
   </CallToAction>
 

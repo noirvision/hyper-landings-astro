@@ -1,0 +1,67 @@
+# Rithm — home page (/). Every text on the page, top to bottom.
+# Section headings (not the hero) may use <em>…</em> (accent), <br> (line break) and &nbsp; (a space
+# that must not break); all other fields are plain text.
+# Image paths are relative to this file; images live in src/assets/.
+
+seo:
+  title: Rithm
+  socialTitle: false # published with a title only: no description or social tags
+
+# Both email forms: the hero and the green panel near the bottom.
+form:
+  emailPlaceholder: Your email here
+  button: Join Now
+  successMessage: Thank you! Your submission has been received!
+
+hero:
+  heading: Feel your Rithm
+  text: Manage your health, one data point at a time, with our AI-powered personalised health companion for the busy professional
+  image:
+    src: ../assets/hero-img.webp
+    alt: Rithm app home screen with daily trackers for nutrition, cardio, sleep and strength
+
+solutions:
+  eyebrow: Solutions
+  eyebrowIcon: ../assets/icons/arrow.svg
+  heading: The world’s first <br>hyper-personalised AI health and wellness companion
+  paragraphs:
+    - In a world where you can know anything why is it so hard to know about what’s actually going on in your own body?
+    - Rithm connects information from different data sources to give you personalised health and wellness recommendations so you can live your best life.
+  image:
+    src: ../assets/sect-01.webp
+    alt: Rithm app progress tracking screen
+
+features:
+  eyebrow: check this
+  eyebrowIcon: ../assets/icons/arrow.svg
+  heading: Your health in your hands
+  listLabel: Your health in your hands # read out by screen readers for the cards
+  cards:
+    - icon: ../assets/icons/icon.svg
+      title: Hyper Personalised
+      text: Personal goals. Personal plans. Personal actions. The Rithm AI companion connects data from multiple sources to give you a hyper personalised picture of your health and wellness
+    - icon: ../assets/icons/icon.svg
+      title: Human in the loop
+      text: Rithm will connect you to a marketplace of specialists to help you achieve your goals; creating a consistent and personalised support experience from app to real life
+    - icon: ../assets/icons/icon.svg
+      title: Holistic health tracking
+      text: Aggregate all your health and wellness data in one place and get holistic insights that understand the multifaceted and multidimensional story of YOU.
+
+understand:
+  eyebrow: Solutions
+  eyebrowIcon: ../assets/icons/arrow.svg
+  heading: Understand what’s actually happening, all in one place
+  paragraphs:
+    - Rithm connects all your health data in one place to give you the full picture of what you need to optimise your health and wellness so you don’t have to do the hard work of working out what it all means.
+  image:
+    src: ../assets/sect-02.webp
+    alt: "Rithm app screens: a chat with HealthGPT, progress tracking and a personal health plan"
+  backgroundImage: ../assets/bg-img.webp # decorative photo behind the text (desktop)
+
+# Green panel with the second email form.
+join:
+  heading: Know yourself<br>Discover your Rithm
+  text: Let Rithm tell you everything you’ve always wanted to know about your health and wellness. We’ve got you.
+  image:
+    src: ../assets/cta.webp
+    alt: A hand holding a phone with the Rithm assistant chat

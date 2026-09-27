@@ -1,0 +1,153 @@
+# Policy Box — home page (/). Every text on the page, top to bottom.
+# Section headings may use <em>…</em> (accent words), <br> (line break) and
+# &nbsp; (a space that must not break); other fields are plain text, where
+# &nbsp; is allowed too.
+# Image paths are relative to this file; images live in src/assets/.
+# alt: "" marks a purely decorative image.
+
+seo:
+  # As published, title and description contain an invisible line separator
+  # (\u2028); keep it unless asked to change these texts.
+  title: "PolicyBox | Decisions \u2028made simple"
+  description: "PolicyBox is the first AI toolkit that makes compliance\u2028instant and effortless. Ask plain-language questions, and our AI instantly translates them into clear, actionable steps — so you know exactly what to do and why."
+  socialImage: /opengraph.png # preview image when the link is shared (file in public/)
+
+hero:
+  headingMuted: Decisions # first line, lighter
+  heading: made simple
+  paragraphs:
+    - PolicyBox is the first AI toolkit that makes compliance instant and effortless. Ask plain-language questions, and our AI instantly translates them into clear, actionable steps — so you know exactly what to do and why.
+    - All of this is delivered in a secure, auditable, managed SaaS platform, giving you confidence and control without the complexity.
+  image:
+    src: ../assets/hero-img.png
+    alt: PolicyBox dashboard with the client activity feed
+
+# The form section; buttons with the link #waitlist scroll here.
+waitlist:
+  heading: <em>Find out</em>&nbsp;more
+  text: Chat with us or simply receive more information on PolicyBox.
+  dropdownIcon: ../assets/icons/industry.svg
+  dropdownPlaceholder: Insert your industry
+  dropdownLabel: Industry # read out by screen readers
+  options:
+    - User
+    - Partner
+    - Investor
+  emailPlaceholder: Insert your email
+  button: Join Waitlist
+  successMessage: Thank you! Your submission has been received!
+
+# Four cards; their sizes and positions are set by the page design, in this order.
+why:
+  heading: Why choose&nbsp;<em>PolicyBox?</em>
+  listLabel: Why choose PolicyBox # read out by screen readers for the cards
+  cards:
+    - icon: ../assets/icons/card-01-icon.svg
+      title: PolicyBox for AML
+      text: Simple and instant Out of the Box AML Program Compliance for minimal cost.
+      image:
+        src: ../assets/card-01.png
+        alt: ""
+    - icon: ../assets/icons/card-02-icon.svg
+      title: Expand with PolicyBox
+      text: PolicyBox is not just for AML, you can use it for a host of other applications.
+      image:
+        src: ../assets/card-02.png
+        alt: ""
+    - icon: ../assets/icons/card-04-icon.svg
+      title: Ask Anything, Get Exact Steps
+      text: Use our LLM tool to ask simple non technical questions and have that mapped to compliant obligations that reference all of the relevant legislation and guidelines. Get the exact compliance steps, documents, tools and policies you need to follow.
+      image:
+        src: ../assets/card-04.png
+        alt: ""
+    - icon: ../assets/icons/card-03-icon.svg
+      title: Complete Compliance Hub
+      text: Integrated due diligence - Run KYC and KYB, PEP and sanctions screening, plus ongoing monitoring all in one place.
+      image:
+        src: ../assets/card-03.png
+        alt: ""
+
+howItWorks:
+  heading: How it works for&nbsp;<em>AML</em>
+  steps:
+    - title: Seamless Smart Onboarding
+      text: When you onboard a new customer or matter simply ask the LLM a question or choose from a list.&nbsp; You will be provided with a set of obligations and the workflow to undertake them.
+    - title: Build & Adapt Your Program
+      text: Update the out of the Box program by adding your own policies or simply upload your own policies and/or legal advice.&nbsp; Build your program with the assistance of LLM-Powered Policies, controls and training you can adopt or adapt.
+    - title: Smart Client Verification
+      text: Verify and monitor clients with KYC and sanctions screening, then store a tamper-proof audit trail.
+  image:
+    src: ../assets/hiw.png
+    alt: PolicyBox identity verification step with document upload
+
+# Rows alternate image left / right. A new line in a text is a line break on the page.
+features:
+  heading: Elaboration on&nbsp;<em>Features</em>
+  rows:
+    - icon: ../assets/icons/elab-icon-01.svg
+      title: From question to compliant action
+      text: |-
+        Type "What are the AML requirements for this matter?" and
+        PolicyBox translates it into precise steps, forms and records. The LLM-powered obligations engine keeps guidance clear for non-technical users.
+      image:
+        src: ../assets/elab-img-01.png
+        alt: PolicyBox chat turning a question into a compliance checklist
+    - icon: ../assets/icons/elab-icon-02.svg
+      title: Due diligence without the busywork
+      text: KYC and KYB, PEP and sanctions screening, and ongoing monitoring are built in, so you can verify faster and reduce vendor sprawl. Results feed straight into client files and your audit trail.
+      image:
+        src: ../assets/elab-img-02.png
+        alt: PolicyBox policy editor with suggestions and obligations
+    - icon: ../assets/icons/elab-icon-03.svg
+      title: Your AML and CTF program, generated
+      text: Create an AUSTRAC-aligned program with LLM-Curated policies, risk assessments and templates, then manage it via guided workflows and dashboards. White label options and API docs make it easy to extend as you grow.
+      image:
+        src: ../assets/elab-img-03.png
+        alt: PolicyBox dashboard with client activity and risk compliance
+
+alternateUses:
+  heading: <em>Alternate</em> Uses
+  paragraphs:
+    - Our platform is built for workflow-driven compliance; starting with Anti-Money Laundering, but extends far beyond. The possibilities are virtually limitless.
+    - Any policy can be uploaded to instantly create a tailored use case, enabling organisations to streamline compliance across every function.
+  items:
+    - icon: ../assets/icons/alt-icon-01.svg
+      title: HR & Onboarding
+      text: New employee setup, compliance training, policy acknowledgements.
+    - icon: ../assets/icons/alt-icon-02.svg
+      title: Health & Safety
+      text: Incident reporting, safety checklists, certification tracking.
+    - icon: ../assets/icons/alt-icon-03.svg
+      title: Tax & Advisory
+      text: Automating client matters while referencing complex rules and legislation.
+    - icon: ../assets/icons/alt-icon-04.svg
+      title: Credit Policy & Client Onboarding
+      text: Streamlined client creation with integrated compliance checks.
+    - icon: ../assets/icons/alt-icon-05.svg
+      title: Customer Support
+      text: Case management and API connections to website support tools.
+
+whiteLabel:
+  heading: White Label&nbsp;<em>Opportunities</em>
+  text: Talk to us about using our white label capability.
+  button:
+    label: Click here
+    href: "#waitlist"
+
+# Glass cards inside the footer panel.
+contact:
+  heading: Find out more about our <em>AML Stream</em>
+  text: Contact us to explore pilots, integrations and early access.
+  cards:
+    - icon: ../assets/icons/users-icon.svg
+      title: For AML Users
+      text: Cut the time and cost of Tranche 2 compliance with AI-generated policies, checks and audit trails.
+      button:
+        label: Find out More
+        href: "#waitlist"
+    - icon: ../assets/icons/partners-icon.svg
+      title: For Partners
+      text: Offer immediate AUSTRAC-aligned AML value to your clients with a simple, SME-friendly platform and integrations.
+      button:
+        label: Find out More
+        href: "#waitlist"

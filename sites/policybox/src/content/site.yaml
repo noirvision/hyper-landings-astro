@@ -1,0 +1,38 @@
+# Policy Box — shared by every page: the logos, social links, the footer and
+# the browser icons. Image paths are relative to this file; images live in
+# src/assets/.
+
+logo:
+  src: ../assets/icons/Policybox_logo-color.svg
+  alt: PolicyBox # also names the logo's link to the home page ("PolicyBox home")
+
+# Icons in the header and the footer. The label is read out by screen readers.
+socials:
+  - label: Facebook
+    href: https://www.facebook.com/profile.php?id=61580011452303
+    icon: ../assets/icons/facebook-alt.svg
+  - label: Instagram
+    href: https://www.instagram.com/policybox.com.au/
+    icon: ../assets/icons/instagram.svg
+  - label: LinkedIn
+    href: https://www.linkedin.com/company/policybox/?viewAsMember=true
+    icon: ../assets/icons/linkedin.svg
+
+footer:
+  logo:
+    src: ../assets/icons/Policybox_logo-footer.svg
+    alt: PolicyBox
+  emailLabel: "Email:"
+  email: hello@policybox.com.au
+  hyperLogo: ../assets/icons/Hyper-Logo.svg
+  copyright: PolicyBox©2026. All rights reserved.
+  legalLinks:
+    - label: Terms and Conditions
+      href: /terms-and-conditions
+    - label: Privacy Policy
+      href: /privacy-policy
+
+# Files in public/images/ (served as-is).
+browserIcons:
+  favicon: /images/favicon.png
+  appleTouchIcon: /images/webclip.png

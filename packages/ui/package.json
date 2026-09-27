@@ -9,16 +9,21 @@
     "./layouts/*": "./layouts/*",
     "./tokens/*": "./tokens/*",
     "./scripts/*": "./scripts/*",
-    "./assets/*": "./assets/*"
+    "./assets/*": "./assets/*",
+    "./content/*": "./content/*"
   },
   "files": [
     "components",
     "layouts",
     "tokens",
     "scripts",
-    "assets"
+    "assets",
+    "content"
   ],
   "peerDependencies": {
     "astro": ">=7"
+  },
+  "scripts": {
+    "check": "astro check"
   }
 }
