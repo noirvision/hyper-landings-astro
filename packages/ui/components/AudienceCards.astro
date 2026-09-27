@@ -1,11 +1,24 @@
 ---
 /**
- * Audience call-to-action cards ("Join us"): icon, title, text per audience,
- * columns separated by rules on desktop, stacked below 992px.
+ * Audience call-to-action cards ("Join us"): icon, title, text per audience.
+ *
+ * variant  columns (default): centred cards in columns separated by rules on
+ *          desktop, stacked below 992px.
+ *          glass: left-aligned frosted cards (--ui-color-glass, -glass-border)
+ *          with the icon beside the title and an optional button, two per row
+ *          on desktop (max 70rem), stacked below 992px.
+ * lead     line under the heading.
+ * cards[].cta   { label, href } — a button under the text (glass variant).
+ * cards[].href  makes the whole card a link (columns variant).
+ *
+ * heading may be replaced by a `heading` slot (for <em> markup). The panel is
+ * a <Section spacing="audience">, so --ui-bg-audience, --ui-space-audience-*,
+ * --ui-margin-audience and --ui-radius-audience shape it.
  */
 import type { ImageMetadata } from 'astro';
 import Section from './Section.astro';
 import SectionHeading from './SectionHeading.astro';
+import Button from './Button.astro';
 
 interface Card {
   icon: ImageMetadata;
@@ -13,30 +26,55 @@ interface Card {
   text: string;
   /** Optional link for the whole card. */
   href?: string;
+  cta?: { label: string; href: string };
 }
 
 interface Props {
-  heading: string;
+  heading?: string;
+  lead?: string;
   cards: Card[];
   tone?: 'accent' | 'deep' | 'plain';
+  variant?: 'columns' | 'glass';
+  as?: 'section' | 'div';
 }
 
-const { heading, cards, tone = 'accent' } = Astro.props;
+const { heading, lead, cards, tone = 'accent', variant = 'columns', as = 'section' } = Astro.props;
+const glass = variant === 'glass';
 const direction = (i: number) => (i === 0 ? 'left' : i === cards.length - 1 ? 'right' : 'up');
 ---
 
-<Section tone={tone} spacing="audience">
-  <SectionHeading size="lg" mobileSize="sm" data-reveal="up">{heading}</SectionHeading>
-  <ul class="cards" style={`--_cols:${cards.length}`}>
+<Section tone={tone} spacing="audience" as={as}>
+  <SectionHeading size={glass ? 'xl' : 'lg'} mobileSize={glass ? 'md' : 'sm'} gap={glass ? 'xs' : undefined} data-reveal="up">
+    {Astro.slots.has('heading') ? <slot name="heading" /> : heading}
+  </SectionHeading>
+  {lead && <p class="lead" data-reveal="up">{lead}</p>}
+  <ul class:list={['cards', `variant-${variant}`]} style={`--_cols:${cards.length}`}>
     {
       cards.map((card, i) => {
         const Tag = card.href ? 'a' : 'div';
         return (
           <li data-reveal={direction(i)}>
             <Tag class="card" href={card.href}>
-              <img class="icon" src={card.icon.src} width={card.icon.width} height={card.icon.height} alt="" loading="lazy" />
-              <h3 class="title">{card.title}</h3>
-              <p class="text">{card.text}</p>
+              {glass ? (
+                <div>
+                  <div class="head">
+                    <img class="icon" src={card.icon.src} width={card.icon.width} height={card.icon.height} alt="" loading="lazy" />
+                    <h3 class="title">{card.title}</h3>
+                  </div>
+                  <p class="text">{card.text}</p>
+                </div>
+              ) : (
+                <>
+                  <img class="icon" src={card.icon.src} width={card.icon.width} height={card.icon.height} alt="" loading="lazy" />
+                  <h3 class="title">{card.title}</h3>
+                  <p class="text">{card.text}</p>
+                </>
+              )}
+              {card.cta && (
+                <Button href={card.cta.href} variant="inverse" class="cta">
+                  {card.cta.label}
+                </Button>
+              )}
             </Tag>
           </li>
         );
@@ -46,6 +84,13 @@ const direction = (i: number) => (i === 0 ? 'left' : i === cards.length - 1 ? 'r
 </Section>
 
 <style>
+  .lead {
+    margin: 0 0 3rem;
+    font-size: var(--ui-font-size-body);
+    text-align: center;
+    color: var(--ui-color-on-strong-muted);
+  }
+
   .cards {
     display: grid;
     grid-template-columns: repeat(var(--_cols), 1fr);
@@ -59,7 +104,7 @@ const direction = (i: number) => (i === 0 ? 'left' : i === cards.length - 1 ? 'r
     position: relative;
   }
 
-  li + li::before {
+  .variant-columns li + li::before {
     content: '';
     position: absolute;
     top: 0;
@@ -97,26 +142,82 @@ const direction = (i: number) => (i === 0 ? 'left' : i === cards.length - 1 ? 'r
     font-size: var(--ui-font-size-body);
   }
 
+  /* ---------- Glass ---------- */
+  .variant-glass {
+    grid-template-columns: repeat(min(var(--_cols), 2), 1fr);
+    gap: 1.25rem;
+    max-width: 70rem;
+    margin-inline: auto;
+  }
+
+  .variant-glass .card {
+    gap: 2rem;
+    align-items: flex-start;
+    justify-content: center;
+    height: 100%;
+    padding: 2rem;
+    border: 1px solid var(--ui-color-glass-border);
+    border-radius: var(--ui-radius-card);
+    background: var(--ui-color-glass);
+    -webkit-backdrop-filter: blur(50px);
+    backdrop-filter: blur(50px);
+    text-align: left;
+  }
+
+  .variant-glass .head {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+
+  .variant-glass .icon {
+    flex: none;
+    width: auto;
+    height: auto;
+    margin: 0;
+  }
+
+  .variant-glass .title {
+    margin: 0;
+    font-size: var(--ui-audience-title-size, var(--ui-size-title));
+    line-height: 1.2;
+  }
+
+  .variant-glass .text {
+    color: inherit;
+  }
+
   @media (max-width: 991px) {
-    .cards {
+    .cards,
+    .variant-glass {
       grid-template-columns: 1fr;
+    }
+
+    .variant-columns {
       gap: 4rem;
     }
 
-    li + li::before {
+    .variant-columns li + li::before {
       display: none;
     }
   }
 
   @media (max-width: 767px) {
+    .lead,
     .text {
       font-size: var(--ui-size-small);
     }
   }
 
   @media (max-width: 479px) {
-    .icon {
+    .variant-columns .icon {
       margin-bottom: 16px;
+    }
+
+    .variant-glass .card {
+      gap: 1.5rem;
+      padding: 1.25rem;
     }
   }
 </style>

@@ -1,65 +1,113 @@
 ---
 /**
- * Hero with a product visual: accent panel, header slot on top, centred
- * title + lead, then a large screenshot that bleeds off the bottom edge.
+ * Hero with a product visual on an accent (or deep) panel, header slot on top.
+ *
+ * layout="centered" (default): centred title + lead, then a large screenshot
+ *   that bleeds off the bottom edge. The whole panel fades in, then title,
+ *   lead and visual rise in turn.
+ * layout="split": title and lead on the left, the visual on the right,
+ *   bleeding off the right and bottom edges (the image itself carries any
+ *   perspective). Copy slides in from the left, the visual from the right.
+ *   Sized by --ui-hero-copy-width and --ui-hero-visual-height(-tablet/-small).
+ *
+ * titleMuted  optional opening words of the title in --ui-hero-title-muted
+ *             (e.g. "Decisions" + "made simple"); the title wraps naturally.
+ * lead        one paragraph, or several (on phones the first can be set
+ *             smaller with --ui-hero-first-lead-size-small).
  *
  * Slots: header (usually <Header>), default (optional extra content under
  * the lead, e.g. a waitlist form).
- * The backdrop layer (--ui-hero-backdrop) shows on desktop only.
+ * The backdrop layer (--ui-hero-backdrop) shows on desktop; below 992px
+ * --ui-hero-backdrop-tablet (default none) replaces it.
  */
 import type { ImageMetadata } from 'astro';
 import Image from './Image.astro';
 
 interface Props {
   title: string;
-  lead?: string;
+  titleMuted?: string;
+  lead?: string | string[];
   image: ImageMetadata;
   imageAlt?: string;
-  /** Rendered width of the visual in px. */
+  /** Rendered width of the visual in px (desktop). */
   imageWidth?: number;
   imageSizes?: string;
   tone?: 'accent' | 'deep';
+  layout?: 'centered' | 'split';
 }
 
 const {
   title,
+  titleMuted,
   lead,
   image,
   imageAlt = '',
-  imageWidth = 962,
-  imageSizes = '(max-width: 479px) 83vw, (max-width: 767px) 89vw, (max-width: 1045px) 92vw, 962px',
   tone = 'accent',
+  layout = 'centered',
+  imageWidth = layout === 'split' ? 1652 : 962,
+  imageSizes = layout === 'split'
+    ? `(max-width: 767px) 150vw, (max-width: 991px) 160vw, ${imageWidth}px`
+    : '(max-width: 479px) 83vw, (max-width: 767px) 89vw, (max-width: 1045px) 92vw, 962px',
 } = Astro.props;
+const split = layout === 'split';
+const leads = lead ? (Array.isArray(lead) ? lead : [lead]) : [];
+const widths = split
+  ? [800, 1200, imageWidth, Math.round(imageWidth * 1.5), imageWidth * 2]
+  : [480, 800, imageWidth, Math.round(imageWidth * 1.5)];
+// Reveal choreography per layout: [attribute, delay ms].
+const motion = split
+  ? { section: null, copy: ['left', 300], title: ['left', 400], lead: ['left', 700], visual: ['right', 1000] }
+  : { section: ['fade', 100], copy: null, title: ['up', 600], lead: ['up', 900], visual: ['up', 1200] };
+const reveal = (m: (string | number)[] | null) =>
+  m ? { 'data-reveal': m[0], 'data-reveal-offset': '0', style: `--ui-reveal-delay:${m[1]}ms` } : {};
 ---
 
-<section class:list={['hero', `tone-${tone}`]} data-reveal="fade" data-reveal-offset="0" style="--ui-reveal-delay:100ms">
-  <div class="container">
+<section class:list={['hero', `tone-${tone}`, `layout-${layout}`]} {...reveal(motion.section)}>
+  <div class:list={['container', { 'top-container': split }]}>
     <div class="top"><slot name="header" /></div>
-    <div class="copy">
-      <h1 class="title" data-reveal="up" data-reveal-offset="0" style="--ui-reveal-delay:600ms">{title}</h1>
-      {lead && <p class="lead" data-reveal="up" data-reveal-offset="0" style="--ui-reveal-delay:900ms">{lead}</p>}
-      <slot />
-    </div>
-    <div class="visual" data-reveal="up" data-reveal-offset="0" style="--ui-reveal-delay:1200ms">
-      <Image
-        src={image}
-        alt={imageAlt}
-        width={imageWidth}
-        widths={[480, 800, imageWidth, Math.round(imageWidth * 1.5)]}
-        sizes={imageSizes}
-        priority
-        class="shot"
-      />
-    </div>
+    {!split && (
+      <div class="copy">
+        <h1 class="title" {...reveal(motion.title)}>
+          {titleMuted && <span class="muted">{titleMuted} </span>}
+          {title}
+        </h1>
+        {leads.map((p) => <p class="lead" {...reveal(motion.lead)}>{p}</p>)}
+        <slot />
+      </div>
+    )}
+    {!split && (
+      <div class="visual" {...reveal(motion.visual)}>
+        <Image src={image} alt={imageAlt} width={imageWidth} widths={widths} sizes={imageSizes} priority class="shot" />
+      </div>
+    )}
   </div>
+  {
+    split && (
+      <div class="container">
+        <div class="grid">
+          <div class="copy" {...reveal(motion.copy)}>
+            <h1 class="title" {...reveal(motion.title)}>
+              {titleMuted && <span class="muted">{titleMuted} </span>}
+              {title}
+            </h1>
+            {leads.map((p) => <p class="lead" {...reveal(motion.lead)}>{p}</p>)}
+            <slot />
+          </div>
+          <div class="visual" {...reveal(motion.visual)}>
+            <Image src={image} alt={imageAlt} width={imageWidth} widths={widths} sizes={imageSizes} priority class="shot" />
+          </div>
+        </div>
+      </div>
+    )
+  }
 </section>
 
 <style>
   .hero {
-    margin: var(--ui-panel-gap);
-    padding-top: 2rem;
+    margin: var(--ui-margin-hero, var(--ui-panel-gap-y) var(--ui-panel-gap-x));
+    padding-top: var(--ui-space-hero-top, 2rem);
     overflow: hidden;
-    border-radius: var(--ui-radius-panel);
+    border-radius: var(--ui-radius-hero, var(--ui-radius-panel));
   }
 
   .tone-accent {
@@ -73,22 +121,45 @@ const {
   }
 
   .container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
     max-width: var(--ui-container-max);
     margin-inline: auto;
     padding-inline: var(--ui-container-pad);
   }
 
-  .top {
+  .title {
+    font-size: var(--ui-size-h1);
+    font-weight: var(--ui-hero-title-weight, var(--ui-font-weight-heading));
+    line-height: var(--ui-hero-title-line-height, 1.5);
+    letter-spacing: var(--ui-heading-letter-spacing);
+  }
+
+  .muted {
+    color: var(--ui-hero-title-muted, rgb(255 255 255 / 0.6));
+  }
+
+  .lead {
+    color: var(--ui-hero-lead-color, currentColor);
+  }
+
+  .visual {
+    position: relative;
+  }
+
+  /* ---------- Centered ---------- */
+  .layout-centered .container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .layout-centered .top {
     width: 100%;
     max-width: 1300px;
     margin-bottom: 1.125rem;
     padding-block: 3rem 2.8125rem;
   }
 
-  .copy {
+  .layout-centered .copy {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -96,14 +167,12 @@ const {
     padding-inline: 2rem;
   }
 
-  .title {
+  .layout-centered .title {
     margin: 0 0 1.5rem;
-    font-size: var(--ui-size-h1);
-    line-height: 1.5;
     text-align: center;
   }
 
-  .lead {
+  .layout-centered .lead {
     max-width: 62.9375rem;
     margin: 0;
     font-size: var(--ui-size-lead);
@@ -111,71 +180,205 @@ const {
     text-align: center;
   }
 
-  .visual {
-    position: relative;
+  .layout-centered .visual {
     bottom: -10px;
     max-width: 100%;
   }
 
-  .visual :global(.shot) {
+  .layout-centered .visual :global(.shot) {
     border-radius: var(--ui-radius-image) var(--ui-radius-image) 0 0;
+  }
+
+  /* ---------- Split ---------- */
+  .layout-split {
+    padding-bottom: 0;
+  }
+
+  .top-container {
+    padding-inline: 0;
+  }
+
+  .layout-split .top {
+    margin-bottom: 1rem;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: var(--ui-hero-copy-width, 31rem) 1fr;
+    gap: 5rem;
+    align-items: center;
+    margin-bottom: 4rem;
+  }
+
+  .layout-split .copy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .layout-split .title {
+    margin: 0 0 2rem;
+  }
+
+  .layout-split .lead {
+    margin: 0;
+    font-size: var(--ui-font-size-body);
+    line-height: 1.5;
+  }
+
+  .layout-split .lead + .lead {
+    margin-top: 0.75rem;
+  }
+
+  .layout-split .visual {
+    align-self: start;
+    min-height: var(--ui-hero-visual-height, 36rem);
+  }
+
+  .layout-split .visual :global(.picture) {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: max-content;
+    max-width: none;
   }
 
   @media (max-width: 991px) {
     .hero.tone-accent {
-      background: var(--ui-bg-accent);
+      background: var(--ui-hero-backdrop-tablet, none), var(--ui-bg-accent);
     }
 
     .hero.tone-deep {
-      background: var(--ui-bg-deep);
+      background: var(--ui-hero-backdrop-tablet, none), var(--ui-bg-deep);
     }
 
-    .copy {
+    .layout-centered .copy {
       padding-bottom: 40px;
+    }
+
+    .top-container {
+      padding-inline: var(--ui-container-pad);
+    }
+
+    .layout-split .top {
+      margin-bottom: 2rem;
+    }
+
+    .grid {
+      grid-template-columns: 1fr;
+      gap: 0;
+    }
+
+    .layout-split .visual {
+      min-height: var(--ui-hero-visual-height-tablet, 24rem);
+    }
+
+    .layout-split .visual :global(.picture) {
+      width: var(--ui-hero-visual-scale-tablet, 160%);
     }
   }
 
   @media (max-width: 767px) {
     .hero {
-      padding-top: 1rem;
+      padding-top: var(--ui-space-hero-top-mobile, 1rem);
     }
 
-    .top {
+    .title {
+      font-size: var(--ui-size-h1-mobile);
+      line-height: var(--ui-hero-title-line-height-mobile, 1.4);
+      text-align: left;
+    }
+
+    .layout-centered .top {
       margin-bottom: 0;
       padding-block: 0 3.125rem;
     }
 
-    .copy {
+    .layout-centered .copy {
       align-items: flex-start;
       margin-bottom: 0;
       padding: 0 0 5.375rem;
     }
 
-    .title {
-      font-size: var(--ui-size-h1-mobile);
-      line-height: 1.4;
+    .layout-centered .title {
       text-align: left;
     }
 
-    .lead {
+    .layout-centered .lead {
       font-size: var(--ui-size-xs);
       text-align: left;
+    }
+
+    .layout-split .top {
+      margin-bottom: 0;
+    }
+
+    .grid {
+      margin-bottom: 0;
+    }
+
+    .layout-split .title {
+      margin-bottom: 1.5rem;
+    }
+
+    .layout-split .lead {
+      font-size: var(--ui-size-small);
+    }
+
+    .layout-split .visual :global(.picture) {
+      width: var(--ui-hero-visual-scale-mobile, 150%);
     }
   }
 
   @media (max-width: 479px) {
-    .copy {
-      margin-bottom: 20px;
-      padding-bottom: 0;
+    .hero {
+      padding-top: var(--ui-space-hero-top-small, var(--ui-space-hero-top-mobile, 1rem));
+    }
+
+    .layout-split .container {
+      padding-inline: var(--ui-container-pad-sm);
+    }
+
+    .layout-split .top-container {
+      padding-inline: 1rem;
     }
 
     .title {
       font-size: var(--ui-size-h1-small, var(--ui-size-h1-mobile));
-      line-height: 1.2;
+      line-height: var(--ui-hero-title-line-height-small, 1.2);
     }
 
-    .visual :global(.shot) {
+    .layout-centered .copy {
+      margin-bottom: 20px;
+      padding-bottom: 0;
+    }
+
+    .layout-centered .visual :global(.shot) {
       border-radius: var(--ui-radius-image-sm) var(--ui-radius-image-sm) 0 0;
+    }
+
+    .grid {
+      gap: 2.5rem;
+    }
+
+    .layout-split .copy {
+      margin-top: 1.5rem;
+    }
+
+    .layout-split .lead:first-of-type {
+      font-size: var(--ui-hero-first-lead-size-small, var(--ui-size-small));
+    }
+
+    .layout-split .title {
+      margin-bottom: 1rem;
+    }
+
+    .layout-split .visual {
+      min-height: var(--ui-hero-visual-height-small, 14rem);
+    }
+
+    .layout-split .visual :global(.picture) {
+      left: 16px;
     }
   }
 </style>

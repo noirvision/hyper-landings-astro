@@ -1,0 +1,181 @@
+---
+/**
+ * Feature list ("Alternate uses", "Use cases"): heading and intro paragraphs
+ * on the left, a grid of icon items on the right. Each item stands on a short
+ * vertical rule with an accent tick. Below 992px everything stacks.
+ *
+ * The intro slides in from the left, the grid from the right.
+ * Tokens: --ui-feature-list-intro-width, --ui-feature-list-lead-min (min width
+ * of the first item, to balance uneven columns), --ui-feature-list-title-size,
+ * --ui-color-step-line (the rule). heading may be replaced by a `heading` slot.
+ */
+import type { ImageMetadata } from 'astro';
+import Section from './Section.astro';
+import SectionHeading from './SectionHeading.astro';
+
+interface Item {
+  icon: ImageMetadata;
+  title: string;
+  text: string;
+}
+
+interface Props {
+  heading?: string;
+  intro?: string[];
+  items: Item[];
+  columns?: number;
+  tone?: 'plain' | 'accent' | 'deep';
+}
+
+const { heading, intro = [], items, columns = 3, tone = 'plain' } = Astro.props;
+---
+
+<Section tone={tone} spacing="feature-list">
+  <div class="layout">
+    <div class="intro" data-reveal="left">
+      <SectionHeading align="start" gap="md">
+        {Astro.slots.has('heading') ? <slot name="heading" /> : heading}
+      </SectionHeading>
+      {intro.map((p) => <p class="intro-text">{p}</p>)}
+    </div>
+    <ul class="items" style={`--_cols:${columns}`} data-reveal="right">
+      {
+        items.map((item) => (
+          <li class="item">
+            <img class="icon" src={item.icon.src} width={item.icon.width} height={item.icon.height} alt="" loading="lazy" />
+            <div>
+              <h3 class="title">{item.title}</h3>
+              <p class="text">{item.text}</p>
+            </div>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</Section>
+
+<style>
+  .layout {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 100px;
+    align-items: start;
+  }
+
+  .intro {
+    max-width: var(--ui-feature-list-intro-width, 21.25rem);
+  }
+
+  .intro-text {
+    margin: 0;
+    font-size: var(--ui-size-small);
+    line-height: 1.4;
+    opacity: var(--ui-color-text-muted-opacity);
+  }
+
+  .intro-text + .intro-text {
+    margin-top: 0.75rem;
+  }
+
+  .items {
+    display: grid;
+    grid-template-columns: repeat(var(--_cols), 1fr);
+    gap: 3.25rem 1.25rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .item {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+    align-items: flex-start;
+    padding-left: 1.25rem;
+  }
+
+  .item:first-child {
+    min-width: var(--ui-feature-list-lead-min, 0);
+  }
+
+  /* The rule, and an accent tick beside the title. */
+  .item::before,
+  .item::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    border-radius: 1px;
+  }
+
+  .item::before {
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: var(--ui-color-step-line, var(--ui-color-divider));
+  }
+
+  .item::after {
+    top: 39.7%;
+    height: 17.5%;
+    width: 2px;
+    background: var(--ui-color-accent);
+  }
+
+  .icon {
+    display: block;
+  }
+
+  .title {
+    margin: 0 0 0.5rem;
+    font-size: var(--ui-feature-list-title-size, var(--ui-size-title));
+    line-height: 1.2;
+  }
+
+  .text {
+    margin: 0;
+    font-size: var(--ui-font-size-body);
+    line-height: 1.5;
+    opacity: var(--ui-color-text-muted-opacity);
+  }
+
+  @media (max-width: 991px) {
+    .layout {
+      grid-template-columns: 1fr;
+      gap: 3rem;
+    }
+
+    .items {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .layout {
+      gap: 1rem;
+    }
+
+    .text {
+      font-size: var(--ui-size-small);
+    }
+  }
+
+  @media (max-width: 479px) {
+    .layout {
+      gap: 1.5rem;
+    }
+
+    .items {
+      row-gap: 1.75rem;
+    }
+
+    .item {
+      gap: 0.75rem;
+    }
+
+    .icon {
+      width: 36px;
+      height: 36px;
+    }
+  }
+</style>

@@ -1,13 +1,16 @@
 ---
 /**
- * Section title. Wrap a word in <em> to colour it with the accent
- * (e.g. `Why <em>Choose</em> Us?`).
+ * Section title. Wrap a word in <em> to highlight it (e.g. `Why <em>Choose</em> Us?`):
+ * accent-coloured by default (--ui-heading-em-color); a site that sets
+ * --ui-heading-mark gets a highlighter bar behind the word instead.
  *
  * size        xl (section titles) | lg (smaller titles)
  * mobileSize  sm | md | lg — size at ≤767px
  * align       center | start | start-center (start on desktop, centred on mobile)
- * gap         space below: sm (0.75rem) | md (2rem) | lg (2.5rem) |
+ * gap         space below: xs (0.5rem) | sm (0.75rem) | md (2rem) | lg (2.5rem) |
  *             xl (3.25rem, 2rem on mobile). Default: xl, or md for size lg.
+ *             Each reads --ui-heading-gap-{name} (desktop), -{name}-mobile
+ *             (≤767px) and -{name}-small (≤479px), so a site sets its rhythm.
  */
 import type { HTMLAttributes } from 'astro/types';
 
@@ -16,7 +19,7 @@ type Props = HTMLAttributes<'h2'> & {
   size?: 'xl' | 'lg';
   mobileSize?: 'sm' | 'md' | 'lg';
   align?: 'center' | 'start' | 'start-center';
-  gap?: 'sm' | 'md' | 'lg' | 'xl';
+  gap?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 };
 
 const { as: Tag = 'h2', size = 'xl', mobileSize = 'md', align = 'center', gap, class: className, ...attrs } = Astro.props;
@@ -31,32 +34,37 @@ const space = gap ?? (size === 'lg' ? 'md' : 'xl');
     margin: 0 0 var(--_mb);
     font-size: var(--_fs);
     line-height: var(--_lh);
+    letter-spacing: var(--ui-heading-letter-spacing);
   }
 
   .size-xl {
     --_fs: var(--ui-size-heading-xl);
-    --_lh: 1.5;
+    --_lh: var(--ui-heading-line-height);
   }
 
   .size-lg {
     --_fs: var(--ui-size-heading-lg);
-    --_lh: 1.25;
+    --_lh: var(--ui-heading-line-height-lg);
+  }
+
+  .gap-xs {
+    --_mb: var(--ui-heading-gap-xs, 0.5rem);
   }
 
   .gap-sm {
-    --_mb: 0.75rem;
+    --_mb: var(--ui-heading-gap-sm, 0.75rem);
   }
 
   .gap-md {
-    --_mb: 2rem;
+    --_mb: var(--ui-heading-gap-md, 2rem);
   }
 
   .gap-lg {
-    --_mb: 2.5rem;
+    --_mb: var(--ui-heading-gap-lg, 2.5rem);
   }
 
   .gap-xl {
-    --_mb: 3.25rem;
+    --_mb: var(--ui-heading-gap-xl, 3.25rem);
   }
 
   .align-center {
@@ -64,13 +72,45 @@ const space = gap ?? (size === 'lg' ? 'md' : 'xl');
   }
 
   .heading :global(em) {
+    position: relative;
+    isolation: isolate;
+    padding-inline: var(--ui-heading-mark-pad);
     font-style: normal;
-    color: var(--ui-color-accent);
+    color: var(--ui-heading-em-color);
+  }
+
+  /* Highlighter mark: a rounded bar along the bottom of the word, behind the text. */
+  .heading :global(em)::before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    bottom: 0;
+    left: 2.5%;
+    right: 2.5%;
+    height: var(--ui-heading-mark-height);
+    border-radius: var(--ui-heading-mark-radius);
+    background: var(--ui-heading-mark);
   }
 
   @media (max-width: 767px) {
+    .gap-xs {
+      --_mb: var(--ui-heading-gap-xs-mobile, var(--ui-heading-gap-xs, 0.5rem));
+    }
+
+    .gap-sm {
+      --_mb: var(--ui-heading-gap-sm-mobile, var(--ui-heading-gap-sm, 0.75rem));
+    }
+
+    .gap-md {
+      --_mb: var(--ui-heading-gap-md-mobile, var(--ui-heading-gap-md, 2rem));
+    }
+
+    .gap-lg {
+      --_mb: var(--ui-heading-gap-lg-mobile, var(--ui-heading-gap-lg, 2.5rem));
+    }
+
     .gap-xl {
-      --_mb: 2rem;
+      --_mb: var(--ui-heading-gap-xl-mobile, 2rem);
     }
 
     .m-sm {
@@ -87,6 +127,28 @@ const space = gap ?? (size === 'lg' ? 'md' : 'xl');
 
     .align-start-center {
       text-align: center;
+    }
+  }
+
+  @media (max-width: 479px) {
+    .gap-xs {
+      --_mb: var(--ui-heading-gap-xs-small, var(--ui-heading-gap-xs-mobile, var(--ui-heading-gap-xs, 0.5rem)));
+    }
+
+    .gap-sm {
+      --_mb: var(--ui-heading-gap-sm-small, var(--ui-heading-gap-sm-mobile, var(--ui-heading-gap-sm, 0.75rem)));
+    }
+
+    .gap-md {
+      --_mb: var(--ui-heading-gap-md-small, var(--ui-heading-gap-md-mobile, var(--ui-heading-gap-md, 2rem)));
+    }
+
+    .gap-lg {
+      --_mb: var(--ui-heading-gap-lg-small, var(--ui-heading-gap-lg-mobile, var(--ui-heading-gap-lg, 2.5rem)));
+    }
+
+    .gap-xl {
+      --_mb: var(--ui-heading-gap-xl-small, var(--ui-heading-gap-xl-mobile, 2rem));
     }
   }
 </style>

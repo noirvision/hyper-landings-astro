@@ -8,8 +8,9 @@ from existing sections instead of copied from an old one.
 | Site | Folder | Live |
 | --- | --- | --- |
 | Odd Academia | `sites/oddacademia` | https://oddacademia-astro.pages.dev |
+| Policy Box | `sites/policybox` | https://policybox-astro.pages.dev (once the Pages project exists) |
 
-Next up: Policy Box (light), then Rithm (dark theme).
+Next up: Rithm (dark theme).
 
 ## Structure
 
@@ -19,7 +20,7 @@ packages/ui/            @noirvision/ui — the shared library
   tokens/base.css       base design tokens (CSS custom properties) + element defaults + reveal CSS
   components/           section and element components (.astro, scoped styles)
   layouts/              BaseLayout (head, meta, noindex, fonts preload, reveal), LegalLayout
-  scripts/              vanilla TS: reveal-on-scroll, select, slider, waitlist form
+  scripts/              vanilla TS: reveal-on-scroll, in-page links, select, slider, waitlist form
   assets/               shared assets (Hyper logo)
 sites/oddacademia/
   astro.config.mjs      site URL, static output, clean URLs
@@ -30,7 +31,8 @@ sites/oddacademia/
   src/pages/            index, privacy-policy, terms-and-conditions
   src/assets/           content images and icons (optimised at build time)
   src/images/           theme artwork referenced from theme.css
-reference/oddacademia/  the original Webflow export, kept for comparison (not built)
+sites/policybox/        same shape; src/fonts holds the self-hosted Proxima Nova (WOFF2)
+reference/<site>/       the original Webflow exports, kept for comparison (not built)
 ```
 
 ### Library rules
@@ -40,9 +42,13 @@ reference/oddacademia/  the original Webflow export, kept for comparison (not bu
 - Sites pass content through props and slots and set token values in `src/theme.css`.
   A site never styles a component's internals. One-off decoration that exists on only one
   site stays in that site's page (e.g. the thick accent rule on Odd Academia's index).
-- Section spacing and backgrounds are tokens too: `<Section spacing="steps">` reads
-  `--ui-space-steps-top`, `--ui-space-steps-bottom` (+ `-tablet`, `-mobile`) and
-  `--ui-bg-steps`, falling back to the defaults.
+- Section spacing, backgrounds, margins and corners are tokens too: `<Section spacing="steps">` reads
+  `--ui-space-steps-top`, `--ui-space-steps-bottom` (+ `-tablet`, `-mobile`), `--ui-bg-steps`,
+  `--ui-margin-steps` and `--ui-radius-steps`, falling back to the defaults (`--ui-panel-gap-y` /
+  `-x`, `--ui-radius-panel`). A theme may redefine any token inside a media query (Policy Box does
+  for ≤479px).
+- Variants are layout, not look: a component's `layout`/`variant` prop picks a structure
+  (e.g. `Hero layout="split"`), and tokens still decide every colour, size and space.
 - Breakpoints are fixed across the library: desktop ≥992px, tablet ≤991px, mobile ≤767px,
   small ≤479px.
 
@@ -51,20 +57,25 @@ reference/oddacademia/  the original Webflow export, kept for comparison (not bu
 | Component | Role | Main props / slots |
 | --- | --- | --- |
 | `Section` | Rounded panel + container | `tone` (plain/accent/deep), `spacing` (token name), `as` |
-| `SectionHeading` | Section title, `<em>` = accent word | `as`, `size`, `mobileSize`, `align`, `gap` |
-| `Header` | Logo + social links | `logo`, `logoAlt`, `homeHref`, `socials`, `reveal` |
-| `Hero` | Hero with product visual | `title`, `lead`, `image`, `imageAlt`, `imageWidth`, `tone`; slots `header`, default |
-| `WaitlistForm` | Dropdown + email + button, or email only | `heading`, `options` (omit → single field), `selectPlaceholder`, `emailPlaceholder`, `buttonLabel`, `successMessage`, `id` |
+| `SectionHeading` | Section title; `<em>` = accent word, or a highlighter bar if the site sets `--ui-heading-mark` | `as`, `size`, `mobileSize`, `align`, `gap` (xs/sm/md/lg/xl, each a token per breakpoint) |
+| `Header` | Logo + social links | `logo`, `logoAlt`, `homeHref`, `socials`, `bar` (floating pill), `reveal` (`true` or `{ delay, logoDistance }`), `socialSize`, `socialSizeSmall` |
+| `Hero` | Hero with product visual | `layout` (centered/split), `title`, `titleMuted` (lighter first line), `lead` (string or paragraphs), `image`, `imageAlt`, `imageWidth`, `tone`; slots `header`, default |
+| `WaitlistForm` | Dropdown + email + button, or email only | `layout` (separate/inline: button inside the bar), `heading` or slot `heading`, `lead`, `options` (omit → single field), `selectPlaceholder`, `selectLabel`, `selectIcon`, `emailPlaceholder`, `buttonLabel`, `successMessage`, `id`, `revealGroup` (`{ delay, offset }`) |
 | `FeatureGrid` | "Why choose" grid, slider below 992px | `items` ({image, title, text}), `label`, `imageWidth`; slot `heading` |
-| `Steps` | "How it works" | `heading`, `steps` ({title, text}), `layout` (path/stack), `offsets`, `tone` |
-| `FeatureRows` | Alternating text + image rows | `heading`, `rows` ({title, lead, text, image, flip}), `tone`, `imageWidth` |
-| `AudienceCards` | "Join us" audience CTAs | `heading`, `cards` ({icon, title, text, href?}), `tone` |
-| `Footer` | Footer with "Launched with Hyper" + credit line | `logo`, `logoAlt`, `email`, `socials`, `copyright`, `legalLinks`, `current`, `variant` (landing/legal), `hyperText` |
+| `FeatureCards` | "Why choose" as mixed-size cards (bento) | `items` ({icon, title, text, image, imageWidth, span {cols, rows}, bleed bottom/right/none, reveal}), `label`, `columns`; slot `heading` |
+| `Steps` | "How it works" | `layout` (path/stack/list), `heading` or slot `heading`, `steps` ({title, text, textWidth}), `offsets`, `tone`, `image`/`imageAlt`/`imageWidth` (list) |
+| `FeatureRows` | Alternating text + image rows | `variant` (rules/cards), `heading` or slot `heading`, `rows` ({icon, title, lead, text, image, flip}; `\n` in text = line break), `tone`, `imageWidth` |
+| `FeatureList` | Heading + intro left, icon items right ("Alternate uses") | `heading` or slot `heading`, `intro` (paragraphs), `items` ({icon, title, text}), `columns`, `tone` |
+| `CallToAction` | Centred heading, line, button | `heading` or slot `heading`, `text`, `button` ({label, href}), `tone` |
+| `AudienceCards` | Audience CTAs ("Join us") | `variant` (columns/glass), `heading` or slot `heading`, `lead`, `cards` ({icon, title, text, href?, cta? {label, href}}), `tone`, `as` |
+| `Footer` | Footer with "Launched with Hyper" + credit line | `layout` (split/card), `logo`, `logoAlt`, `email`, `emailLabel`, `socials`, `copyright`, `legalLinks`, `current`, `variant` (landing/legal), `hyperText`, `hyperLogo`, `frame`, `reveal`; default slot = content inside the card above the rows |
 | `SocialLinks` | Icon links | `links` ({href, label, icon}), `size`, `sizeSmall` |
-| `Button` | Button or link-as-button | `href?`, native attributes; sized by `--ui-button-*` |
+| `Button` | Button or link-as-button | `href?`, `variant` (primary/inverse), native attributes; sized by `--ui-button-*` |
 | `Image` | `<Picture>`: AVIF + WebP, WebP fallback | `src`, `alt`, `width`, `widths`, `sizes`, `priority` |
-| `BaseLayout` | `<head>`, `<main>`, reveal script | `title`, `description`, `ogImage`, `noindex`, `favicon`, `appleTouchIcon`, `preloadFonts`; slots default, `head`, `footer` |
+| `BaseLayout` | `<head>`, `<main>`, reveal + in-page-link scripts | `title`, `description`, `ogImage`, `noindex`, `favicon`, `appleTouchIcon`, `preloadFonts`; slots default, `head`, `footer` |
 | `LegalLayout` | Legal page: header, prose, legal footer | BaseLayout props + `header`, `footer`; default slot = the legal HTML |
+
+Each component's header comment lists the tokens it reads beyond `tokens/base.css`.
 
 ### Interactions (no Webflow, no jQuery)
 
@@ -76,6 +87,8 @@ reference/oddacademia/  the original Webflow export, kept for comparison (not bu
 - **Slider** — CSS scroll-snap; dots and arrow/Home/End keys wired by `scripts/slider.ts`.
 - **Forms** — no request on submit: the form hides and the success message shows. The
   `TODO` in `packages/ui/scripts/form.ts` marks where a webhook goes.
+- **In-page links** — `href="#waitlist"` scrolls smoothly (instantly with reduced motion) and
+  moves focus to the first field of the form there (`scripts/anchor.ts`).
 
 ## Run and build
 
@@ -86,6 +99,7 @@ npm install
 npm run dev:oddacademia       # http://localhost:4321
 npm run build:oddacademia     # static site in sites/oddacademia/dist
 npm run preview:oddacademia   # serve the build
+npm run dev:policybox         # same three scripts per site
 npm run build                 # build every site
 ```
 
@@ -95,17 +109,20 @@ One Pages project per site, all connected to this repository. Set **Root directo
 repo root (leave it empty) so npm installs the workspaces from the root `package-lock.json`;
 Pages runs `npm clean-install` automatically before the build command.
 
-| Setting | Odd Academia |
-| --- | --- |
-| Project name | `oddacademia-astro` (matches `site`; if you create a differently named project, update `site` in `astro.config.mjs`) |
-| Production branch | `main` |
-| Framework preset | None |
-| Root directory | *(empty — repository root)* |
-| Build command | `npm run build:oddacademia` |
-| Build output directory | `sites/oddacademia/dist` |
-| Environment variable | `NODE_VERSION` = `24` |
-| Build watch paths — include | `sites/oddacademia/*`, `packages/ui/*`, `package.json`, `package-lock.json`, `.nvmrc` |
-| Build watch paths — exclude | *(none)* |
+| Setting | Odd Academia | Policy Box |
+| --- | --- | --- |
+| Project name | `oddacademia-astro` | `policybox-astro` |
+| Production branch | `main` | `main` |
+| Framework preset | None | None |
+| Root directory | *(empty — repository root)* | *(empty — repository root)* |
+| Build command | `npm run build:oddacademia` | `npm run build:policybox` |
+| Build output directory | `sites/oddacademia/dist` | `sites/policybox/dist` |
+| Environment variable | `NODE_VERSION` = `24` | `NODE_VERSION` = `24` |
+| Build watch paths — include | `sites/oddacademia/*`, `packages/ui/*`, `package.json`, `package-lock.json`, `.nvmrc` | `sites/policybox/*`, `packages/ui/*`, `package.json`, `package-lock.json`, `.nvmrc` |
+| Build watch paths — exclude | *(none)* | *(none)* |
+
+The project name matches `site` in the site's `astro.config.mjs`; if you create a differently named
+project, update `site` there.
 
 The watch paths mean a change under another `sites/*` folder does not rebuild this site, while any
 change to `packages/ui` (or the root dependencies) rebuilds every site.
@@ -134,16 +151,18 @@ never into client code.
    - run `npm install` from the root.
 3. **Theme.** Rewrite `src/theme.css` with the site's tokens — colours, fonts, radii,
    section spacing (`--ui-space-<name>-*`), backgrounds (`--ui-bg-<name>`). See
-   `packages/ui/tokens/base.css` for the full list with defaults. Dark sites set
-   `--ui-color-page`, `--ui-color-text` and the field/menu colours. Swap the font import in
-   `src/layouts/fonts.ts`.
+   `packages/ui/tokens/base.css` for the full list with defaults and each component's header
+   comment for the tokens it adds. Dark sites set `--ui-color-page`, `--ui-color-text` and the
+   field/menu colours. Swap the font import in `src/layouts/fonts.ts` (a fontsource package, or
+   self-hosted WOFF2 files in `src/fonts` as Policy Box does).
 4. **Content.** Replace `src/content.ts` (brand, socials, footer), images in `src/assets`, and
    `public/` files (favicon, `opengraph.png`, `_headers`, `_redirects`). Write the pages by
    composing components; keep copy verbatim from the reference (fix obvious typos only and
    list them in the PR).
-5. **New components.** If a section is genuinely new, add it to `packages/ui/components`
-   named by role, not by site, reading only tokens. Check it doesn't change existing sites
-   (`npm run build`).
+5. **New components.** If a section differs only in layout, add a `layout`/`variant` prop to the
+   existing component. If it is genuinely new, add it to `packages/ui/components` named by role,
+   not by site, reading only tokens. Check it doesn't change existing sites: screenshot every
+   site before and after (`npm run build`) and compare.
 6. **Verify.** Build from the root, compare screenshots at 1440px and 390px against the
    reference, check reveal / select / slider / form, run Lighthouse.
 7. **Deploy.** Create the Pages project with the table above (swap the folder and script

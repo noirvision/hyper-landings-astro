@@ -1,0 +1,3 @@
+# Legacy Webflow URLs -> clean routes
+/privacy-policy.html        /privacy-policy        301
+/terms-and-conditions.html  /terms-and-conditions  301

@@ -1,0 +1,208 @@
+---
+/**
+ * Feature cards of mixed sizes ("Why choose us" as a bento grid): each card
+ * has an optional icon beside its title, text, then a product image.
+ *
+ * items[].span    { cols, rows } the card covers on desktop (default 1 × 1)
+ * items[].bleed   bottom — image flush with the card's bottom edge
+ *                 right  — image runs to the card's right edge; below 992px
+ *                          it is enlarged and cropped, scaled/shifted by
+ *                          --ui-feature-cards-bleed-width/-offset(-small)
+ *                 none   — image floats inside the card (default)
+ * items[].reveal  left | right | up (default: first left, last right, others up)
+ * items[].imageWidth  width in px the image is sized for on desktop; default
+ *                 half the file's width (screenshots exported at 2×). Images
+ *                 fill the card's width.
+ *
+ * Desktop: `columns` equal columns; below 992px one column in source order.
+ * Cards read --ui-feature-card-fill / -border (shared with FeatureRows cards)
+ * and --ui-feature-cards-art. Slot `heading` renders above the grid.
+ */
+import type { ImageMetadata } from 'astro';
+import Image from './Image.astro';
+
+interface Item {
+  icon?: ImageMetadata;
+  title: string;
+  text: string;
+  image: ImageMetadata;
+  imageAlt?: string;
+  imageWidth?: number;
+  span?: { cols?: number; rows?: number };
+  bleed?: 'bottom' | 'right' | 'none';
+  reveal?: 'left' | 'right' | 'up';
+}
+
+interface Props {
+  items: Item[];
+  /** Accessible name of the list. */
+  label: string;
+  columns?: number;
+}
+
+const { items, label, columns = 3 } = Astro.props;
+const direction = (i: number) => (i === 0 ? 'left' : i === items.length - 1 ? 'right' : 'up');
+---
+
+<div class="feature-cards">
+  <slot name="heading" />
+  <ul class="grid" aria-label={label} style={`--_cols:${columns}`}>
+    {
+      items.map((item, i) => {
+        const width = item.imageWidth ?? Math.round(item.image.width / 2);
+        return (
+          <li
+            class:list={['card', `bleed-${item.bleed ?? 'none'}`]}
+            style={`--_cs:${item.span?.cols ?? 1};--_rs:${item.span?.rows ?? 1}`}
+            data-reveal={item.reveal ?? direction(i)}
+          >
+            <div class="copy">
+              <div class="head">
+                {item.icon && <img class="icon" src={item.icon.src} width={item.icon.width} height={item.icon.height} alt="" loading="lazy" />}
+                <h3 class="title">{item.title}</h3>
+              </div>
+              <p class="text">{item.text}</p>
+            </div>
+            <Image
+              src={item.image}
+              alt={item.imageAlt}
+              width={width}
+              widths={[width, Math.round(width * 1.5), width * 2]}
+              sizes={`(max-width: 991px) ${item.bleed === 'right' ? '150vw' : '90vw'}, ${width}px`}
+              class="shot"
+            />
+          </li>
+        );
+      })
+    }
+  </ul>
+</div>
+
+<style>
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(var(--_cols), 1fr);
+    gap: 3.25rem 1.25rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 2rem;
+    grid-column: span var(--_cs);
+    grid-row: span var(--_rs);
+    padding: 2rem;
+    overflow: hidden;
+    border: 1px solid var(--ui-feature-card-border, var(--ui-color-divider));
+    border-radius: var(--ui-radius-card);
+    background: var(--ui-feature-cards-art, none), var(--ui-feature-card-fill, transparent);
+  }
+
+  .bleed-none {
+    padding-bottom: 3rem;
+  }
+
+  .bleed-bottom {
+    padding-bottom: 0;
+  }
+
+  .bleed-right {
+    justify-content: flex-start;
+    padding-right: 0;
+  }
+
+  .bleed-right .copy {
+    padding-right: 2rem;
+  }
+
+  .head {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+
+  .icon {
+    display: block;
+    flex: none;
+  }
+
+  .title {
+    margin: 0;
+    font-size: var(--ui-feature-card-title-size, var(--ui-size-title));
+    line-height: 1.2;
+  }
+
+  .text {
+    margin: 0;
+    font-size: var(--ui-font-size-body);
+    line-height: 1.5;
+    opacity: var(--ui-color-text-muted-opacity);
+  }
+
+  /* Images fill the card's width (they grow with it on tablets), except a
+     right-bleeding one, which keeps its own width and is cropped. */
+  .card:not(.bleed-right) :global(.picture),
+  .card:not(.bleed-right) :global(.shot) {
+    width: 100%;
+  }
+
+  .bleed-right :global(.picture) {
+    position: relative;
+  }
+
+  @media (max-width: 991px) {
+    .grid {
+      grid-template-columns: 1fr;
+    }
+
+    .card {
+      grid-column: auto;
+      grid-row: auto;
+    }
+
+    .bleed-right :global(.picture) {
+      left: var(--ui-feature-cards-bleed-offset, 0);
+      width: var(--ui-feature-cards-bleed-width, max-content);
+      max-width: none;
+    }
+
+    .bleed-right :global(.shot) {
+      width: 100%;
+      max-width: none;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .text {
+      font-size: var(--ui-size-small);
+    }
+  }
+
+  @media (max-width: 479px) {
+    .grid {
+      row-gap: 1.75rem;
+    }
+
+    .bleed-none {
+      padding: 1.25rem;
+    }
+
+    .bleed-bottom {
+      padding: 1.25rem 1.25rem 0;
+    }
+
+    .title {
+      font-size: var(--ui-feature-card-title-size-small, var(--ui-size-title-sm));
+    }
+
+    .bleed-right :global(.picture) {
+      left: var(--ui-feature-cards-bleed-offset-small, var(--ui-feature-cards-bleed-offset, 0));
+      width: var(--ui-feature-cards-bleed-width-small, var(--ui-feature-cards-bleed-width, max-content));
+    }
+  }
+</style>
