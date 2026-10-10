@@ -1,7 +1,7 @@
 ---
 /**
  * Site footer: logo, contact email, socials, "Launched with Hyper", copyright
- * + legal links, and the portfolio credit line.
+ * + legal links.
  *
  * layout   split (default): a deep panel; logo, email and socials on the left,
  *          "Launched with Hyper" and its blurb on the right.
@@ -141,7 +141,6 @@ const lineBreaks = isLegal || compact;
         </div>
       )
     }
-    <p class="credit">Portfolio rebuild by noirvision — original built in Webflow for Hyper.</p>
   </div>
 </footer>
 
@@ -251,13 +250,6 @@ const lineBreaks = isLegal || compact;
 
   .layout-split .legal a:hover {
     text-decoration: underline;
-  }
-
-  .layout-split .credit {
-    margin-top: 1.5rem;
-    color: var(--ui-color-on-strong-muted);
-    font-size: 13px;
-    text-align: center;
   }
 
   @media (max-width: 991px) {
@@ -487,13 +479,6 @@ const lineBreaks = isLegal || compact;
     text-decoration: underline;
   }
 
-  .layout-card .credit {
-    margin-top: 1rem;
-    color: var(--ui-color-on-strong-muted);
-    font-size: 13px;
-    text-align: center;
-  }
-
   @media (max-width: 991px) {
     .layout-card .top {
       flex-direction: column;
@@ -646,13 +631,6 @@ const lineBreaks = isLegal || compact;
   .layout-compact .hyper-text {
     font-size: 0.75rem;
     line-height: 24px;
-  }
-
-  .layout-compact .credit {
-    margin-top: 1.5rem;
-    color: var(--ui-color-on-strong-muted);
-    font-size: 13px;
-    text-align: center;
   }
 
   @media (max-width: 991px) {
