@@ -218,4 +218,4 @@ never into client code.
 
 ## Credits
 
-Design and content © their respective owners. Rebuilt by noirvision for portfolio purposes.
+Design and content © their respective owners. Rebuilt by [noirvision](https://noirvision.com) for portfolio purposes.
